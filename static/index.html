@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vantix AI Trading Demo</title>
+    <style>
+      :root { color-scheme: dark; }
+      body { font-family: Inter, Arial, sans-serif; margin: 0; background: linear-gradient(135deg, #07111f, #13253f); color: #f5f7fb; }
+      .container { max-width: 1040px; margin: 0 auto; padding: 32px 20px 60px; }
+      .card { background: rgba(10,18,32,.85); border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 24px; box-shadow: 0 12px 40px rgba(0,0,0,.25); }
+      h1 { margin-top: 0; }
+      .controls { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; }
+      input, button { padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12); font-size: 15px; }
+      button { background: #2ea6ff; color: white; cursor: pointer; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 20px; }
+      .metric { background: rgba(255,255,255,.04); border-radius: 12px; padding: 14px; }
+      pre { white-space: pre-wrap; background: #02060d; padding: 16px; border-radius: 12px; overflow-x: auto; }
+      .status { color: #7dd3fc; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1>Vantix AI Trading Market Analysis Demo</h1>
+        <p>This demo calls your live market-analysis agent and displays the structured intelligence in a simple UI.</p>
+        <div class="controls">
+          <input id="symbolInput" value="BTCUSDT" placeholder="Enter symbol" />
+          <button id="runBtn">Analyze Market</button>
+        </div>
+        <div id="status" class="status">Loading…</div>
+        <div class="grid">
+          <div class="metric"><strong>Trend</strong><div id="trend">-</div></div>
+          <div class="metric"><strong>Market Score</strong><div id="score">-</div></div>
+          <div class="metric"><strong>Confidence</strong><div id="confidence">-</div></div>
+          <div class="metric"><strong>Market State</strong><div id="state">-</div></div>
+        </div>
+        <h3>Summary</h3>
+        <pre id="summary">Waiting for analysis…</pre>
+        <h3>Raw JSON</h3>
+        <pre id="jsonOutput">{}</pre>
+      </div>
+    </div>
+
+    <script>
+      const statusEl = document.getElementById('status');
+      const trendEl = document.getElementById('trend');
+      const scoreEl = document.getElementById('score');
+      const confidenceEl = document.getElementById('confidence');
+      const stateEl = document.getElementById('state');
+      const summaryEl = document.getElementById('summary');
+      const jsonEl = document.getElementById('jsonOutput');
+      const symbolInput = document.getElementById('symbolInput');
+      const runBtn = document.getElementById('runBtn');
+
+      async function analyze() {
+        const symbol = symbolInput.value.trim().toUpperCase() || 'BTCUSDT';
+        statusEl.textContent = `Analyzing ${symbol}...`;
+        try {
+          const response = await fetch(`/market/analyze/${symbol}`);
+          const data = await response.json();
+          trendEl.textContent = data.trend || '-';
+          scoreEl.textContent = data.market_score ?? '-';
+          confidenceEl.textContent = data.confidence ?? '-';
+          stateEl.textContent = data.market_state || '-';
+          summaryEl.textContent = data.summary || 'No summary returned.';
+          jsonEl.textContent = JSON.stringify(data, null, 2);
+          statusEl.textContent = 'Analysis complete';
+        } catch (error) {
+          statusEl.textContent = 'Request failed';
+          summaryEl.textContent = String(error);
+        }
+      }
+
+      runBtn.addEventListener('click', analyze);
+      symbolInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') analyze();
+      });
+      analyze();
+    </script>
+  </body>
+</html>
