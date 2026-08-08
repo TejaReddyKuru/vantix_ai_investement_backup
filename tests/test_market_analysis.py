@@ -12,7 +12,7 @@ def test_health_endpoint() -> None:
 
 def test_market_analysis_endpoint() -> None:
     client = TestClient(app)
-    response = client.get('/market/analyze/BTCUSDT')
+    response = client.get('/api/v1/market/analyze/BTCUSDT')
     assert response.status_code == 200
     payload = response.json()
     assert payload['symbol'] == 'BTCUSDT'

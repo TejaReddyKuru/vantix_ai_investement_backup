@@ -3,7 +3,7 @@ from typing import Any
 from app.agents.market_analysis.schema import MarketAnalysisResponse, MarketData
 from app.core.exceptions import AnalysisError
 from app.core.logger import get_logger
-from app.services.binance_service import BinanceService
+from app.services.market_service import MarketService
 
 from .modules.price_analyzer import PriceAnalyzer
 from .modules.trend_detector import TrendDetector
@@ -22,8 +22,8 @@ logger = get_logger(__name__)
 
 
 class MarketAnalysisPipeline:
-    def __init__(self, binance_service: BinanceService | None = None) -> None:
-        self.binance_service = binance_service or BinanceService()
+    def __init__(self, market_service: MarketService | None = None) -> None:
+        self.market_service = market_service or MarketService()
         self.price_analyzer = PriceAnalyzer()
         self.trend_detector = TrendDetector()
         self.volume_analyzer = VolumeAnalyzer()
@@ -39,7 +39,7 @@ class MarketAnalysisPipeline:
 
     async def analyze_symbol(self, symbol: str) -> MarketAnalysisResponse:
         try:
-            raw_market_data = await self.binance_service.get_market_data(symbol)
+            raw_market_data = await self.market_service.get_market_snapshot(symbol)
             market_data = MarketData(**raw_market_data)
             analysis = self._run_modules(market_data)
             summary = await self.summarizer.summarize(analysis)

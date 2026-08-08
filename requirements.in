@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+httpx
+pydantic
+loguru
+pytest
+SQLAlchemy
+aiosqlite
+python-dotenv
+alembic
+psycopg[binary]

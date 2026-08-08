@@ -1,11 +1,32 @@
+# Virtual environments
 /.venv/
+/venv/
 /.venv-1/
+
+# Python artifacts
 *.pyc
 __pycache__/
+.pytest_cache/
+.mypy_cache/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local data and logs
+data/
+logs/
+*.log
+
+dist/
+build/
+coverage/
+htmlcov/
+
+# IDE and editor settings
 envlogs/
 .idea/
 .vscode/
-/.pytest_cache/
 /.coverage
 .DS_Store
-logs/

@@ -1,11 +1,10 @@
-# Marketing Analysis Agent (refactor of Vantix-AI-Trading)
+# Vish Capitals / Friday
 
-This repository is refactored into an enterprise-ready architecture scaffold. It preserves existing functionality while introducing modular layers for future expansion.
+This repository is the Phase 1 foundation for Friday, the Vish Capitals crypto market intelligence platform.
 
-See `docs/` for architecture notes.
-# Vantix AI Trading
+This project preserves the existing market analysis prototype while hardening configuration, security, and service abstractions.
 
-A modular FastAPI backend for market analysis.
+See `docs/` for architecture, security, API, and developer setup guidance.
 
 ## Run locally
 

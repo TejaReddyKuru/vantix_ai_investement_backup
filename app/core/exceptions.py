@@ -1,5 +1,9 @@
 class VantixError(Exception):
-    """Base exception for Vantix application errors."""
+    """Base exception for Vish Capitals application errors."""
+
+
+class APIError(VantixError):
+    """Base exception for API-related issues."""
 
 
 class BinanceServiceError(VantixError):
