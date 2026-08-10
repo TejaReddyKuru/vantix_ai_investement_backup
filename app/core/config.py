@@ -26,6 +26,18 @@ class Settings(BaseModel):
     database_url: Optional[str] = None
     redis_url: Optional[str] = None
     jwt_secret: Optional[SecretStr] = None
+    jwt_algorithm: str = Field(default='HS256')
+    access_token_expire_minutes: int = Field(default=15)
+    refresh_token_expire_days: int = Field(default=30)
+    password_hash_scheme: str = Field(default='bcrypt')
+    email_verification_required: bool = Field(default=False)
+    rate_limits: dict = Field(default_factory=lambda: {
+        'register': {'limit': 5, 'window_seconds': 60},
+        'login': {'limit': 10, 'window_seconds': 60},
+        'refresh': {'limit': 20, 'window_seconds': 60},
+        'password_reset': {'limit': 5, 'window_seconds': 300},
+        'email_verification': {'limit': 5, 'window_seconds': 300},
+    })
     encryption_key: Optional[SecretStr] = None
 
     cors_allowed_origins: List[str] = Field(default_factory=list)
@@ -51,7 +63,24 @@ class Settings(BaseModel):
         values.setdefault('llm_base_url', os.getenv('LLM_BASE_URL') or None)
         values.setdefault('openai_api_key', os.getenv('OPENAI_API_KEY') or None)
         values.setdefault('jwt_secret', os.getenv('JWT_SECRET') or None)
+        values.setdefault('jwt_algorithm', os.getenv('JWT_ALGORITHM') or 'HS256')
+        values.setdefault('access_token_expire_minutes', int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES', '15')))
+        values.setdefault('refresh_token_expire_days', int(os.getenv('REFRESH_TOKEN_EXPIRE_DAYS', '30')))
+        values.setdefault('password_hash_scheme', os.getenv('PASSWORD_HASH_SCHEME') or 'bcrypt')
+        values.setdefault('email_verification_required', os.getenv('EMAIL_VERIFICATION_REQUIRED', 'false').strip().lower() in {'1', 'true', 'yes', 'on'})
         values.setdefault('encryption_key', os.getenv('ENCRYPTION_KEY') or None)
+        rate_limits_raw = os.getenv('RATE_LIMITS')
+        if rate_limits_raw:
+            try:
+                values['rate_limits'] = eval(rate_limits_raw, {'__builtins__': {}}, {})
+            except Exception:
+                values['rate_limits'] = {
+                    'register': {'limit': 5, 'window_seconds': 60},
+                    'login': {'limit': 10, 'window_seconds': 60},
+                    'refresh': {'limit': 20, 'window_seconds': 60},
+                    'password_reset': {'limit': 5, 'window_seconds': 300},
+                    'email_verification': {'limit': 5, 'window_seconds': 300},
+                }
         return values
 
     @field_validator('environment', mode='before')

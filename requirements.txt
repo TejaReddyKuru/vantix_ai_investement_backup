@@ -10,3 +10,5 @@ aiosqlite==0.18.0
 python-dotenv==1.2.2
 alembic==1.11.1
 psycopg[binary]==3.3.4
+bcrypt==4.1.2
+PyJWT==2.10.1
