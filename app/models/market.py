@@ -7,4 +7,4 @@ class Market(Base):
     id = Column(Integer, primary_key=True, index=True)
     symbol = Column(String, index=True, unique=True)
     last_price = Column(Float)
-    metadata = Column(JSON)
+    metadata_json = Column("metadata", JSON)

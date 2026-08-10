@@ -3,4 +3,12 @@ from sqlalchemy.orm import sessionmaker
 from .connection import engine
 
 
-async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False, future=True)
+AsyncSessionLocal = sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    future=True,
+)
+
+# Alias for backward compatibility
+async_session = AsyncSessionLocal

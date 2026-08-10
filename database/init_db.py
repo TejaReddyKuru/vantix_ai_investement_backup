@@ -4,6 +4,18 @@ from sqlalchemy import text
 
 from .connection import engine
 from .base import Base
+from app.models import (
+    User, UserProfile, UserSession, UserPreferences,
+    SubscriptionPlan, Subscription, PlanEntitlement,
+    Asset, Watchlist, WatchlistItem,
+    PaperAccount, PaperOrder, PaperPosition, PaperTrade, PaperTransaction,
+    TradeJournalEntry, PortfolioSnapshot,
+    AIConversation, AIMessage, AIAgentRun, AIInsight,
+    AlertRule, AlertEvent, Notification,
+    CommunityPost, CommunityComment, CommunityLike, CommunityFollow, CommunityBookmark, CommunityReport,
+    TutorCourse, TutorLesson, TutorQuestion, TutorQuiz, TutorQuizAttempt, TutorProgress,
+    AuditLog, Market
+)
 
 
 async def init_db() -> None:
