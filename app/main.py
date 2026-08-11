@@ -13,6 +13,7 @@ from app.api.error_handlers import (
 )
 from app.api.health_routes import router as health_router
 from app.api.market_routes import router as market_router
+from app.api.v1.router import router as v1_router
 from app.core.config import settings
 from app.core.exceptions import APIError
 from app.core.logger import get_logger
@@ -32,6 +33,7 @@ app.include_router(health_router)
 app.include_router(market_router)
 app.include_router(market_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1")
+app.include_router(v1_router)
 
 
 @app.middleware("http")
