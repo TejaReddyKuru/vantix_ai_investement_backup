@@ -18,9 +18,16 @@ def format_error(request_id: str | None, code: str, message: str) -> dict[str, o
 
 async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     request_id = getattr(request.state, "request_id", None)
+    # Preserve backward-compatible 'detail' top-level key while keeping the
+    # standardized 'error' structure to avoid breaking tests and clients.
+    content = format_error(request_id, "http_error", str(exc.detail) if exc.detail else "HTTP error")
+    # Ensure tests and external clients that expect FastAPI's default 'detail'
+    # key still receive it alongside the standardized error envelope.
+    detail_value = str(exc.detail) if exc.detail else "HTTP error"
+    response_body = {"detail": detail_value, **content}
     return JSONResponse(
         status_code=exc.status_code,
-        content=format_error(request_id, "http_error", str(exc.detail) if exc.detail else "HTTP error"),
+        content=response_body,
     )
 
 
