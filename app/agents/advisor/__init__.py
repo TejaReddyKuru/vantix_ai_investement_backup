@@ -1,3 +1,4 @@
-"""Advisor agent scaffold (trading advisor / recommendations)."""
+from .strategy_agent import StrategyDecisionAgent
 
-__all__ = []
+__all__ = ["StrategyDecisionAgent"]
+

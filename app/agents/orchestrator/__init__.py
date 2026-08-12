@@ -1,5 +1,6 @@
 """Master orchestrator package for coordinating multiple agents."""
 
-from .master import MasterOrchestrator  # noqa: F401
+from .agent_orchestrator import AgentOrchestrator
+from .master import MasterOrchestrator
 
-__all__ = ["MasterOrchestrator"]
+__all__ = ["AgentOrchestrator", "MasterOrchestrator"]

@@ -14,6 +14,18 @@ from app.schemas.paper_trading import (
     PaperTradeOut,
     PaperTransactionOut,
 )
+from app.services.paper_trading_service import (
+    PaperTradingService,
+    PaperTradingError,
+    AccountNotFoundError,
+    AccountInactiveError,
+    AssetNotFoundError,
+    AssetInactiveError,
+    InsufficientBalanceError,
+    InsufficientPositionError,
+    InvalidOrderInputError,
+    PriceRetrievalError,
+)
 from database.session import AsyncSessionLocal
 
 router = APIRouter(prefix="/paper-trading", tags=["paper-trading"])
@@ -46,23 +58,20 @@ async def get_paper_account(current_user: User = Depends(get_current_user)):
 @router.post("/orders", status_code=status.HTTP_201_CREATED, response_model=PaperOrderOut, summary="Create a paper order")
 async def create_paper_order(payload: PaperOrderCreate, current_user: User = Depends(get_current_user)):
     async with AsyncSessionLocal() as db:
-        account = await _get_account_for_user(db, current_user.id)
-        if account is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Paper account not found.")
-        order = PaperOrder(
-            paper_account_id=account.id,
-            asset_id=UUID(payload.asset_id),
-            side=payload.side,
-            order_type=payload.order_type,
-            quantity=payload.quantity,
-            requested_price=payload.requested_price,
-            stop_loss=payload.stop_loss,
-            take_profit=payload.take_profit,
-            status="open",
-        )
-        db.add(order)
-        await db.commit()
-        await db.refresh(order)
+        service = PaperTradingService(db)
+        try:
+            order = await service.create_order(current_user.id, payload)
+        except AccountNotFoundError as exc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+        except AssetNotFoundError as exc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+        except (AccountInactiveError, AssetInactiveError, InsufficientBalanceError, InsufficientPositionError, InvalidOrderInputError) as exc:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+        except PriceRetrievalError as exc:
+            raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc))
+        except PaperTradingError as exc:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
+
         return {
             "id": str(order.id),
             "paper_account_id": str(order.paper_account_id),
@@ -78,6 +87,7 @@ async def create_paper_order(payload: PaperOrderCreate, current_user: User = Dep
             "created_at": order.created_at,
             "updated_at": order.updated_at,
         }
+
 
 
 @router.get("/orders", response_model=dict, summary="List paper orders")
@@ -266,9 +276,9 @@ async def get_transactions(
             "items": [{
                 "id": str(item.id),
                 "paper_account_id": str(item.paper_account_id),
-                "type": item.type,
+                "type": item.transaction_type,
                 "amount": item.amount,
-                "reference_id": item.reference_id,
+                "reference_id": str(item.reference_id) if item.reference_id else None,
                 "created_at": item.created_at,
             } for item in items],
         }

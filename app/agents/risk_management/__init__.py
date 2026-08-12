@@ -1,3 +1,4 @@
-"""Risk management agent package scaffold."""
+from .risk_agent import RiskAgent
 
-__all__ = []
+__all__ = ["RiskAgent"]
+

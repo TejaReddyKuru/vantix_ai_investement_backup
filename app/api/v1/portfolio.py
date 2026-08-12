@@ -1,12 +1,18 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 
 from app.core.security import get_current_user
 from app.models.portfolio import PortfolioSnapshot
 from app.models.user import User
 from app.schemas.portfolio import PortfolioListResponse, PortfolioSnapshotOut, PortfolioSummary
+from app.services.portfolio_service import (
+    PortfolioService,
+    PortfolioError,
+    AccountNotFoundError,
+    PriceRetrievalError,
+)
 from database.session import AsyncSessionLocal
 
 router = APIRouter(prefix="/portfolio", tags=["portfolio"])
@@ -53,14 +59,19 @@ async def list_portfolio(
 async def portfolio_summary(current_user: User = Depends(get_current_user)):
     """Return the most recent paper-trading portfolio summary for the active user."""
     async with AsyncSessionLocal() as db:
-        result = await db.execute(
-            select(PortfolioSnapshot)
-            .where(PortfolioSnapshot.user_id == current_user.id)
-            .order_by(PortfolioSnapshot.recorded_at.desc())
-            .limit(1)
-        )
-        snapshot = result.scalar_one_or_none()
-        if snapshot is None:
+        service = PortfolioService(db)
+        try:
+            snapshot = await service.calculate_and_save_snapshot(current_user.id)
+            return {
+                "user_id": str(snapshot.user_id),
+                "total_equity": snapshot.total_equity,
+                "cash": snapshot.cash,
+                "invested_value": snapshot.invested_value,
+                "realized_pnl": snapshot.realized_pnl,
+                "unrealized_pnl": snapshot.unrealized_pnl,
+                "drawdown": snapshot.drawdown,
+            }
+        except AccountNotFoundError:
             return {
                 "user_id": str(current_user.id),
                 "total_equity": None,
@@ -70,15 +81,10 @@ async def portfolio_summary(current_user: User = Depends(get_current_user)):
                 "unrealized_pnl": None,
                 "drawdown": None,
             }
-        return {
-            "user_id": str(snapshot.user_id),
-            "total_equity": snapshot.total_equity,
-            "cash": snapshot.cash,
-            "invested_value": snapshot.invested_value,
-            "realized_pnl": snapshot.realized_pnl,
-            "unrealized_pnl": snapshot.unrealized_pnl,
-            "drawdown": snapshot.drawdown,
-        }
+        except PriceRetrievalError as exc:
+            raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc))
+        except PortfolioError as exc:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
 
 @router.get("/snapshots", response_model=PortfolioListResponse, summary="Get portfolio snapshots")

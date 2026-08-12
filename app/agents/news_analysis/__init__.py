@@ -1,3 +1,4 @@
-"""News analysis agent scaffold."""
+from .news_agent import NewsAgent
 
-__all__ = []
+__all__ = ["NewsAgent"]
+

@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from sqlalchemy import Column, DateTime, String, Numeric, Index, Integer, CheckConstraint, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import synonym
 
 from database.base import Base
 
@@ -93,11 +94,15 @@ class PaperTransaction(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     paper_account_id = Column(UUID(as_uuid=True), nullable=False, index=True)
-    type = Column(String(50), nullable=False)
+    transaction_type = Column(String(50), nullable=False)
     amount = Column(Numeric(20, 8), nullable=False)
-    reference_id = Column(String(255), nullable=True)
+    reference_id = Column(UUID(as_uuid=True), nullable=True)
+    reference_type = Column(String(50), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
+    type = synonym("transaction_type")
+
     __table_args__ = (
-        Index('ix_paper_transactions_type', 'type'),
+        Index('ix_paper_transactions_type', 'transaction_type'),
     )
+

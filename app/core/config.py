@@ -18,6 +18,7 @@ class Settings(BaseModel):
     binance_rate_limit_delay: float = Field(default=0.2)
     binance_api_key: Optional[SecretStr] = None
     binance_api_secret: Optional[SecretStr] = None
+    live_execution_enabled: bool = Field(default=False)
 
     llm_api_key: Optional[SecretStr] = None
     llm_base_url: Optional[str] = None
@@ -41,6 +42,10 @@ class Settings(BaseModel):
     encryption_key: Optional[SecretStr] = None
 
     cors_allowed_origins: List[str] = Field(default_factory=list)
+    max_position_exposure: float = Field(default=0.20)
+    max_portfolio_drawdown: float = Field(default=0.15)
+    max_risk_per_trade: float = Field(default=0.02)
+    min_cash_reserve: float = Field(default=0.05)
     trend_weight: float = Field(default=0.25)
     volume_weight: float = Field(default=0.20)
     structure_weight: float = Field(default=0.20)
@@ -57,6 +62,11 @@ class Settings(BaseModel):
         values.setdefault('database_url', os.getenv('DATABASE_URL') or None)
         values.setdefault('cors_allowed_origins', os.getenv('CORS_ALLOWED_ORIGINS', ''))
         values.setdefault('redis_url', os.getenv('REDIS_URL') or None)
+        values.setdefault('max_position_exposure', float(os.getenv('MAX_POSITION_EXPOSURE', '0.20')))
+        values.setdefault('max_portfolio_drawdown', float(os.getenv('MAX_PORTFOLIO_DRAWDOWN', '0.15')))
+        values.setdefault('max_risk_per_trade', float(os.getenv('MAX_RISK_PER_TRADE', '0.02')))
+        values.setdefault('min_cash_reserve', float(os.getenv('MIN_CASH_RESERVE', '0.05')))
+
         values.setdefault('binance_api_key', os.getenv('BINANCE_API_KEY') or None)
         values.setdefault('binance_api_secret', os.getenv('BINANCE_API_SECRET') or None)
         values.setdefault('llm_api_key', os.getenv('LLM_API_KEY') or None)

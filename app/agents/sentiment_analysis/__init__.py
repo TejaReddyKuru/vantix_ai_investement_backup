@@ -1,3 +1,4 @@
-"""Sentiment analysis agent scaffold."""
+from .sentiment_agent import SentimentAgent
 
-__all__ = []
+__all__ = ["SentimentAgent"]
+

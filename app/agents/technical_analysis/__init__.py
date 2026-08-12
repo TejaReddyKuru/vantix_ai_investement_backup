@@ -1,5 +1,6 @@
 """Technical analysis agent package scaffold."""
 
-from . import modules  # noqa: F401
+from .technical_agent import TechnicalAgent
 
-__all__ = ["modules"]
+__all__ = ["modules", "TechnicalAgent"]
+

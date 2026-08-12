@@ -1,3 +1,4 @@
-"""Portfolio management agent scaffold."""
+from .portfolio_agent import PortfolioAgent
 
-__all__ = []
+__all__ = ["PortfolioAgent"]
+

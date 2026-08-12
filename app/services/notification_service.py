@@ -67,3 +67,56 @@ async def mark_all_notifications_read(user_id: UUID) -> bool:
             notification.read_at = datetime.utcnow()
         await db.commit()
         return True
+
+
+# ---------------------------------------------------------------------------
+# Phase 9 Event Notification Abstractions
+# ---------------------------------------------------------------------------
+from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional
+from pydantic import BaseModel, Field
+
+
+class NotificationEvent(BaseModel):
+    event_type: str  # ORDER_SUBMITTED, ORDER_FILLED, ORDER_REJECTED, ORDER_CANCELLED, POSITION_OPENED, RISK_REJECTION, BROKER_DISCONNECTED
+    severity: str = "INFO"  # INFO, WARNING, ERROR, CRITICAL
+    message: str
+    metadata: Dict[str, Any] = Field(default_factory=dict)
+    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
+
+
+class BaseNotificationAdapter(ABC):
+    @abstractmethod
+    async def send_notification(self, event: NotificationEvent) -> bool:
+        pass
+
+
+class MockNotificationAdapter(BaseNotificationAdapter):
+    def __init__(self, channel_name: str = "MOCK") -> None:
+        self.channel_name = channel_name
+        self.sent_events: List[NotificationEvent] = []
+
+    async def send_notification(self, event: NotificationEvent) -> bool:
+        self.sent_events.append(event)
+        return True
+
+
+class NotificationService:
+    """
+    Normalized Notification Service for Phase 9 trading event notifications.
+    Dispatches system and execution events to configured notification adapters (Email, Push, Telegram, Discord, Webhook).
+    """
+
+    def __init__(self) -> None:
+        self.adapters: Dict[str, BaseNotificationAdapter] = {
+            "mock": MockNotificationAdapter("MOCK"),
+            "telegram": MockNotificationAdapter("TELEGRAM"),
+            "discord": MockNotificationAdapter("DISCORD"),
+            "email": MockNotificationAdapter("EMAIL"),
+            "webhook": MockNotificationAdapter("WEBHOOK"),
+        }
+
+    async def notify(self, event: NotificationEvent, channel: str = "mock") -> bool:
+        adapter = self.adapters.get(channel.lower()) or self.adapters["mock"]
+        return await adapter.send_notification(event)
+

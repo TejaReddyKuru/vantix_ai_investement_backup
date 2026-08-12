@@ -1,4 +1,5 @@
 import pytest_asyncio
+from sqlalchemy import text
 
 import app.models  # noqa: F401  # Register all mapped models before schema creation
 from app.models.subscription import SubscriptionPlan, PlanEntitlement
@@ -7,12 +8,23 @@ from database.connection import engine
 from database.session import AsyncSessionLocal
 
 
+from app.core.security import rate_limiters
+
+
 @pytest_asyncio.fixture(autouse=True)
 async def reset_database():
     """Create a clean SQLite schema and seed default subscription plans for each test."""
+    for limiter in rate_limiters.values():
+        limiter._hits.clear()
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
+        def _reset_schema(sync_conn):
+            sync_conn.execute(text("PRAGMA foreign_keys = OFF;"))
+            for table in reversed(Base.metadata.sorted_tables):
+                sync_conn.execute(text(f'DROP TABLE IF EXISTS "{table.name}";'))
+            Base.metadata.create_all(sync_conn)
+            sync_conn.execute(text("PRAGMA foreign_keys = ON;"))
+
+        await conn.run_sync(_reset_schema)
 
     async with AsyncSessionLocal() as session:
         plans = [
