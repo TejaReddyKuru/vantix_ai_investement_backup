@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react'
-import { MOCK_MARKETS } from '../../../../lib/mock/market'
+import { MOCK_MARKETS } from '../../../lib/mock/market'
 
 export default function MarketList() {
   return (
