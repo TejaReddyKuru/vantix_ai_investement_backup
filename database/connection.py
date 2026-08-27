@@ -11,7 +11,13 @@ def get_database_url() -> str:
 
 
 def get_async_engine() -> AsyncEngine:
-    async_engine = create_async_engine(get_database_url(), echo=False, future=True)
+    async_engine = create_async_engine(
+        get_database_url(),
+        echo=False,
+        future=True,
+        pool_pre_ping=True,
+        pool_recycle=300
+    )
 
     @event.listens_for(async_engine.sync_engine, "connect")
     def _set_sqlite_pragma(dbapi_connection, connection_record):
