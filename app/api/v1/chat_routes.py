@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSock
 from sqlalchemy import select, func
 
 from app.core.security import get_current_user, get_user_by_token
-from app.models.user import User
+from app.models.user import User, UserProfile
 from app.models.community_chat import ChatCommunity, ChatCommunityMember, ChatCommunityMessage
 from database.session import AsyncSessionLocal
 from app.websocket.manager import manager
@@ -30,8 +30,9 @@ async def list_communities(current_user: User = Depends(get_current_user)):
 
             # Get latest message
             latest_msg_stmt = (
-                select(ChatCommunityMessage, User)
+                select(ChatCommunityMessage, User, UserProfile)
                 .join(User, ChatCommunityMessage.user_id == User.id)
+                .outerjoin(UserProfile, UserProfile.user_id == User.id)
                 .where(ChatCommunityMessage.community_id == c.id)
                 .order_by(ChatCommunityMessage.created_at.desc())
                 .limit(1)
@@ -41,10 +42,11 @@ async def list_communities(current_user: User = Depends(get_current_user)):
 
             latest_msg_data = None
             if latest_msg_tuple:
-                msg, sender = latest_msg_tuple
+                msg, sender, profile = latest_msg_tuple
+                sender_display = (profile.display_name if profile else None) or sender.email
                 latest_msg_data = {
                     "text": msg.content,
-                    "senderName": sender.display_name or sender.email,
+                    "senderName": sender_display,
                     "time": msg.created_at.strftime("%I:%M %p")
                 }
 
@@ -123,6 +125,12 @@ async def create_community(
         )
         db.add(member)
         
+        # Get creator display name
+        prof_stmt = select(UserProfile).where(UserProfile.user_id == current_user.id)
+        prof_res = await db.execute(prof_stmt)
+        profile = prof_res.scalar_one_or_none()
+        creator_display = (profile.display_name if profile else None) or current_user.email
+
         await db.commit()
         return {
             "id": community.slug,
@@ -144,7 +152,7 @@ async def create_community(
             "rules": [
                 {"id": 1, "title": "Respect and Civility", "description": "Maintain a respectful, professional tone in all discussions."}
             ],
-            "moderators": [current_user.display_name or current_user.email]
+            "moderators": [creator_display]
         }
 
 
@@ -161,8 +169,9 @@ async def get_messages(community_slug: str, current_user: User = Depends(get_cur
 
         # Load latest messages (e.g. 50)
         stmt = (
-            select(ChatCommunityMessage, User)
+            select(ChatCommunityMessage, User, UserProfile)
             .join(User, ChatCommunityMessage.user_id == User.id)
+            .outerjoin(UserProfile, UserProfile.user_id == User.id)
             .where(ChatCommunityMessage.community_id == community.id)
             .order_by(ChatCommunityMessage.created_at.asc())
             .limit(50)
@@ -171,14 +180,15 @@ async def get_messages(community_slug: str, current_user: User = Depends(get_cur
         rows = res.all()
 
         messages = []
-        for msg, sender in rows:
+        for msg, sender, profile in rows:
             time_str = msg.created_at.strftime("%I:%M %p")
+            sender_display = (profile.display_name if profile else None) or sender.email
             messages.append({
                 "id": str(msg.id),
                 "communityId": community.slug,
                 "senderId": str(sender.id),
-                "senderName": sender.display_name or sender.email,
-                "senderAvatar": ((sender.display_name or sender.email)[:2]).upper(),
+                "senderName": sender_display,
+                "senderAvatar": (sender_display[:2]).upper(),
                 "senderRole": "Admin" if sender.is_staff else "Member",
                 "content": msg.content,
                 "timestamp": time_str,
@@ -226,14 +236,20 @@ async def post_message(
         db.add(msg)
         await db.commit()
 
+        # Get sender display name
+        prof_stmt = select(UserProfile).where(UserProfile.user_id == current_user.id)
+        prof_res = await db.execute(prof_stmt)
+        profile = prof_res.scalar_one_or_none()
+        sender_display = (profile.display_name if profile else None) or current_user.email
+
         # Format message payload for frontend client
         time_str = msg.created_at.strftime("%I:%M %p")
         formatted_msg = {
             "id": str(msg.id),
             "communityId": community_slug,
             "senderId": str(current_user.id),
-            "senderName": current_user.display_name or current_user.email,
-            "senderAvatar": ((current_user.display_name or current_user.email)[:2]).upper(),
+            "senderName": sender_display,
+            "senderAvatar": (sender_display[:2]).upper(),
             "senderRole": "Admin" if current_user.is_staff else "Member",
             "content": msg.content,
             "timestamp": time_str,
