@@ -67,6 +67,20 @@ export default function CommunityView() {
     )
   }
 
+  // Create new community
+  function handleCreateCommunity(newCommunity: Community) {
+    setCommunities((prev) => [...prev, newCommunity])
+    // Initialize empty message list for the new channel
+    setMessagesState((prev) => ({
+      ...prev,
+      [newCommunity.id]: [],
+    }))
+    // Auto-navigate to the new channel
+    setActiveCommunityId(newCommunity.id)
+    setMobileView("chat")
+    setShowPinnedBanner(false)
+  }
+
   // Send new message
   function handleSendMessage(
     content: string,
@@ -200,6 +214,7 @@ export default function CommunityView() {
           communities={communities}
           activeCommunityId={activeCommunityId}
           onSelectCommunity={handleSelectCommunity}
+          onCreateCommunity={handleCreateCommunity}
         />
       </div>
 
