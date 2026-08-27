@@ -15,6 +15,7 @@ from app.api.v1.intelligence import router as intelligence_router
 from app.api.v1.execution import router as execution_router
 from app.api.v1.users import router as users_router
 from app.api.v1.watchlists import router as watchlists_router
+from app.api.v1.chat_routes import router as chat_router
 
 router = APIRouter(prefix="/api/v1")
 
@@ -33,6 +34,7 @@ router.include_router(news_router)
 router.include_router(market_intelligence_router)
 router.include_router(intelligence_router)
 router.include_router(execution_router)
+router.include_router(chat_router)
 
 
 

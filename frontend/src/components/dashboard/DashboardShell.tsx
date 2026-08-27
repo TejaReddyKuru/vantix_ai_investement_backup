@@ -20,14 +20,19 @@ export default function DashboardShell({
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [fridayOpen, setFridayOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    if (!token && typeof window !== "undefined") {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (mounted && !token) {
       router.replace("/login")
     }
-  }, [token, router])
+  }, [mounted, token, router])
 
-  if (!token) {
+  if (!mounted || !token) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#F4F3EA]">
         <div className="text-center">

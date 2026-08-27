@@ -1,11 +1,8 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import {
-  INITIAL_COMMUNITIES,
-  INITIAL_MEMBERS,
-  INITIAL_MESSAGES,
-} from "./mockData"
+import { useMemo, useState, useEffect } from "react"
+import { useAuth } from "../../context/AuthContext"
+import { apiClient } from "../../lib/client"
 import { Community, Member, Message } from "./types"
 import CommunityList from "./CommunityList"
 import ChatHeader from "./ChatHeader"
@@ -14,10 +11,12 @@ import MessageInput from "./MessageInput"
 import CommunityInfo from "./CommunityInfo"
 
 export default function CommunityView() {
-  const [communities, setCommunities] = useState<Community[]>(INITIAL_COMMUNITIES)
-  const [activeCommunityId, setActiveCommunityId] = useState<string>("general-discussion")
-  const [messagesState, setMessagesState] = useState<Record<string, Message[]>>(INITIAL_MESSAGES)
-  const [membersState] = useState<Record<string, Member[]>>(INITIAL_MEMBERS)
+  const { token } = useAuth()
+  const [communities, setCommunities] = useState<Community[]>([])
+  const [activeCommunityId, setActiveCommunityId] = useState<string>("")
+  const [messagesState, setMessagesState] = useState<Record<string, Message[]>>({})
+  const [membersState] = useState<Record<string, Member[]>>({})
+  const [loading, setLoading] = useState(true)
   const [isInfoOpen, setIsInfoOpen] = useState(false)
   const [mobileView, setMobileView] = useState<"list" | "chat">("list")
   const [chatSearchQuery, setChatSearchQuery] = useState("")
@@ -25,6 +24,77 @@ export default function CommunityView() {
   const [showPinnedBanner, setShowPinnedBanner] = useState(true)
   const [replyingTo, setReplyingTo] = useState<Message | null>(null)
   const [mutedChannels, setMutedChannels] = useState<Record<string, boolean>>({})
+
+  // Load communities on mount
+  useEffect(() => {
+    async function loadCommunities() {
+      try {
+        const res = await apiClient.get("/api/v1/communities")
+        setCommunities(res.data)
+        if (res.data.length > 0) {
+          setActiveCommunityId(res.data[0].slug)
+        }
+      } catch (err) {
+        console.error("Error loading communities", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadCommunities()
+  }, [])
+
+  // Establish WS connection and load history on active channel change
+  useEffect(() => {
+    if (!activeCommunityId) return
+
+    async function loadHistory() {
+      try {
+        const res = await apiClient.get(`/api/v1/communities/${activeCommunityId}/messages`)
+        setMessagesState(prev => ({
+          ...prev,
+          [activeCommunityId]: res.data
+        }))
+      } catch (err) {
+        console.error("Error loading messages", err)
+      }
+    }
+    loadHistory()
+
+    const baseURL = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000").replace(/^http/, "ws")
+    const wsUrl = `${baseURL}/api/v1/communities/${activeCommunityId}/ws?token=${token}`
+    const ws = new WebSocket(wsUrl)
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        if (data.type === "new_message") {
+          const newMsg = data.message
+          if (newMsg.communityId === activeCommunityId) {
+            setMessagesState(prev => {
+              const current = prev[activeCommunityId] || []
+              if (current.some(m => m.id === newMsg.id)) {
+                return prev
+              }
+              return {
+                ...prev,
+                [activeCommunityId]: [...current, newMsg]
+              }
+            })
+          }
+        }
+      } catch (e) {
+        console.error("Error parsing WS event", e)
+      }
+    }
+
+    ws.onerror = (err) => {
+      console.error("WS connection error", err)
+    }
+
+    return () => {
+      ws.close()
+    }
+  }, [activeCommunityId, token])
 
   // Active community details
   const activeCommunity = useMemo(() => {
@@ -68,71 +138,46 @@ export default function CommunityView() {
   }
 
   // Create new community
-  function handleCreateCommunity(newCommunity: Community) {
-    setCommunities((prev) => [...prev, newCommunity])
-    // Initialize empty message list for the new channel
-    setMessagesState((prev) => ({
-      ...prev,
-      [newCommunity.id]: [],
-    }))
-    // Auto-navigate to the new channel
-    setActiveCommunityId(newCommunity.id)
-    setMobileView("chat")
-    setShowPinnedBanner(false)
+  async function handleCreateCommunity(newCommunity: Community) {
+    try {
+      const res = await apiClient.post("/api/v1/communities", {
+        name: newCommunity.name,
+        category: newCommunity.category,
+        description: newCommunity.description,
+        icon: newCommunity.icon,
+      })
+      const created = res.data
+      setCommunities((prev) => [...prev, created])
+      setMessagesState((prev) => ({
+        ...prev,
+        [created.id]: [],
+      }))
+      setActiveCommunityId(created.id)
+      setMobileView("chat")
+      setShowPinnedBanner(false)
+    } catch (err) {
+      console.error("Error creating community", err)
+    }
   }
 
   // Send new message
-  function handleSendMessage(
+  async function handleSendMessage(
     content: string,
     attachments?: { type: "chart" | "image" | "link"; title: string; subtitle: string }[]
   ) {
-    const now = new Date()
-    const timeString = now.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    })
+    if (!content.trim()) return
 
-    const newMessage: Message = {
-      id: `msg-${Date.now()}`,
-      communityId: activeCommunityId,
-      senderId: "u_self",
-      senderName: "Vish Sai (You)",
-      senderAvatar: "VS",
-      senderRole: "Admin",
+    const payload = {
       content,
-      timestamp: timeString,
-      date: "Today",
-      isCurrentUser: true,
-      reactions: [],
-      attachments,
-      replyTo: replyingTo
-        ? {
-            senderName: replyingTo.senderName,
-            content: replyingTo.content,
-          }
-        : undefined,
+      reply_to_name: replyingTo ? replyingTo.senderName : null,
+      reply_to_content: replyingTo ? replyingTo.content : null
     }
 
-    setMessagesState((prev) => ({
-      ...prev,
-      [activeCommunityId]: [...(prev[activeCommunityId] || []), newMessage],
-    }))
-
-    // Update community latest preview
-    setCommunities((prev) =>
-      prev.map((c) =>
-        c.id === activeCommunityId
-          ? {
-              ...c,
-              latestMessage: {
-                text: content,
-                senderName: "You",
-                time: timeString,
-              },
-            }
-          : c
-      )
-    )
+    try {
+      await apiClient.post(`/api/v1/communities/${activeCommunityId}/messages`, payload)
+    } catch (err) {
+      console.error("Error sending message", err)
+    }
 
     setReplyingTo(null)
   }
@@ -199,6 +244,17 @@ export default function CommunityView() {
       ...prev,
       [activeCommunityId]: !prev[activeCommunityId],
     }))
+  }
+
+  if (loading || !activeCommunity) {
+    return (
+      <div className="flex h-[calc(100vh-140px)] min-h-[580px] w-full items-center justify-center rounded-2xl border border-[#DDDCD0] bg-white">
+        <div className="text-center">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#0F2D1F] border-t-transparent mx-auto"></div>
+          <p className="mt-3 text-[10px] font-extrabold uppercase tracking-wider text-[#8A897F]">Loading channels</p>
+        </div>
+      </div>
+    )
   }
 
   return (
