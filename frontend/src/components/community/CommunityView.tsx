@@ -28,8 +28,13 @@ export default function CommunityView() {
   // Load communities on mount
   useEffect(() => {
     async function loadCommunities() {
+      if (!token) return
       try {
-        const res = await apiClient.get("/api/v1/communities")
+        const res = await apiClient.get("/api/v1/communities", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
         setCommunities(res.data)
         if (res.data.length > 0) {
           setActiveCommunityId(res.data[0].slug)
@@ -41,15 +46,19 @@ export default function CommunityView() {
       }
     }
     loadCommunities()
-  }, [])
+  }, [token])
 
   // Establish WS connection and load history on active channel change
   useEffect(() => {
-    if (!activeCommunityId) return
+    if (!activeCommunityId || !token) return
 
     async function loadHistory() {
       try {
-        const res = await apiClient.get(`/api/v1/communities/${activeCommunityId}/messages`)
+        const res = await apiClient.get(`/api/v1/communities/${activeCommunityId}/messages`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
         setMessagesState(prev => ({
           ...prev,
           [activeCommunityId]: res.data
@@ -139,12 +148,17 @@ export default function CommunityView() {
 
   // Create new community
   async function handleCreateCommunity(newCommunity: Community) {
+    if (!token) return
     try {
       const res = await apiClient.post("/api/v1/communities", {
         name: newCommunity.name,
         category: newCommunity.category,
         description: newCommunity.description,
         icon: newCommunity.icon,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       })
       const created = res.data
       setCommunities((prev) => [...prev, created])
@@ -165,7 +179,7 @@ export default function CommunityView() {
     content: string,
     attachments?: { type: "chart" | "image" | "link"; title: string; subtitle: string }[]
   ) {
-    if (!content.trim()) return
+    if (!content.trim() || !token) return
 
     const payload = {
       content,
@@ -174,7 +188,11 @@ export default function CommunityView() {
     }
 
     try {
-      await apiClient.post(`/api/v1/communities/${activeCommunityId}/messages`, payload)
+      await apiClient.post(`/api/v1/communities/${activeCommunityId}/messages`, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
     } catch (err) {
       console.error("Error sending message", err)
     }
