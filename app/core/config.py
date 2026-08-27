@@ -98,6 +98,13 @@ class Settings(BaseModel):
     def normalize_environment(cls, value: Optional[str]) -> str:
         return (value or 'development').strip().lower()
 
+    @field_validator('database_url', mode='after')
+    @classmethod
+    def convert_postgresql_url(cls, value: Optional[str]) -> Optional[str]:
+        if value and value.startswith("postgresql://"):
+            return value.replace("postgresql://", "postgresql+psycopg://", 1)
+        return value
+
     @field_validator('cors_allowed_origins', mode='before')
     @classmethod
     def split_cors_origins(cls, value):

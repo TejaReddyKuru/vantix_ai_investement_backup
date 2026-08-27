@@ -30,9 +30,9 @@ class Subscription(Base):
     user_id = Column(UUID(as_uuid=True), nullable=False, index=True)
     plan_id = Column(UUID(as_uuid=True), nullable=False)
     status = Column(String(50), default="active")
-    started_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    started_at = Column("start_at", DateTime, default=datetime.utcnow, nullable=False)
     start_at = synonym("started_at")
-    ended_at = Column(DateTime, nullable=True)
+    ended_at = Column("end_at", DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 

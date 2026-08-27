@@ -1,9 +1,10 @@
 "use client"
 
-import { FormEvent, useState } from "react"
+import { FormEvent, useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import axios from "axios"
+import { useAuth } from "../../context/AuthContext"
 import {
   ArrowRight,
   Check,
@@ -21,6 +22,13 @@ import AuthShell from "../../components/auth/AuthShell"
 
 export default function RegisterPage() {
   const router = useRouter()
+  const { token } = useAuth()
+
+  useEffect(() => {
+    if (token) {
+      router.replace("/dashboard")
+    }
+  }, [token, router])
 
   const [displayName, setDisplayName] = useState("")
   const [email, setEmail] = useState("")

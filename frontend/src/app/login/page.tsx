@@ -20,7 +20,7 @@ import AuthShell from "../../components/auth/AuthShell"
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login } = useAuth()
+  const { login, token } = useAuth()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -29,6 +29,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [registered, setRegistered] = useState(false)
   const [nextPath, setNextPath] = useState("/dashboard")
+
+  useEffect(() => {
+    if (token) {
+      router.replace(nextPath)
+    }
+  }, [token, router, nextPath])
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)

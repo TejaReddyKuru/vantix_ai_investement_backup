@@ -1,6 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "../../context/AuthContext"
 
 import Sidebar from "./Sidebar"
 import TopBar from "./TopBar"
@@ -14,8 +16,28 @@ type DashboardShellProps = {
 export default function DashboardShell({
   children,
 }: DashboardShellProps) {
+  const { token } = useAuth()
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [fridayOpen, setFridayOpen] = useState(false)
+
+  useEffect(() => {
+    if (!token && typeof window !== "undefined") {
+      router.replace("/login")
+    }
+  }, [token, router])
+
+  if (!token) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#F4F3EA]">
+        <div className="text-center">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#0F2D1F] border-t-transparent mx-auto"></div>
+          <p className="mt-3 text-[10px] font-extrabold uppercase tracking-wider text-[#8A897F]">Verifying session</p>
+        </div>
+      </div>
+    )
+  }
+
 
   return (
     <div className="min-h-screen bg-[#F4F3EA] text-[#171717]">

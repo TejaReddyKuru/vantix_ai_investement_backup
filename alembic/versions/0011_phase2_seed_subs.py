@@ -11,7 +11,7 @@ from datetime import datetime
 import uuid
 
 # revision identifiers, used by Alembic.
-revision = "0011_phase2_seed_subscription_data"
+revision = "0011_phase2_seed_subs"
 down_revision = "0010_phase2_audit"
 branch_labels = None
 seqrevision = None
@@ -25,11 +25,11 @@ def upgrade() -> None:
     
     op.execute(
         f"""
-        INSERT INTO subscription_plans (id, name, code, description, price, billing_interval, is_active, created_at, updated_at)
+        INSERT INTO subscription_plans (id, name, code, description, price_monthly, price_yearly, billing_interval, active, created_at, updated_at)
         VALUES 
-            ('{free_plan_id}', 'Free', 'FREE', 'Basic access to market analysis and paper trading', NULL, 'month', true, '{datetime.utcnow().isoformat()}', '{datetime.utcnow().isoformat()}'),
-            ('{pro_plan_id}', 'Pro', 'PRO', 'Advanced market analysis, AI tutor, and community features', NULL, 'month', true, '{datetime.utcnow().isoformat()}', '{datetime.utcnow().isoformat()}'),
-            ('{elite_plan_id}', 'Elite', 'ELITE', 'Full access to all features including alerts and AI agents', NULL, 'month', true, '{datetime.utcnow().isoformat()}', '{datetime.utcnow().isoformat()}')
+            ('{free_plan_id}', 'Free', 'FREE', 'Basic access to market analysis and paper trading', 0.00, 0.00, 'month', true, '{datetime.utcnow().isoformat()}', '{datetime.utcnow().isoformat()}'),
+            ('{pro_plan_id}', 'Pro', 'PRO', 'Advanced market analysis, AI tutor, and community features', 29.00, 290.00, 'month', true, '{datetime.utcnow().isoformat()}', '{datetime.utcnow().isoformat()}'),
+            ('{elite_plan_id}', 'Elite', 'ELITE', 'Full access to all features including alerts and AI agents', 99.00, 990.00, 'month', true, '{datetime.utcnow().isoformat()}', '{datetime.utcnow().isoformat()}')
         """
     )
     

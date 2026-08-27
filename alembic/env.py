@@ -41,6 +41,7 @@ def custom_version_table_impl(
     version_table_pk,
     **kw,
 ):
+    print(">>> CUSTOM_VERSION_TABLE_IMPL_CALLED")
     columns = [
         Column("version_num", String(255), nullable=False),
     ]
@@ -65,6 +66,20 @@ def custom_version_table_impl(
 
 DefaultImpl.version_table_impl = custom_version_table_impl
 
+try:
+    from alembic.ddl.postgresql import PostgresqlImpl
+    PostgresqlImpl.version_table_impl = custom_version_table_impl
+except Exception:
+    pass
+
+try:
+    from alembic.ddl.sqlite import SQLiteImpl
+    SQLiteImpl.version_table_impl = custom_version_table_impl
+except Exception:
+    pass
+
+
+
 
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
@@ -76,6 +91,7 @@ def run_migrations_offline() -> None:
         dialect_opts={"paramstyle": "named"},
         version_table="alembic_version",
         version_table_pk=True,
+        version_table_col_num_chars=255,
     )
 
     with context.begin_transaction():
@@ -103,6 +119,7 @@ def _run_migrations(connection) -> None:
         target_metadata=target_metadata,
         version_table="alembic_version",
         version_table_pk=True,
+        version_table_col_num_chars=255,
     )
 
     with context.begin_transaction():
