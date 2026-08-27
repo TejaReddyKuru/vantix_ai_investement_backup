@@ -1,0 +1,54 @@
+# Virtual environments
+/.venv/
+/venv/
+/.venv-1/
+
+# Python artifacts
+*.pyc
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Local data and logs
+data/
+logs/
+*.log
+
+dist/
+build/
+coverage/
+htmlcov/
+
+# IDE and editor settings
+envlogs/
+.idea/
+.vscode/
+/.coverage
+.DS_Store
+
+# Frontend dependencies and generated output
+/frontend/node_modules/
+/frontend/.next/
+/frontend/out/
+
+# Local backups and temporary copies
+*.bak
+*.backup*
+*.before-*
+*.landing-final
+/coincrest-*/
+
+
+# Local diagnostics
+/inspection/
+/run_server.py
+/test_db.py
+
+# Windows files
+Thumbs.db
+Desktop.ini
