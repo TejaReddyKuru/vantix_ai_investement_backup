@@ -13,11 +13,11 @@ export const INITIAL_COMMUNITIES: Community[] = [
     iconColor: "text-[#D8E9DD]",
     memberCount: 4820,
     onlineCount: 412,
-    unreadCount: 3,
+    unreadCount: 0,
     latestMessage: {
-      text: "CPI print came in cooler than expected. Seeing strong volume in large caps.",
-      senderName: "Marcus Vance",
-      time: "10:42 AM",
+      text: "Welcome to the official General Discussion channel. Share your market analysis and ideas below.",
+      senderName: "Elena Rostova",
+      time: "Today",
     },
     rules: [
       {
@@ -53,9 +53,9 @@ export const INITIAL_COMMUNITIES: Community[] = [
     onlineCount: 189,
     unreadCount: 0,
     latestMessage: {
-      text: "What is the best rule of thumb for position sizing on paper trades?",
-      senderName: "Liam Chen",
-      time: "09:15 AM",
+      text: "Welcome to Beginners Hub! Feel free to ask any question regarding paper trading or risk rules.",
+      senderName: "Elena Rostova",
+      time: "Today",
     },
     rules: [
       {
@@ -83,11 +83,11 @@ export const INITIAL_COMMUNITIES: Community[] = [
     iconColor: "text-[#E8F2EA]",
     memberCount: 3640,
     onlineCount: 310,
-    unreadCount: 5,
+    unreadCount: 0,
     latestMessage: {
-      text: "NVDA and semiconductor complex retesting key Fibonacci expansion levels.",
-      senderName: "Sarah Sterling",
-      time: "10:38 AM",
+      text: "Official Equities & Stocks discussion channel is open. Post your ticker setups here.",
+      senderName: "Alex Rivera",
+      time: "Today",
     },
     rules: [
       {
@@ -116,11 +116,11 @@ export const INITIAL_COMMUNITIES: Community[] = [
     iconColor: "text-[#D5EAD7]",
     memberCount: 5120,
     onlineCount: 640,
-    unreadCount: 2,
+    unreadCount: 0,
     latestMessage: {
-      text: "BTC spot ETF net inflows hit $420M yesterday. Strong accumulation structure.",
-      senderName: "Kavita Nair",
-      time: "10:40 AM",
+      text: "Crypto channel is active. Discuss on-chain data, BTC, ETH, and layer-1 developments.",
+      senderName: "Vikram Patel",
+      time: "Today",
     },
     rules: [
       {
@@ -149,11 +149,11 @@ export const INITIAL_COMMUNITIES: Community[] = [
     iconColor: "text-[#FAF9F5]",
     memberCount: 6200,
     onlineCount: 780,
-    unreadCount: 1,
+    unreadCount: 0,
     latestMessage: {
-      text: "Federal Reserve minutes indicate data-dependent path for upcoming quarterly decision.",
-      senderName: "Reuters Feed Bot",
-      time: "10:12 AM",
+      text: "Real-time macroeconomic and market headlines desk.",
+      senderName: "NewsDesk Bot",
+      time: "Today",
     },
     rules: [
       {
@@ -178,9 +178,9 @@ export const INITIAL_COMMUNITIES: Community[] = [
     onlineCount: 245,
     unreadCount: 0,
     latestMessage: {
-      text: "Sharing a Mean-Reversion setup on the 4H timeframe with strict 1:2.5 risk-to-reward.",
+      text: "Post systematic trading setups, backtest ideas, and risk mitigation models.",
       senderName: "Dr. Henrik Lind",
-      time: "08:50 AM",
+      time: "Today",
     },
     rules: [
       {
@@ -205,9 +205,9 @@ export const INITIAL_COMMUNITIES: Community[] = [
     onlineCount: 204,
     unreadCount: 0,
     latestMessage: {
-      text: "How are people balancing international exposure against US large-cap tech right now?",
+      text: "Share asset allocation frameworks, rebalancing strategies, and diversification models.",
       senderName: "Maya Lin",
-      time: "Yesterday",
+      time: "Today",
     },
     rules: [
       {
@@ -253,25 +253,6 @@ export const INITIAL_MEMBERS: Record<string, Member[]> = {
       joinedDate: "Mar 2025",
     },
     {
-      id: "u4",
-      name: "David Miller",
-      handle: "@dmiller_trades",
-      avatar: "DM",
-      role: "Member",
-      isOnline: false,
-      joinedDate: "Jun 2025",
-    },
-    {
-      id: "u5",
-      name: "Kavita Nair",
-      handle: "@kavita_crypto",
-      avatar: "KN",
-      role: "Pro Analyst",
-      isOnline: true,
-      badgeColor: "bg-[#E8F2EA] text-[#18794E]",
-      joinedDate: "Nov 2024",
-    },
-    {
       id: "u_self",
       name: "Vish Sai",
       handle: "@vish_capitals",
@@ -302,15 +283,6 @@ export const INITIAL_MEMBERS: Record<string, Member[]> = {
       isOnline: true,
       badgeColor: "bg-[#E8F2EA] text-[#0F2D1F]",
       joinedDate: "Dec 2024",
-    },
-    {
-      id: "u7",
-      name: "Zack Thorne",
-      handle: "@zack_defi",
-      avatar: "ZT",
-      role: "Member",
-      isOnline: false,
-      joinedDate: "Jan 2026",
     },
     {
       id: "u_self",
@@ -367,73 +339,15 @@ export const INITIAL_MESSAGES: Record<string, Message[]> = {
       senderAvatar: "ER",
       senderRole: "Moderator",
       content:
-        "Welcome everyone to today's Vish Capitals session. Remember that market breadth has been broadening out nicely beyond mega-caps this week.",
-      timestamp: "09:30 AM",
+        "Welcome to the General Discussion channel. This channel is designated for high-level market thoughts, macroeconomic sentiment, and investment ideas across the Vish Capitals community.",
+      timestamp: "09:00 AM",
       date: "Today",
       isCurrentUser: false,
       reactions: [
-        { emoji: "📈", count: 14, hasReacted: true },
-        { emoji: "👍", count: 8, hasReacted: false },
-      ],
-      isPinned: true,
-    },
-    {
-      id: "m2",
-      communityId: "general-discussion",
-      senderId: "u3",
-      senderName: "Sarah Sterling",
-      senderAvatar: "SS",
-      senderRole: "Top Contributor",
-      content:
-        "Watching $NVDA and $MSFT support levels ahead of the next FOMC statement. The 20-day EMA has provided firm support on every pullback so far.",
-      timestamp: "10:15 AM",
-      date: "Today",
-      isCurrentUser: false,
-      reactions: [
-        { emoji: "🎯", count: 6, hasReacted: false },
-        { emoji: "🔥", count: 9, hasReacted: true },
-      ],
-    },
-    {
-      id: "m3",
-      communityId: "general-discussion",
-      senderId: "u1",
-      senderName: "Marcus Vance",
-      senderAvatar: "MV",
-      senderRole: "Pro Analyst",
-      content:
-        "CPI print came in cooler than expected. Seeing strong volume in large caps across both NYSE and Nasdaq. Friday AI score updated to 87/100 constructive momentum.",
-      timestamp: "10:42 AM",
-      date: "Today",
-      isCurrentUser: false,
-      reactions: [
-        { emoji: "🚀", count: 18, hasReacted: false },
-        { emoji: "⚡", count: 7, hasReacted: true },
-      ],
-      attachments: [
-        {
-          type: "chart",
-          title: "Market Breadth & AI Confidence",
-          subtitle: "Friday AI Signal: Strong Risk Regime (87/100)",
-        },
-      ],
-    },
-    {
-      id: "m4",
-      communityId: "general-discussion",
-      senderId: "u_self",
-      senderName: "Vish Sai (You)",
-      senderAvatar: "VS",
-      senderRole: "Admin",
-      content:
-        "Great observation Marcus. Our risk models have adjusted cash reserves from 8% to 5% accordingly to capture the trend while trailing stop-losses remain tight.",
-      timestamp: "10:44 AM",
-      date: "Today",
-      isCurrentUser: true,
-      reactions: [
-        { emoji: "👏", count: 12, hasReacted: false },
+        { emoji: "📈", count: 8, hasReacted: false },
         { emoji: "🤝", count: 5, hasReacted: false },
       ],
+      isPinned: true,
     },
   ],
   "crypto-discussion": [
@@ -445,52 +359,12 @@ export const INITIAL_MESSAGES: Record<string, Message[]> = {
       senderAvatar: "VP",
       senderRole: "Moderator",
       content:
-        "$BTC holding firmly above key support around $111,800. On-chain exchange balances are at multi-year lows indicating strong holder conviction.",
-      timestamp: "09:45 AM",
+        "Welcome to Crypto Discussion. Use this channel to discuss Bitcoin, Ethereum, layer-1 blockchains, on-chain liquidity, and institutional market structure.",
+      timestamp: "09:00 AM",
       date: "Today",
       isCurrentUser: false,
-      reactions: [
-        { emoji: "🔥", count: 22, hasReacted: true },
-        { emoji: "🚀", count: 15, hasReacted: false },
-      ],
-    },
-    {
-      id: "c2",
-      communityId: "crypto-discussion",
-      senderId: "u5",
-      senderName: "Kavita Nair",
-      senderAvatar: "KN",
-      senderRole: "Pro Analyst",
-      content:
-        "BTC spot ETF net inflows hit $420M yesterday. Strong accumulation structure. $SOL also showing relative strength with +3.1% outperformance.",
-      timestamp: "10:40 AM",
-      date: "Today",
-      isCurrentUser: false,
-      reactions: [
-        { emoji: "📈", count: 19, hasReacted: true },
-        { emoji: "💎", count: 11, hasReacted: false },
-      ],
-      attachments: [
-        {
-          type: "chart",
-          title: "BTC / USD 4H Liquidity Heatmap",
-          subtitle: "Clear liquidity pool target at $118,500",
-        },
-      ],
-    },
-    {
-      id: "c3",
-      communityId: "crypto-discussion",
-      senderId: "u_self",
-      senderName: "Vish Sai (You)",
-      senderAvatar: "VS",
-      senderRole: "Admin",
-      content:
-        "Remember to manage leverage sensibly around the weekly close. The paper trading terminal has updated live orderbook liquidity for testing setups.",
-      timestamp: "10:43 AM",
-      date: "Today",
-      isCurrentUser: true,
-      reactions: [{ emoji: "🛡️", count: 8, hasReacted: false }],
+      reactions: [{ emoji: "🔥", count: 12, hasReacted: false }],
+      isPinned: true,
     },
   ],
   "stock-market": [
@@ -502,28 +376,12 @@ export const INITIAL_MESSAGES: Record<string, Message[]> = {
       senderAvatar: "AR",
       senderRole: "Moderator",
       content:
-        "Q3 earnings consensus is being revised upwards across enterprise cloud providers. Free cash flow yields remain attractive.",
-      timestamp: "08:30 AM",
+        "Welcome to the Stock Market channel. Share equity research, company valuation insights, earnings analysis, and sector rotation setups.",
+      timestamp: "09:00 AM",
       date: "Today",
       isCurrentUser: false,
-      reactions: [{ emoji: "📊", count: 11, hasReacted: false }],
-    },
-    {
-      id: "s2",
-      communityId: "stock-market",
-      senderId: "u3",
-      senderName: "Sarah Sterling",
-      senderAvatar: "SS",
-      senderRole: "Top Contributor",
-      content:
-        "NVDA and semiconductor complex retesting key Fibonacci expansion levels. Volume profile shows strong acceptance at current price bands.",
-      timestamp: "10:38 AM",
-      date: "Today",
-      isCurrentUser: false,
-      reactions: [
-        { emoji: "🚀", count: 14, hasReacted: true },
-        { emoji: "💡", count: 6, hasReacted: false },
-      ],
+      reactions: [{ emoji: "📊", count: 7, hasReacted: false }],
+      isPinned: true,
     },
   ],
   "investment-beginners": [
@@ -535,45 +393,12 @@ export const INITIAL_MESSAGES: Record<string, Message[]> = {
       senderAvatar: "ER",
       senderRole: "Moderator",
       content:
-        "Quick reminder for new investors: Paper Trading allows you to rehearse every strategy with zero capital risk before executing real orders.",
-      timestamp: "08:15 AM",
+        "Welcome to Investment Beginners. This is a supportive space to ask questions about portfolio sizing, paper trading simulation, and market risk fundamentals.",
+      timestamp: "09:00 AM",
       date: "Today",
       isCurrentUser: false,
-      reactions: [
-        { emoji: "🎓", count: 28, hasReacted: true },
-        { emoji: "⭐", count: 12, hasReacted: false },
-      ],
-    },
-    {
-      id: "b2",
-      communityId: "investment-beginners",
-      senderId: "u4",
-      senderName: "Liam Chen",
-      senderAvatar: "LC",
-      senderRole: "Member",
-      content:
-        "What is the best rule of thumb for position sizing on paper trades? Should I cap each trade at 2% total portfolio risk?",
-      timestamp: "09:15 AM",
-      date: "Today",
-      isCurrentUser: false,
-      reactions: [{ emoji: "🙋", count: 7, hasReacted: false }],
-    },
-    {
-      id: "b3",
-      communityId: "investment-beginners",
-      senderId: "u_self",
-      senderName: "Vish Sai (You)",
-      senderAvatar: "VS",
-      senderRole: "Admin",
-      content:
-        "Exactly, Liam! The 1-2% risk-per-trade rule is the gold standard used by institutional prop desks. It protects you against string losses and lets compounding work.",
-      timestamp: "09:22 AM",
-      date: "Today",
-      isCurrentUser: true,
-      reactions: [
-        { emoji: "🎯", count: 15, hasReacted: true },
-        { emoji: "🙏", count: 9, hasReacted: false },
-      ],
+      reactions: [{ emoji: "🎓", count: 15, hasReacted: false }],
+      isPinned: true,
     },
   ],
   "market-news": [
@@ -581,15 +406,16 @@ export const INITIAL_MESSAGES: Record<string, Message[]> = {
       id: "n1",
       communityId: "market-news",
       senderId: "u_bot",
-      senderName: "Reuters Feed Bot",
-      senderAvatar: "RB",
+      senderName: "NewsDesk Bot",
+      senderAvatar: "NB",
       senderRole: "Moderator",
       content:
-        "Federal Reserve minutes indicate data-dependent path for upcoming quarterly decision. Treasury 10-year yield consolidates at 4.18%.",
-      timestamp: "10:12 AM",
+        "Market News Desk is live. Official verified macroeconomic alerts, rate decisions, and institutional announcements will be posted here.",
+      timestamp: "09:00 AM",
       date: "Today",
       isCurrentUser: false,
-      reactions: [{ emoji: "📰", count: 32, hasReacted: false }],
+      reactions: [{ emoji: "📰", count: 14, hasReacted: false }],
+      isPinned: true,
     },
   ],
   "trading-strategies": [
@@ -601,14 +427,12 @@ export const INITIAL_MESSAGES: Record<string, Message[]> = {
       senderAvatar: "HL",
       senderRole: "Pro Analyst",
       content:
-        "Sharing a Mean-Reversion setup on the 4H timeframe with strict 1:2.5 risk-to-reward. Combining Bollinger Band squeezes with RSI divergence.",
-      timestamp: "08:50 AM",
+        "Welcome to Trading Strategies. Share systematic backtests, technical setups, and risk mitigation models.",
+      timestamp: "09:00 AM",
       date: "Today",
       isCurrentUser: false,
-      reactions: [
-        { emoji: "🧠", count: 17, hasReacted: true },
-        { emoji: "📈", count: 12, hasReacted: false },
-      ],
+      reactions: [{ emoji: "🧠", count: 9, hasReacted: false }],
+      isPinned: true,
     },
   ],
   "portfolio-discussion": [
@@ -620,11 +444,12 @@ export const INITIAL_MESSAGES: Record<string, Message[]> = {
       senderAvatar: "ML",
       senderRole: "Moderator",
       content:
-        "How are people balancing international exposure against US large-cap tech right now? We are maintaining a 65/25/10 domestic/global/liquid cash split.",
-      timestamp: "Yesterday",
-      date: "Yesterday",
+        "Welcome to Portfolio Discussion. Discuss multi-asset allocation, rebalancing cadence, and risk-adjusted returns.",
+      timestamp: "09:00 AM",
+      date: "Today",
       isCurrentUser: false,
-      reactions: [{ emoji: "💼", count: 14, hasReacted: false }],
+      reactions: [{ emoji: "💼", count: 11, hasReacted: false }],
+      isPinned: true,
     },
   ],
 }

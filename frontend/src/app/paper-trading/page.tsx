@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 
 import TradingHeader from "@/components/trading/TradingHeader"
+import TradingChart from "@/components/trading/TradingChart"
 import { useTradingMode } from "@/context/TradingModeContext"
 
 type OrderSide = "BUY" | "SELL"
@@ -94,45 +95,6 @@ const positions = [
   },
 ]
 
-const chartData = [
-  36, 42, 39, 48, 46, 55, 51, 61,
-  58, 67, 64, 72, 70, 79, 76, 86,
-]
-
-function buildChartPath(values: number[]) {
-  const width = 900
-  const height = 260
-  const paddingX = 12
-  const paddingY = 18
-
-  const min = Math.min(...values)
-  const max = Math.max(...values)
-  const range = max - min || 1
-
-  return values
-    .map((value, index) => {
-      const x =
-        paddingX +
-        (index / (values.length - 1)) *
-          (width - paddingX * 2)
-
-      const y =
-        height -
-        paddingY -
-        ((value - min) / range) *
-          (height - paddingY * 2)
-
-      return `${index === 0 ? "M" : "L"} ${x.toFixed(
-        1,
-      )} ${y.toFixed(1)}`
-    })
-    .join(" ")
-}
-
-function buildAreaPath(values: number[]) {
-  return `${buildChartPath(values)} L 888 260 L 12 260 Z`
-}
-
 export default function PaperTradingPage() {
   const { isPaper, isLive } = useTradingMode()
 
@@ -141,16 +103,6 @@ export default function PaperTradingPage() {
   const [amount, setAmount] = useState("")
   const [orders, setOrders] = useState(initialOrders)
   const [running, setRunning] = useState(true)
-
-  const chartPath = useMemo(
-    () => buildChartPath(chartData),
-    [],
-  )
-
-  const areaPath = useMemo(
-    () => buildAreaPath(chartData),
-    [],
-  )
 
   const estimatedPrice =
     asset === "BTC"
@@ -355,127 +307,18 @@ export default function PaperTradingPage() {
         <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.6fr)_360px]">
           {/* Left */}
           <div className="space-y-5">
-            {/* Performance */}
-            <section className="overflow-hidden rounded-2xl border border-[#E1E2D8] bg-white shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
-              <div className="flex items-center justify-between p-5 sm:p-6">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-sm font-extrabold">
-                      Paper portfolio performance
-                    </h2>
-
-                    <span className="rounded-full bg-[#EAF4EC] px-2 py-0.5 text-[8px] font-extrabold text-[#18794E]">
-                      +2.42%
-                    </span>
-                  </div>
-
-                  <p className="mt-1 text-[10px] text-[#8A897F]">
-                    Simulated account equity
-                  </p>
-                </div>
-
-                <div className="hidden items-center gap-2 sm:flex">
-                  {["1D", "1W", "1M", "3M"].map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      className={[
-                        "rounded-lg px-2.5 py-1.5 text-[9px] font-extrabold",
-                        item === "1M"
-                          ? "bg-[#0F2D1F] text-white"
-                          : "text-[#9A998F] hover:bg-[#F5F5EF]",
-                      ].join(" ")}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="relative h-[270px] overflow-hidden bg-[#FAFAF7]">
-                <div className="absolute inset-0 flex flex-col justify-between px-5 py-5">
-                  {[0, 1, 2, 3, 4].map((line) => (
-                    <div
-                      key={line}
-                      className="border-t border-dashed border-[#E4E3D9]"
-                    />
-                  ))}
-                </div>
-
-                <svg
-                  viewBox="0 0 900 260"
-                  preserveAspectRatio="none"
-                  className="absolute inset-0 h-full w-full"
-                >
-                  <defs>
-                    <linearGradient
-                      id="paperTradingFill"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="0%"
-                        stopColor="#0F2D1F"
-                        stopOpacity="0.18"
-                      />
-
-                      <stop
-                        offset="100%"
-                        stopColor="#0F2D1F"
-                        stopOpacity="0"
-                      />
-                    </linearGradient>
-                  </defs>
-
-                  <path
-                    d={areaPath}
-                    fill="url(#paperTradingFill)"
-                  />
-
-                  <path
-                    d={chartPath}
-                    fill="none"
-                    stroke="#0F2D1F"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-
-                <div className="absolute bottom-3 left-4 right-4 flex justify-between text-[8px] font-semibold text-[#AAA99F]">
-                  <span>AUG 01</span>
-                  <span>AUG 04</span>
-                  <span>AUG 07</span>
-                  <span>AUG 10</span>
-                  <span>TODAY</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 p-5 sm:p-6">
-                {[
-                  ["Total return", "+2.42%", "text-[#18794E]"],
-                  ["Max drawdown", "-1.82%", "text-[#34342F]"],
-                  ["Win rate", "68.4%", "text-[#34342F]"],
-                ].map(([label, value, valueClass]) => (
-                  <div
-                    key={label}
-                    className="rounded-xl border border-[#ECECE4] bg-[#FAFAF7] p-3"
-                  >
-                    <div className="text-[9px] font-bold uppercase tracking-wider text-[#9A998F]">
-                      {label}
-                    </div>
-
-                    <div
-                      className={`mt-1 text-sm font-extrabold ${valueClass}`}
-                    >
-                      {value}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
+            {/* Interactive Candlestick Market Chart */}
+            <TradingChart
+              assetSymbol={asset}
+              assetName={
+                asset === "BTC"
+                  ? "Bitcoin"
+                  : asset === "ETH"
+                    ? "Ethereum"
+                    : "Solana"
+              }
+              height={380}
+            />
 
             {/* Positions */}
             <section className="rounded-2xl border border-[#E1E2D8] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)] sm:p-6">
