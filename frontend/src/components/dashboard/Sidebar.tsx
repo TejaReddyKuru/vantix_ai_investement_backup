@@ -13,6 +13,7 @@ import {
   Settings,
   ShieldCheck,
   Sparkles,
+  Users,
   WalletCards,
   X,
 } from "lucide-react"
@@ -70,6 +71,11 @@ const secondaryNavigation = [
     label: "Settings",
     href: "/settings",
     icon: Settings,
+  },
+  {
+    label: "Community",
+    href: "/community",
+    icon: Users,
   },
 ]
 
