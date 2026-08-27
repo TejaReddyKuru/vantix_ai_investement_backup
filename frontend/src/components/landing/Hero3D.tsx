@@ -39,7 +39,7 @@ const networkRoutes = [
   { from: [51.5, -0.1], to: [40.7, -74], color: "#68CFFF" },
   { from: [1.3, 103.8], to: [25.2, 55.3], color: "#FFEA93" },
   { from: [35.7, 139.7], to: [37.8, -122.4], color: "#68CFFF" },
-  { from: [19.1, 72.9], to: [-33.9, 151.2], color: "#8DB355" },
+  { from: [19.1, 72.9], to: [-33.9, 151.2], color: "#2D8C68" },
   { from: [52.5, 13.4], to: [-23.6, -46.6], color: "#FFEA93" },
 ] as const
 
@@ -229,7 +229,7 @@ function Scene() {
       <ambientLight intensity={0.48} />
       <directionalLight position={[5, 6, 7]} intensity={2.8} color="#FFF5C6" />
       <pointLight position={[-4, 1, 4]} intensity={18} distance={12} color="#4D8CA8" />
-      <pointLight position={[4, -2, 3]} intensity={7} distance={10} color="#D90000" />
+      <pointLight position={[4, -2, 3]} intensity={8} distance={10} color="#2F78B7" />
 
       <Stars radius={18} depth={7} count={900} factor={1.4} saturation={0.15} fade speed={0.22} />
       <group position={[horizontalOffset, 0, 0]}>
@@ -252,8 +252,8 @@ function Scene() {
 export default function Hero3D() {
   return (
     <div className="absolute inset-0 h-full w-full overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_68%_46%,#152936_0%,#0A1219_44%,#030404_79%)]" />
-      <div className="absolute bottom-[12%] right-[12%] top-[12%] w-[54%] rounded-full bg-[#4D8CA8]/12 blur-[120px]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_68%_46%,#173A53_0%,#0B1D2F_42%,#05090C_80%)]" />
+      <div className="absolute bottom-[12%] right-[12%] top-[12%] w-[54%] rounded-full bg-[#2F78B7]/16 blur-[120px]" />
 
       <Canvas
         camera={{ position: [0, 0.18, 8.3], fov: 43 }}

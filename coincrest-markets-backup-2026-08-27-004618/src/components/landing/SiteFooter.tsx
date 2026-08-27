@@ -9,7 +9,7 @@ export default function SiteFooter() {
     <footer className="bg-black text-white">
       <div className="mx-auto max-w-[1380px] px-5 pb-8 pt-20 sm:px-8 lg:px-12">
         <div className="grid gap-12 border-b border-white/16 pb-16 lg:grid-cols-[1.15fr_0.85fr]">
-          <h2 className="font-serif text-[clamp(3.9rem,6.7vw,7.6rem)] leading-[0.84] tracking-[-0.064em] text-[#FFEA93]">
+          <h2 className="font-serif text-[clamp(3.4rem,6vw,6.8rem)] leading-[0.86] tracking-[-0.06em] text-[#FFEA93]">
             Trade what you see.<br />Understand what you risk.
           </h2>
           <p className="max-w-[650px] self-end text-[18px] leading-8 text-white/62 lg:justify-self-end">
@@ -25,23 +25,22 @@ export default function SiteFooter() {
             </p>
           </div>
           <div>
-            <h3 className="text-[12px] font-black uppercase tracking-[0.16em] text-[#70C891]">Product</h3>
+            <h3 className="text-[12px] font-black uppercase tracking-[0.16em] text-[#8DB355]">Product</h3>
             <div className="mt-5 flex flex-col gap-4 text-[15px] text-white/70">
-              <Link href="/markets" className="hover:text-white">Markets</Link>
               <Link href="/#platform" className="hover:text-white">Platform</Link>
               <Link href="/#ahna" className="hover:text-white">AHNA</Link>
               <Link href="/risk" className="hover:text-white">Risk</Link>
             </div>
           </div>
           <div>
-            <h3 className="text-[12px] font-black uppercase tracking-[0.16em] text-[#70C891]">Company</h3>
+            <h3 className="text-[12px] font-black uppercase tracking-[0.16em] text-[#8DB355]">Company</h3>
             <div className="mt-5 flex flex-col gap-4 text-[15px] text-white/70">
               <Link href="/about" className="hover:text-white">About</Link>
               <Link href="/terms" className="hover:text-white">Terms</Link>
             </div>
           </div>
           <div>
-            <h3 className="text-[12px] font-black uppercase tracking-[0.16em] text-[#70C891]">Access</h3>
+            <h3 className="text-[12px] font-black uppercase tracking-[0.16em] text-[#8DB355]">Access</h3>
             <div className="mt-5 flex flex-col gap-4 text-[15px] text-white/70">
               <Link href="/login" className="hover:text-white">Sign in</Link>
               <Link href="/register" className="hover:text-white">Create account</Link>

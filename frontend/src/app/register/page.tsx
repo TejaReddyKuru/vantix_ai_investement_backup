@@ -4,6 +4,17 @@ import { FormEvent, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import axios from "axios"
+import {
+  ArrowRight,
+  Check,
+  CircleAlert,
+  Eye,
+  EyeOff,
+  LockKeyhole,
+  Mail,
+  ShieldCheck,
+  UserRound,
+} from "lucide-react"
 
 import { apiClient } from "../../lib/client"
 import AuthShell from "../../components/auth/AuthShell"
@@ -15,16 +26,19 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
+  const passwordChecks = [
+    { label: "8+ characters", met: password.length >= 8 },
+    { label: "Upper & lower case", met: /[a-z]/.test(password) && /[A-Z]/.test(password) },
+    { label: "At least one number", met: /\d/.test(password) },
+  ]
+
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-
     setError(null)
 
     const cleanDisplayName = displayName.trim()
@@ -67,28 +81,16 @@ export default function RegisterPage() {
 
         if (Array.isArray(detail)) {
           const messages = detail
-            .map((item) => {
-              if (
-                typeof item === "object" &&
-                item !== null &&
-                "msg" in item
-              ) {
-                return String(item.msg)
-              }
-
-              return String(item)
-            })
+            .map((item) =>
+              typeof item === "object" && item !== null && "msg" in item
+                ? String(item.msg)
+                : String(item)
+            )
             .filter(Boolean)
 
-          setError(
-            messages.length > 0
-              ? messages.join(", ")
-              : "Registration failed. Please check your information."
-          )
+          setError(messages.length > 0 ? messages.join(", ") : "Registration failed. Please check your information.")
         } else if (typeof detail === "string") {
           setError(detail)
-        } else if (status === 400) {
-          setError("Registration request was rejected. Please check your information.")
         } else if (status === 409) {
           setError("An account with this email already exists.")
         } else if (status === 422) {
@@ -96,9 +98,7 @@ export default function RegisterPage() {
         } else if (status && status >= 500) {
           setError("The server encountered an error. Please try again.")
         } else if (err.request) {
-          setError(
-            "Unable to connect to the Vish Capitals server. Make sure the backend is running."
-          )
+          setError("Unable to connect to the CoinCrest server. Make sure the backend is running.")
         } else {
           setError("Registration failed. Please try again.")
         }
@@ -112,73 +112,71 @@ export default function RegisterPage() {
 
   return (
     <AuthShell
-      title="Create your account"
-      description="Start your journey with AI-powered trading intelligence."
+      eyebrow="Create your workspace"
+      title="Start with a stronger process."
+      description="Create your CoinCrest workspace and explore the product with simulated capital first."
+      asideTitle="Build the process before the position."
+      asideDescription="Research with AHNA, rehearse with paper capital, and learn how risk changes before you decide whether to act."
     >
       {error && (
         <div
           role="alert"
-          className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+          className="mb-6 flex gap-3 rounded-2xl border border-[#D6A12A]/35 bg-[#FFEA93]/35 px-4 py-3.5 text-[14px] leading-6 text-[#60460B]"
         >
-          {error}
+          <CircleAlert className="mt-0.5 h-5 w-5 shrink-0" />
+          <span>{error}</span>
         </div>
       )}
 
       <form onSubmit={onSubmit} className="space-y-5">
-        {/* Full name */}
         <div>
-          <label
-            htmlFor="displayName"
-            className="mb-2 block text-sm font-semibold text-[#34342F]"
-          >
+          <label htmlFor="displayName" className="mb-2.5 block text-[14px] font-black text-[#07111F]">
             Full name
           </label>
-
-          <input
-            id="displayName"
-            name="displayName"
-            type="text"
-            autoComplete="name"
-            required
-            value={displayName}
-            onChange={(event) => setDisplayName(event.target.value)}
-            placeholder="Your name"
-            className="w-full rounded-xl border border-[#E2E1D5] bg-[#FAFAF7] px-4 py-3 text-sm text-[#171717] outline-none transition placeholder:text-[#99998F] focus:border-[#173F2A] focus:ring-4 focus:ring-[#173F2A]/10"
-          />
+          <div className="relative">
+            <UserRound className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/30" />
+            <input
+              id="displayName"
+              name="displayName"
+              type="text"
+              autoComplete="name"
+              required
+              autoFocus
+              value={displayName}
+              onChange={(event) => setDisplayName(event.target.value)}
+              placeholder="Your name"
+              className="min-h-[54px] w-full rounded-2xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-4 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
+            />
+          </div>
         </div>
 
-        {/* Email */}
         <div>
-          <label
-            htmlFor="email"
-            className="mb-2 block text-sm font-semibold text-[#34342F]"
-          >
+          <label htmlFor="email" className="mb-2.5 block text-[14px] font-black text-[#07111F]">
             Email address
           </label>
-
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="you@example.com"
-            className="w-full rounded-xl border border-[#E2E1D5] bg-[#FAFAF7] px-4 py-3 text-sm text-[#171717] outline-none transition placeholder:text-[#99998F] focus:border-[#173F2A] focus:ring-4 focus:ring-[#173F2A]/10"
-          />
+          <div className="relative">
+            <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/30" />
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="you@example.com"
+              className="min-h-[54px] w-full rounded-2xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-4 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
+            />
+          </div>
         </div>
 
-        {/* Password */}
         <div>
-          <label
-            htmlFor="password"
-            className="mb-2 block text-sm font-semibold text-[#34342F]"
-          >
+          <label htmlFor="password" className="mb-2.5 block text-[14px] font-black text-[#07111F]">
             Password
           </label>
-
           <div className="relative">
+            <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/30" />
             <input
               id="password"
               name="password"
@@ -189,30 +187,40 @@ export default function RegisterPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="At least 8 characters"
-              className="w-full rounded-xl border border-[#E2E1D5] bg-[#FAFAF7] px-4 py-3 pr-16 text-sm text-[#171717] outline-none transition placeholder:text-[#99998F] focus:border-[#173F2A] focus:ring-4 focus:ring-[#173F2A]/10"
+              className="min-h-[54px] w-full rounded-2xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-14 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
             />
-
             <button
               type="button"
               onClick={() => setShowPassword((value) => !value)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-[#7A7971] transition hover:text-[#173F2A]"
               aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-pressed={showPassword}
+              className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl text-[#07111F]/40 transition hover:bg-[#2F78B7]/8 hover:text-[#164F7D]"
             >
-              {showPassword ? "Hide" : "Show"}
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
+          </div>
+
+          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+            {passwordChecks.map((check) => (
+              <span
+                key={check.label}
+                className={`inline-flex items-center gap-1.5 text-[10px] font-bold ${check.met ? "text-[#267A57]" : "text-[#07111F]/35"}`}
+              >
+                <span className={`flex h-4 w-4 items-center justify-center rounded-full ${check.met ? "bg-[#70C891]/18" : "bg-[#07111F]/6"}`}>
+                  <Check className="h-2.5 w-2.5" />
+                </span>
+                {check.label}
+              </span>
+            ))}
           </div>
         </div>
 
-        {/* Confirm password */}
         <div>
-          <label
-            htmlFor="confirmPassword"
-            className="mb-2 block text-sm font-semibold text-[#34342F]"
-          >
+          <label htmlFor="confirmPassword" className="mb-2.5 block text-[14px] font-black text-[#07111F]">
             Confirm password
           </label>
-
           <div className="relative">
+            <ShieldCheck className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/30" />
             <input
               id="confirmPassword"
               name="confirmPassword"
@@ -223,53 +231,33 @@ export default function RegisterPage() {
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               placeholder="Repeat your password"
-              className="w-full rounded-xl border border-[#E2E1D5] bg-[#FAFAF7] px-4 py-3 pr-16 text-sm text-[#171717] outline-none transition placeholder:text-[#99998F] focus:border-[#173F2A] focus:ring-4 focus:ring-[#173F2A]/10"
+              className="min-h-[54px] w-full rounded-2xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-14 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
             />
-
             <button
               type="button"
               onClick={() => setShowConfirmPassword((value) => !value)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-[#7A7971] transition hover:text-[#173F2A]"
-              aria-label={
-                showConfirmPassword
-                  ? "Hide confirm password"
-                  : "Show confirm password"
-              }
+              aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+              aria-pressed={showConfirmPassword}
+              className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl text-[#07111F]/40 transition hover:bg-[#2F78B7]/8 hover:text-[#164F7D]"
             >
-              {showConfirmPassword ? "Hide" : "Show"}
+              {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-[#173F2A] px-4 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(23,63,42,0.16)] transition hover:-translate-y-0.5 hover:bg-[#245C3F] hover:shadow-[0_14px_30px_rgba(23,63,42,0.20)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex min-h-[56px] w-full items-center justify-center gap-2 rounded-full bg-[#164F7D] px-6 text-[15px] font-black text-white shadow-[0_14px_34px_rgba(22,79,125,0.2)] transition hover:-translate-y-0.5 hover:bg-[#103F65] hover:shadow-[0_18px_42px_rgba(22,79,125,0.26)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
         >
-          {loading ? "Creating account..." : "Create account"}
+          {loading ? "Creating your workspace…" : "Create account"}
+          {!loading && <ArrowRight className="h-4 w-4" />}
         </button>
       </form>
 
-      {/* Divider */}
-      <div className="my-6 flex items-center gap-4">
-        <div className="h-px flex-1 bg-[#E2E1D5]" />
-
-        <span className="text-xs font-medium text-[#9A998F]">
-          OR
-        </span>
-
-        <div className="h-px flex-1 bg-[#E2E1D5]" />
-      </div>
-
-      {/* Login link */}
-      <div className="text-center text-sm text-[#6B6B63]">
+      <div className="mt-7 border-t border-[#07111F]/10 pt-6 text-center text-[14px] text-[#07111F]/55">
         Already have an account?{" "}
-
-        <Link
-          href="/login"
-          className="font-semibold text-[#173F2A] transition hover:text-[#245C3F]"
-        >
+        <Link href="/login" className="font-black text-[#164F7D] transition hover:text-[#2F78B7] hover:underline">
           Sign in
         </Link>
       </div>

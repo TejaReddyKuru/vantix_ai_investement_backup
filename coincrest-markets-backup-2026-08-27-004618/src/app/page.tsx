@@ -70,7 +70,7 @@ const agents = [
     name: "News agent",
     input: "Events · sources · relevance",
     output: "Filters market-moving information, removes noise, and connects events to affected assets.",
-    color: "#70C891",
+    color: "#8DB355",
   },
   {
     icon: Radar,
@@ -84,21 +84,21 @@ const agents = [
     name: "Risk agent",
     input: "Exposure · limits · drawdown",
     output: "Challenges every idea against account constraints, invalidation, and portfolio-level risk.",
-    color: "#2D8C68",
+    color: "#D90000",
   },
   {
     icon: Target,
     name: "Trade-alert agent",
     input: "Setups · confirmation · timing",
     output: "Turns confirmed conditions into reviewable alerts with context, risk, and invalidation attached.",
-    color: "#70C891",
+    color: "#8DB355",
   },
   {
     icon: Sparkles,
     name: "AHNA orchestrator",
     input: "Evidence · conflict · confidence",
     output: "Combines specialist findings, detects disagreement, and produces one explainable market brief.",
-    color: "#2F78B7",
+    color: "#D90000",
   },
 ]
 
@@ -131,7 +131,7 @@ const faqs = [
 function SectionLabel({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
   return (
     <div className={`mb-5 inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.18em] ${dark ? "text-[#FFEA93]" : "text-black/55"}`}>
-      <span className="h-2 w-2 rounded-full bg-[#2F78B7]" />
+      <span className={`h-2 w-2 rounded-full ${dark ? "bg-[#D90000]" : "bg-[#D90000]"}`} />
       {children}
     </div>
   )
@@ -139,7 +139,7 @@ function SectionLabel({ children, dark = false }: { children: React.ReactNode; d
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-hidden bg-[#FBF8EE] text-[#07111F]">
+    <main className="min-h-screen overflow-hidden bg-[#FFFCF5] text-black">
       <div className="grid min-h-9 grid-cols-1 items-center bg-black px-5 text-[10px] font-black uppercase tracking-[0.12em] text-white sm:grid-cols-3 sm:px-8 lg:px-16">
         <span className="hidden sm:block">CoinCrest early access</span>
         <span className="py-2 text-center text-[#FFEA93]">Paper first. Live when you are ready.</span>
@@ -148,24 +148,24 @@ export default function Home() {
         </Link>
       </div>
 
-      <header className="sticky top-0 z-50 border-b border-[#07111F]/10 bg-[#FBF8EE]/94 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-black/10 bg-[#FFFCF5]/94 backdrop-blur-xl">
         <div className="mx-auto flex h-[82px] max-w-[1380px] items-center justify-between px-5 sm:px-8 lg:px-12">
           <Link href="/" aria-label="CoinCrest home">
             <CoinCrestBrand />
           </Link>
 
-          <nav className="hidden items-center gap-9 text-[16px] font-bold tracking-[-0.01em] lg:flex">
-            <Link href="/markets" className="transition-colors hover:text-[#2F78B7]">Markets</Link>
-            <a href="#platform" className="transition-colors hover:text-[#2F78B7]">Platform</a>
-            <a href="#ahna" className="transition-colors hover:text-[#2F78B7]">AHNA</a>
-            <Link href="/about" className="transition-colors hover:text-[#2F78B7]">About</Link>
+          <nav className="hidden items-center gap-8 text-[13px] font-bold lg:flex">
+            <a href="#markets" className="transition-colors hover:text-[#D90000]">Markets</a>
+            <a href="#platform" className="transition-colors hover:text-[#D90000]">Platform</a>
+            <a href="#ahna" className="transition-colors hover:text-[#D90000]">AHNA</a>
+            <Link href="/about" className="transition-colors hover:text-[#D90000]">About</Link>
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link href="/login" className="hidden px-3 py-2 text-[15px] font-bold tracking-[-0.01em] sm:block">Sign in</Link>
+            <Link href="/login" className="hidden px-3 py-2 text-[13px] font-bold sm:block">Sign in</Link>
             <Link
               href="/register"
-              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#2F78B7] px-5 text-[14px] font-black !text-white shadow-[0_10px_30px_rgba(47,120,183,0.2)] transition hover:-translate-y-0.5 hover:bg-[#245F93] sm:text-[15px]"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#D90000] px-5 text-[13px] font-black text-white shadow-[0_10px_30px_rgba(217,0,0,0.22)] transition hover:-translate-y-0.5 hover:bg-[#B90000]"
             >
               Create account <ArrowRight className="h-4 w-4" />
             </Link>
@@ -179,7 +179,7 @@ export default function Home() {
             <div key={`${market.symbol}-${index}`} className="flex h-10 items-center gap-3 border-r border-black/10 px-5 text-[11px]">
               <b>{market.symbol}</b>
               <span className="text-black/55">{market.price}</span>
-              <span className={market.positive ? "font-bold text-[#267A57]" : "font-bold text-[#C18A18]"}>{market.change}</span>
+              <span className={market.positive ? "font-bold text-[#55752E]" : "font-bold text-[#D90000]"}>{market.change}</span>
             </div>
           ))}
         </div>
@@ -193,16 +193,16 @@ export default function Home() {
         <div className="relative z-10 mx-auto flex min-h-[720px] max-w-[1380px] items-center px-5 py-20 sm:px-8 lg:min-h-[calc(100svh-158px)] lg:px-12">
           <div className="max-w-[680px]">
             <SectionLabel dark>Crypto intelligence with restraint</SectionLabel>
-            <h1 className="font-serif text-[clamp(4.2rem,7.8vw,8.6rem)] leading-[0.82] tracking-[-0.068em] text-[#FFF8E0]">
+            <h1 className="font-serif text-[clamp(3.7rem,7vw,7.4rem)] leading-[0.84] tracking-[-0.065em] text-[#FFF8E0]">
               Trade what you see.
-              <span className="mt-2 block text-[#FFF8E0]">Understand what you <span className="text-[#F2C94C]">risk.</span></span>
+              <span className="mt-2 block text-[#FFF8E0]">Understand what you <span className="text-[#D90000]">risk.</span></span>
             </h1>
             <p className="mt-8 max-w-[600px] text-[18px] leading-8 text-white/68 sm:text-[20px]">
               CoinCrest turns fragmented crypto signals into one explainable workflow—so you can research, rehearse, and act with greater discipline.
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link href="/register" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#2F78B7] px-7 text-[15px] font-black !text-white transition hover:-translate-y-0.5 hover:bg-[#245F93]">
+              <Link href="/register" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#D90000] px-7 text-[15px] font-black text-white transition hover:-translate-y-0.5 hover:bg-[#B90000]">
                 Start with paper trading <ArrowRight className="h-4 w-4" />
               </Link>
               <a href="#ahna" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-7 text-[15px] font-black text-white backdrop-blur-xl transition hover:bg-white hover:text-black">
@@ -212,19 +212,19 @@ export default function Home() {
 
             <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3 text-[12px] font-bold text-white/55">
               {['No card to explore', 'Paper capital first', 'You approve every action'].map((item) => (
-                <span key={item} className="inline-flex items-center gap-2"><Check className="h-4 w-4 text-[#70C891]" />{item}</span>
+                <span key={item} className="inline-flex items-center gap-2"><Check className="h-4 w-4 text-[#8DB355]" />{item}</span>
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      <section id="platform" className="border-y border-black/70 bg-[#F4E6B0]">
+      <section id="platform" className="border-y border-black/80 bg-[#F4E7B2]">
         <div className="mx-auto max-w-[1380px] px-5 py-24 sm:px-8 lg:px-12">
           <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
             <div>
               <SectionLabel>A deliberate trading system</SectionLabel>
-              <h2 className="max-w-[620px] font-serif text-[clamp(3.5rem,5.7vw,6.3rem)] leading-[0.9] tracking-[-0.058em]">
+              <h2 className="max-w-[560px] font-serif text-[clamp(3rem,5vw,5.6rem)] leading-[0.92] tracking-[-0.055em]">
                 More context.<br />Fewer blind decisions.
               </h2>
             </div>
@@ -253,7 +253,7 @@ export default function Home() {
           <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr]">
             <div className="lg:sticky lg:top-32 lg:self-start">
               <SectionLabel dark>AHNA multi-agent intelligence</SectionLabel>
-              <h2 className="font-serif text-[clamp(3.9rem,6.6vw,7.2rem)] leading-[0.86] tracking-[-0.062em]">
+              <h2 className="font-serif text-[clamp(3.4rem,6vw,6.5rem)] leading-[0.88] tracking-[-0.06em]">
                 Five specialists.<br /><span className="text-[#FFEA93]">One clear brief.</span>
               </h2>
               <p className="mt-8 max-w-[560px] text-[18px] leading-8 text-white/62">
@@ -261,13 +261,13 @@ export default function Home() {
               </p>
 
               <div className="mt-9 rounded-[26px] border border-white/12 bg-white/[0.045] p-6">
-                <div className="flex items-center gap-3 text-[12px] font-black uppercase tracking-[0.14em] text-[#70C891]">
+                <div className="flex items-center gap-3 text-[12px] font-black uppercase tracking-[0.14em] text-[#8DB355]">
                   <Layers3 className="h-5 w-5" /> How a response is formed
                 </div>
                 <div className="mt-5 flex flex-wrap items-center gap-2 text-[12px] font-bold">
                   {['Question', 'Specialist evidence', 'Conflict check', 'Risk review', 'AHNA brief'].map((stage, index, all) => (
                     <span key={stage} className="contents">
-                      <span className={`rounded-full border px-3 py-2 ${index === all.length - 1 ? 'border-[#2F78B7] bg-[#2F78B7] text-white' : 'border-white/15 bg-white/5 text-white/70'}`}>{stage}</span>
+                      <span className={`rounded-full border px-3 py-2 ${index === all.length - 1 ? 'border-[#D90000] bg-[#D90000] text-white' : 'border-white/15 bg-white/5 text-white/70'}`}>{stage}</span>
                       {index < all.length - 1 && <ArrowRight className="h-3 w-3 text-white/30" />}
                     </span>
                   ))}
@@ -280,13 +280,13 @@ export default function Home() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               {agents.map(({ icon: Icon, name, input, output, color }, index) => (
-                <article key={name} className={`rounded-[28px] border border-white/12 p-7 ${index === agents.length - 1 ? 'bg-[#164F7D] sm:col-span-2' : 'bg-white/[0.045]'}`}>
+                <article key={name} className={`rounded-[28px] border border-white/12 p-7 ${index === agents.length - 1 ? 'bg-[#D90000] sm:col-span-2' : 'bg-white/[0.045]'}`}>
                   <div className="flex items-center justify-between">
                     <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10"><Icon className="h-5 w-5" style={{ color }} /></span>
                     <span className="text-[10px] font-black uppercase tracking-[0.16em] text-white/38">Agent {String(index + 1).padStart(2, '0')}</span>
                   </div>
                   <h3 className="mt-7 text-[25px] font-black tracking-[-0.035em]">{name}</h3>
-                  <p className={`mt-2 text-[11px] font-black uppercase tracking-[0.13em] ${index === agents.length - 1 ? 'text-[#FFEA93]' : 'text-[#70C891]'}`}>{input}</p>
+                  <p className={`mt-2 text-[11px] font-black uppercase tracking-[0.13em] ${index === agents.length - 1 ? 'text-[#FFEA93]' : 'text-[#8DB355]'}`}>{input}</p>
                   <p className={`mt-4 text-[15px] leading-7 ${index === agents.length - 1 ? 'text-white/85' : 'text-white/58'}`}>{output}</p>
                 </article>
               ))}
@@ -295,12 +295,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="bg-[#A9CFAF]">
+      <section className="bg-[#A8C47A]">
         <div className="mx-auto max-w-[1380px] px-5 py-24 sm:px-8 lg:px-12">
           <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
             <div>
               <SectionLabel>From question to discipline</SectionLabel>
-              <h2 className="font-serif text-[clamp(3.6rem,5.7vw,6.2rem)] leading-[0.88] tracking-[-0.058em]">A calmer way to build conviction.</h2>
+              <h2 className="font-serif text-[clamp(3.1rem,5vw,5.5rem)] leading-[0.9] tracking-[-0.055em]">A calmer way to build conviction.</h2>
             </div>
             <Link href="/register" className="inline-flex min-h-13 shrink-0 items-center justify-center gap-2 rounded-full bg-[#080908] px-6 text-[14px] font-black text-[#FFF4D0] shadow-[0_12px_28px_rgba(0,0,0,0.14)] transition hover:-translate-y-0.5 hover:bg-[#171A16]">
               <span>Create your workspace</span> <ArrowRight className="h-4 w-4 text-[#FFF4D0]" />
@@ -323,7 +323,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-[1380px] gap-14 px-5 py-24 sm:px-8 lg:grid-cols-[0.75fr_1.25fr] lg:px-12 lg:py-28">
           <div>
             <SectionLabel>Questions before capital</SectionLabel>
-            <h2 className="font-serif text-[clamp(3.5rem,5.6vw,6rem)] leading-[0.9] tracking-[-0.058em]">Know what the product does—and what it does not.</h2>
+            <h2 className="font-serif text-[clamp(3rem,5vw,5.2rem)] leading-[0.92] tracking-[-0.055em]">Know what the product does—and what it does not.</h2>
           </div>
           <div className="border-t border-black">
             {faqs.map((faq) => (
@@ -338,11 +338,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-y border-black bg-[#164F7D] text-white">
+      <section className="border-y border-black bg-[#D90000] text-white">
         <div className="mx-auto flex max-w-[1380px] flex-col items-start justify-between gap-8 px-5 py-16 sm:px-8 lg:flex-row lg:items-center lg:px-12">
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#FFEA93]">Start with simulated capital</p>
-            <h2 className="mt-3 font-serif text-[clamp(3.3rem,5.6vw,5.8rem)] leading-[0.88] tracking-[-0.055em]">Build the process before the position.</h2>
+            <h2 className="mt-3 font-serif text-[clamp(2.8rem,5vw,5rem)] leading-[0.9] tracking-[-0.05em]">Build the process before the position.</h2>
           </div>
           <Link href="/register" className="inline-flex min-h-14 shrink-0 items-center gap-2 rounded-full bg-[#FFEA93] px-7 text-[15px] font-black text-black transition hover:-translate-y-0.5">
             Get started <ArrowRight className="h-4 w-4" />

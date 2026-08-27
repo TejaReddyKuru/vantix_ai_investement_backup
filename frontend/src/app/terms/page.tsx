@@ -62,7 +62,7 @@ const sections = [
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-[#FFFCF5] text-black">
+    <main className="min-h-screen bg-[#FBF8EE] text-[#07111F]">
       <header className="border-b border-black/10">
         <div className="mx-auto flex h-[82px] max-w-[1080px] items-center justify-between px-5 sm:px-8">
           <Link href="/"><CoinCrestBrand /></Link>
@@ -72,8 +72,8 @@ export default function TermsPage() {
 
       <section className="border-b border-black/80 bg-[#F4E7B2]">
         <div className="mx-auto max-w-[1080px] px-5 py-20 sm:px-8 lg:py-24">
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#D90000]">Legal</p>
-          <h1 className="mt-5 font-serif text-[clamp(3.7rem,8vw,7.5rem)] leading-[0.86] tracking-[-0.06em]">Terms and Conditions</h1>
+          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#2F78B7]">Legal</p>
+          <h1 className="mt-5 font-serif text-[clamp(4.1rem,8.5vw,8.2rem)] leading-[0.84] tracking-[-0.064em]">Terms and Conditions</h1>
           <p className="mt-7 text-[14px] font-bold text-black/55">Effective date: 26 August 2026</p>
         </div>
       </section>
