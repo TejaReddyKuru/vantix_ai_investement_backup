@@ -11,7 +11,7 @@ import MessageInput from "./MessageInput"
 import CommunityInfo from "./CommunityInfo"
 
 export default function CommunityView() {
-  const { token } = useAuth()
+  const { token, logout } = useAuth()
   const [communities, setCommunities] = useState<Community[]>([])
   const [activeCommunityId, setActiveCommunityId] = useState<string>("")
   const [messagesState, setMessagesState] = useState<Record<string, Message[]>>({})
@@ -39,8 +39,11 @@ export default function CommunityView() {
         if (res.data.length > 0) {
           setActiveCommunityId(res.data[0].slug)
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error loading communities", err)
+        if (err.response?.status === 401) {
+          logout()
+        }
       } finally {
         setLoading(false)
       }
@@ -63,8 +66,11 @@ export default function CommunityView() {
           ...prev,
           [activeCommunityId]: res.data
         }))
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error loading messages", err)
+        if (err.response?.status === 401) {
+          logout()
+        }
       }
     }
     loadHistory()
