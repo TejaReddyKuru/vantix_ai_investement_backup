@@ -261,21 +261,28 @@ async def post_message(
 @router.websocket("/{community_slug}/ws")
 async def websocket_endpoint(websocket: WebSocket, community_slug: str, token: Optional[str] = Query(None)):
     """Authenticated WebSocket endpoint for real-time channel updates."""
+    from app.core.logger import get_logger
+    logger = get_logger(__name__)
+
     if not token:
+        logger.warning("WS connection rejected: Token missing")
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
     # Authenticate user from JWT token
     try:
         user = await get_user_by_token(token)
-    except Exception:
+    except Exception as e:
+        logger.warning(f"WS connection rejected: Token decode failed: {str(e)}")
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
     if not user or not user.is_active:
+        logger.warning("WS connection rejected: User inactive or not found")
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
+    logger.info(f"WS connection accepted for user {user.email} in community {community_slug}")
     # Accept connection and register user
     await manager.connect(community_slug, websocket)
     try:

@@ -75,8 +75,14 @@ export default function CommunityView() {
     }
     loadHistory()
 
-    const baseURL = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000").replace(/^http/, "ws")
-    const wsUrl = `${baseURL}/api/v1/communities/${activeCommunityId}/ws?token=${token}`
+    const configBaseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000"
+    let wsHost = configBaseURL.replace(/^http/, "ws")
+    if (typeof window !== "undefined" && (configBaseURL.includes("localhost") || configBaseURL.includes("127.0.0.1"))) {
+      const currentHost = window.location.hostname
+      const currentPort = configBaseURL.split(":").pop()
+      wsHost = `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${currentHost}:${currentPort}`
+    }
+    const wsUrl = `${wsHost}/api/v1/communities/${activeCommunityId}/ws?token=${token}`
     const ws = new WebSocket(wsUrl)
 
     ws.onmessage = (event) => {
