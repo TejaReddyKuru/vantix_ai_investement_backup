@@ -72,6 +72,9 @@ async def list_communities(current_user: User = Depends(get_current_user)):
                 "moderators": ["Vish Capitals Team"]
             })
 
+        return response
+
+
 @router.post("")
 async def create_community(
     payload: dict,
