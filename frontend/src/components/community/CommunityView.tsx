@@ -80,40 +80,76 @@ export default function CommunityView() {
     if (typeof window !== "undefined" && (configBaseURL.includes("localhost") || configBaseURL.includes("127.0.0.1"))) {
       const currentHost = window.location.hostname
       const currentPort = configBaseURL.split(":").pop()
-      wsHost = `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${currentHost}:${currentPort}`
+      const resolvedHost = (currentHost === "localhost" && configBaseURL.includes("127.0.0.1"))
+        ? "127.0.0.1"
+        : currentHost
+      wsHost = `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${resolvedHost}:${currentPort}`
     }
     const wsUrl = `${wsHost}/api/v1/communities/${activeCommunityId}/ws?token=${token}`
-    const ws = new WebSocket(wsUrl)
 
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
-        if (data.type === "new_message") {
-          const newMsg = data.message
-          if (newMsg.communityId === activeCommunityId) {
-            setMessagesState(prev => {
-              const current = prev[activeCommunityId] || []
-              if (current.some(m => m.id === newMsg.id)) {
-                return prev
-              }
-              return {
-                ...prev,
-                [activeCommunityId]: [...current, newMsg]
-              }
-            })
+    let ws: WebSocket | null = null
+    let reconnectTimeout: NodeJS.Timeout | null = null
+    let isDestroyed = false
+    let reconnectDelay = 1000
+
+    function connectWS() {
+      if (isDestroyed) return
+
+      console.log(`Connecting to WebSocket: ${wsUrl}`)
+      ws = new WebSocket(wsUrl)
+
+      ws.onopen = () => {
+        console.log("WebSocket connection established successfully")
+        reconnectDelay = 1000 // reset delay on successful connection
+      }
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+          if (data.type === "new_message") {
+            const newMsg = data.message
+            if (newMsg.communityId === activeCommunityId) {
+              setMessagesState(prev => {
+                const current = prev[activeCommunityId] || []
+                if (current.some(m => m.id === newMsg.id)) {
+                  return prev
+                }
+                return {
+                  ...prev,
+                  [activeCommunityId]: [...current, newMsg]
+                }
+              })
+            }
           }
+        } catch (e) {
+          console.error("Error parsing WS event", e)
         }
-      } catch (e) {
-        console.error("Error parsing WS event", e)
+      }
+
+      ws.onerror = (err) => {
+        console.error("WebSocket connection error on URL: " + wsUrl, err)
+      }
+
+      ws.onclose = (event) => {
+        if (isDestroyed) return
+        console.warn(`WebSocket closed. Reconnecting in ${reconnectDelay}ms... (Code: ${event.code})`)
+        reconnectTimeout = setTimeout(() => {
+          reconnectDelay = Math.min(reconnectDelay * 2, 30000) // exponential backoff up to 30s
+          connectWS()
+        }, reconnectDelay)
       }
     }
 
-    ws.onerror = (err) => {
-      console.error("WS connection error", err)
-    }
+    connectWS()
 
     return () => {
-      ws.close()
+      isDestroyed = true
+      if (ws) {
+        ws.close()
+      }
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout)
+      }
     }
   }, [activeCommunityId, token])
 
