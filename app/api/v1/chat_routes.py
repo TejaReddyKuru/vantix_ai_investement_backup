@@ -10,9 +10,9 @@ from app.models.community_chat import ChatCommunity, ChatCommunityMember, ChatCo
 from database.session import AsyncSessionLocal
 from app.websocket.manager import manager
 
-router = APIRouter(prefix="/communities", tags=["chat"])
+router = APIRouter(tags=["chat"])
 
-@router.get("")
+@router.get("/communities")
 async def list_communities(current_user: User = Depends(get_current_user)):
     """Fetch communities with member count and latest message preview."""
     async with AsyncSessionLocal() as db:
@@ -77,7 +77,7 @@ async def list_communities(current_user: User = Depends(get_current_user)):
         return response
 
 
-@router.post("")
+@router.post("/communities")
 async def create_community(
     payload: dict,
     current_user: User = Depends(get_current_user)
@@ -156,7 +156,7 @@ async def create_community(
         }
 
 
-@router.get("/{community_slug}/messages")
+@router.get("/communities/{community_slug}/messages")
 async def get_messages(community_slug: str, current_user: User = Depends(get_current_user)):
     """Fetch message history for a community channel."""
     async with AsyncSessionLocal() as db:
@@ -203,7 +203,7 @@ async def get_messages(community_slug: str, current_user: User = Depends(get_cur
         return messages
 
 
-@router.post("/{community_slug}/messages")
+@router.post("/communities/{community_slug}/messages")
 async def post_message(
     community_slug: str,
     payload: dict,
@@ -244,8 +244,10 @@ async def post_message(
 
         # Format message payload for frontend client
         time_str = msg.created_at.strftime("%I:%M %p")
+        client_message_id = payload.get("clientMessageId")
         formatted_msg = {
             "id": str(msg.id),
+            "clientMessageId": client_message_id,
             "communityId": community_slug,
             "senderId": str(current_user.id),
             "senderName": sender_display,
@@ -254,7 +256,7 @@ async def post_message(
             "content": msg.content,
             "timestamp": time_str,
             "date": msg.created_at.strftime("%B %d, %Y"),
-            "isCurrentUser": False,  # clients determine this dynamically on receipt
+            "isCurrentUser": False,
             "reactions": [],
             "replyTo": {
                 "senderName": msg.reply_to_name,
@@ -274,14 +276,18 @@ async def post_message(
         return {"status": "ok", "message": formatted_msg}
 
 
-@router.websocket("/{community_slug}/ws")
+@router.websocket("/communities/{community_slug}/ws")
 async def websocket_endpoint(websocket: WebSocket, community_slug: str, token: Optional[str] = Query(None)):
     """Authenticated WebSocket endpoint for real-time channel updates."""
     from app.core.logger import get_logger
     logger = get_logger(__name__)
+    
+    with open("ws_debug.log", "a") as f:
+        f.write(f"\\n--- WS Connection Attempt ---\\nToken length: {len(token) if token else 0}\\nSlug: {community_slug}\\n")
 
     if not token:
         logger.warning("WS connection rejected: Token missing")
+        with open("ws_debug.log", "a") as f: f.write("Rejected: Token missing\\n")
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
@@ -290,22 +296,84 @@ async def websocket_endpoint(websocket: WebSocket, community_slug: str, token: O
         user = await get_user_by_token(token)
     except Exception as e:
         logger.warning(f"WS connection rejected: Token decode failed: {str(e)}")
+        with open("ws_debug.log", "a") as f: f.write(f"Rejected: Token decode failed - {str(e)}\\n")
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
     if not user or not user.is_active:
         logger.warning("WS connection rejected: User inactive or not found")
+        with open("ws_debug.log", "a") as f: f.write("Rejected: User inactive or not found\\n")
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
         return
 
+    with open("ws_debug.log", "a") as f: f.write("Success: WS connection accepted\\n")
+
     logger.info(f"WS connection accepted for user {user.email} in community {community_slug}")
     # Accept connection and register user
-    await manager.connect(community_slug, websocket)
+    await manager.connect(community_slug, str(user.id), websocket)
     try:
         # Keep connection open and handle incoming socket ping-pongs/messages
         while True:
-            await websocket.receive_text()
+            data = await websocket.receive_json()
+            if data.get("type") == "ping":
+                await websocket.send_json({"type": "pong"})
+            elif data.get("type") == "message":
+                content = data.get("content")
+                client_message_id = data.get("clientMessageId")
+                
+                if content:
+                    async with AsyncSessionLocal() as db:
+                        # Resolve community
+                        comm_stmt = select(ChatCommunity).where(ChatCommunity.slug == community_slug)
+                        comm_res = await db.execute(comm_stmt)
+                        community = comm_res.scalar_one_or_none()
+                        
+                        if community:
+                            # Create message
+                            msg = ChatCommunityMessage(
+                                id=uuid.uuid4(),
+                                community_id=community.id,
+                                user_id=user.id,
+                                content=content,
+                                reply_to_name=data.get("reply_to_name"),
+                                reply_to_content=data.get("reply_to_content"),
+                                created_at=datetime.utcnow(),
+                                updated_at=datetime.utcnow()
+                            )
+                            db.add(msg)
+                            await db.commit()
+                            
+                            prof_stmt = select(UserProfile).where(UserProfile.user_id == user.id)
+                            prof_res = await db.execute(prof_stmt)
+                            profile = prof_res.scalar_one_or_none()
+                            sender_display = (profile.display_name if profile else None) or user.email
+                            
+                            time_str = msg.created_at.strftime("%I:%M %p")
+                            formatted_msg = {
+                                "id": str(msg.id),
+                                "clientMessageId": client_message_id,
+                                "communityId": community_slug,
+                                "senderId": str(user.id),
+                                "senderName": sender_display,
+                                "senderAvatar": (sender_display[:2]).upper(),
+                                "senderRole": "Admin" if user.is_staff else "Member",
+                                "content": msg.content,
+                                "timestamp": time_str,
+                                "date": msg.created_at.strftime("%B %d, %Y"),
+                                "isCurrentUser": False,
+                                "reactions": [],
+                                "replyTo": {
+                                    "senderName": msg.reply_to_name,
+                                    "content": msg.reply_to_content
+                                } if msg.reply_to_name else None
+                            }
+                            
+                            await manager.broadcast(community_slug, {
+                                "type": "new_message",
+                                "message": formatted_msg
+                            })
     except WebSocketDisconnect:
-        manager.disconnect(community_slug, websocket)
-    except Exception:
-        manager.disconnect(community_slug, websocket)
+        manager.disconnect(community_slug, str(user.id), websocket)
+    except Exception as e:
+        logger.error(f"WS error: {e}")
+        manager.disconnect(community_slug, str(user.id), websocket)

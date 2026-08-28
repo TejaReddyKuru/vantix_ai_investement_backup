@@ -2,9 +2,11 @@
 
 import { Bell, ChevronDown, Search } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
+import { useRouter } from "next/navigation"
 
 export default function TopNav() {
   const { user, logout } = useAuth()
+  const router = useRouter()
 
   return (
     <header className="flex h-[76px] shrink-0 items-center justify-between border-b border-[var(--border)] bg-[var(--surface)] px-5 sm:px-7">
@@ -53,7 +55,10 @@ export default function TopNav() {
         </button>
 
         <button
-          onClick={() => logout()}
+          onClick={() => {
+            logout()
+            router.replace("/login")
+          }}
           className="hidden text-xs font-semibold text-[var(--muted)] transition hover:text-[var(--negative)] xl:block"
         >
           Logout

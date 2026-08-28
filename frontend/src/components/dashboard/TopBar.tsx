@@ -384,10 +384,10 @@ export default function TopBar({
                   <div className="border-t border-[#ECECE4] p-2">
                     <button
                       type="button"
-                      onClick={async () => {
+                      onClick={() => {
                         setAccountOpen(false)
-                        await logout()
-                        router.push("/login")
+                        logout()
+                        router.replace("/login")
                       }}
                       className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold text-[#8A403A] transition-colors hover:bg-[#FFF4F2]"
                     >

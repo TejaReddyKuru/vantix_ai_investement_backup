@@ -44,8 +44,11 @@ export default function LoginPage() {
 
     if (requestedPath?.startsWith("/") && !requestedPath.startsWith("//")) {
       setNextPath(requestedPath)
+      router.prefetch(requestedPath)
+    } else {
+      router.prefetch("/dashboard")
     }
-  }, [])
+  }, [router])
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -56,6 +59,7 @@ export default function LoginPage() {
       await login(email.trim().toLowerCase(), password)
       router.replace(nextPath)
     } catch (err: unknown) {
+      setLoading(false)
       if (axios.isAxiosError(err)) {
         const detail = err.response?.data?.detail
 
@@ -79,8 +83,6 @@ export default function LoginPage() {
       } else {
         setError("We could not verify that email and password.")
       }
-    } finally {
-      setLoading(false)
     }
   }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState, useEffect } from "react"
+import { useMemo, useState, useEffect, useRef } from "react"
 import { useAuth } from "../../context/AuthContext"
 import { apiClient } from "../../lib/client"
 import { Community, Member, Message } from "./types"
@@ -11,7 +11,7 @@ import MessageInput from "./MessageInput"
 import CommunityInfo from "./CommunityInfo"
 
 export default function CommunityView() {
-  const { token, logout } = useAuth()
+  const { token, logout, user } = useAuth()
   const [communities, setCommunities] = useState<Community[]>([])
   const [activeCommunityId, setActiveCommunityId] = useState<string>("")
   const [messagesState, setMessagesState] = useState<Record<string, Message[]>>({})
@@ -24,11 +24,24 @@ export default function CommunityView() {
   const [showPinnedBanner, setShowPinnedBanner] = useState(true)
   const [replyingTo, setReplyingTo] = useState<Message | null>(null)
   const [mutedChannels, setMutedChannels] = useState<Record<string, boolean>>({})
+  const wsRef = useRef<WebSocket | null>(null)
 
   // Load communities on mount
   useEffect(() => {
     async function loadCommunities() {
       if (!token) return
+      const cached = localStorage.getItem("vc_communities_cache")
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached)
+          setCommunities(parsed)
+          if (parsed.length > 0 && !activeCommunityId) {
+            setActiveCommunityId(parsed[0].slug)
+          }
+          setLoading(false)
+        } catch (e) {}
+      }
+
       try {
         const res = await apiClient.get("/api/v1/communities", {
           headers: {
@@ -36,7 +49,8 @@ export default function CommunityView() {
           }
         })
         setCommunities(res.data)
-        if (res.data.length > 0) {
+        localStorage.setItem("vc_communities_cache", JSON.stringify(res.data))
+        if (res.data.length > 0 && !activeCommunityId && !cached) {
           setActiveCommunityId(res.data[0].slug)
         }
       } catch (err: any) {
@@ -97,6 +111,7 @@ export default function CommunityView() {
 
       console.log(`Connecting to WebSocket: ${wsUrl}`)
       ws = new WebSocket(wsUrl)
+      wsRef.current = ws
 
       ws.onopen = () => {
         console.log("WebSocket connection established successfully")
@@ -111,6 +126,17 @@ export default function CommunityView() {
             if (newMsg.communityId === activeCommunityId) {
               setMessagesState(prev => {
                 const current = prev[activeCommunityId] || []
+                
+                // Replace optimistic message if clientMessageId matches
+                if (newMsg.clientMessageId) {
+                  const existingIdx = current.findIndex(m => m.clientMessageId === newMsg.clientMessageId)
+                  if (existingIdx !== -1) {
+                    const copy = [...current]
+                    copy[existingIdx] = newMsg
+                    return { ...prev, [activeCommunityId]: copy }
+                  }
+                }
+                
                 if (current.some(m => m.id === newMsg.id)) {
                   return prev
                 }
@@ -147,6 +173,7 @@ export default function CommunityView() {
       if (ws) {
         ws.close()
       }
+      wsRef.current = null
       if (reconnectTimeout) {
         clearTimeout(reconnectTimeout)
       }
@@ -227,22 +254,58 @@ export default function CommunityView() {
     content: string,
     attachments?: { type: "chart" | "image" | "link"; title: string; subtitle: string }[]
   ) {
-    if (!content.trim() || !token) return
+    if (!content.trim() || !token || !activeCommunity) return
+
+    const clientMessageId = `temp-${crypto.randomUUID()}`
+    
+    const senderName = user?.display_name || user?.email || "Me"
+    
+    const optimisticMessage: Message = {
+      id: clientMessageId,
+      clientMessageId,
+      isOptimistic: true,
+      communityId: activeCommunityId,
+      senderId: user?.id || "me",
+      senderName: senderName,
+      senderAvatar: senderName.substring(0, 2).toUpperCase(),
+      senderRole: "Member",
+      content,
+      timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+      date: new Date().toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'}),
+      isCurrentUser: true,
+      reactions: [],
+      replyTo: replyingTo ? {
+        senderName: replyingTo.senderName,
+        content: replyingTo.content
+      } : undefined
+    }
+
+    setMessagesState(prev => ({
+      ...prev,
+      [activeCommunityId]: [...(prev[activeCommunityId] || []), optimisticMessage]
+    }))
 
     const payload = {
+      type: "message",
+      clientMessageId,
       content,
       reply_to_name: replyingTo ? replyingTo.senderName : null,
       reply_to_content: replyingTo ? replyingTo.content : null
     }
 
-    try {
-      await apiClient.post(`/api/v1/communities/${activeCommunityId}/messages`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-    } catch (err) {
-      console.error("Error sending message", err)
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify(payload))
+    } else {
+      // Fallback to REST
+      try {
+        await apiClient.post(`/api/v1/communities/${activeCommunityId}/messages`, payload, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
+      } catch (err) {
+        console.error("Error sending message via fallback REST", err)
+      }
     }
 
     setReplyingTo(null)

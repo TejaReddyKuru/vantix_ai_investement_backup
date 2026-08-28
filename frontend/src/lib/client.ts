@@ -19,9 +19,11 @@ apiClient.interceptors.response.use(
       const config = error.config
       if (config && config.url && !config.url.includes("/auth/login")) {
         if (typeof window !== "undefined") {
-          localStorage.removeItem("vc_auth")
-          if (window.location.pathname !== "/login") {
-            window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`
+          if (localStorage.getItem("vc_auth")) {
+            localStorage.removeItem("vc_auth")
+            if (window.location.pathname !== "/login") {
+              window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`
+            }
           }
         }
       }

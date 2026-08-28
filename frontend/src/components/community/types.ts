@@ -42,6 +42,8 @@ export type Reaction = {
 
 export type Message = {
   id: string
+  clientMessageId?: string
+  isOptimistic?: boolean
   communityId: string
   senderId: string
   senderName: string
