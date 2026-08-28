@@ -17,6 +17,7 @@ import {
   TrendingUp,
   WalletCards,
   XCircle,
+  Loader2,
 } from "lucide-react"
 
 import TradingHeader from "@/components/trading/TradingHeader"
@@ -112,6 +113,26 @@ export default function PaperTradingPage() {
   const [positionsList, setPositionsList] = useState<any[]>([])
   const [ordersList, setOrdersList] = useState<any[]>([])
 
+  const [isPlacing, setIsPlacing] = useState(false)
+  const [banner, setBanner] = useState<{ message: string; type: "success" | "error" } | null>(null)
+  const [bannerVisible, setBannerVisible] = useState(false)
+
+  const showBanner = (message: string, type: "success" | "error") => {
+    setBanner({ message, type })
+    setTimeout(() => setBannerVisible(true), 50)
+  }
+
+  // Auto-dismiss banner after 4 seconds
+  useEffect(() => {
+    if (!banner) return
+    const dismissId = setTimeout(() => {
+      setBannerVisible(false)
+      const removeId = setTimeout(() => setBanner(null), 300)
+      return () => clearTimeout(removeId)
+    }, 4000)
+    return () => clearTimeout(dismissId)
+  }, [banner])
+
   const [selectedAssetPrice, setSelectedAssetPrice] = useState<number>(118420)
   const [selectedAssetChange, setSelectedAssetChange] = useState<number>(0)
   const [orderType, setOrderType] = useState<"MARKET" | "LIMIT">("MARKET")
@@ -188,6 +209,7 @@ export default function PaperTradingPage() {
     const reqPrice = orderType === "MARKET" ? selectedAssetPrice : parseFloat(limitPrice)
     if (isNaN(reqPrice) || reqPrice <= 0) return
 
+    setIsPlacing(true)
     try {
       await apiClient.post("/api/v1/paper-trading/orders", {
         asset_id: selectedAssetObj.id,
@@ -209,9 +231,12 @@ export default function PaperTradingPage() {
       setPositionsList(positionsRes.data.items || [])
       setOrdersList(ordersRes.data.items || [])
       setAmount("")
+      showBanner(`Successfully placed simulated ${side} order!`, "success")
     } catch (err: any) {
       const errMsg = err.response?.data?.detail || err.message || "Failed to place simulated order"
-      alert(errMsg)
+      showBanner(errMsg, "error")
+    } finally {
+      setIsPlacing(false)
     }
   }
 
@@ -233,14 +258,40 @@ export default function PaperTradingPage() {
       setAmount("")
       setSide("BUY")
       setAsset("BTC")
+      showBanner("Simulated trading account reset successfully.", "success")
     } catch (err: any) {
       const errMsg = err.response?.data?.detail || err.message || "Failed to reset simulation"
-      alert(errMsg)
+      showBanner(errMsg, "error")
     }
   }
 
   return (
-    <div className="min-h-full bg-[#F7F6E8] text-[#171717]">
+    <div className="min-h-full bg-[#F7F6E8] text-[#171717] relative">
+      {/* Premium Banner Alert Notification */}
+      {banner && (
+        <div
+          role="alert"
+          className={[
+            "fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl border shadow-[0_20px_40px_rgba(23,23,23,0.12)] bg-white/95 backdrop-blur-md transition-all duration-500 ease-out transform",
+            bannerVisible ? "top-6 opacity-100 scale-100" : "-top-16 opacity-0 scale-95",
+            banner.type === "success"
+              ? "border-[#D1E8D5] text-[#18794E]"
+              : "border-[#F5ECE8] text-[#9A5A45]",
+          ].join(" ")}
+        >
+          {banner.type === "success" ? (
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#EAF4EC] text-[#18794E]">
+              <CheckCircle2 className="h-4 w-4" />
+            </div>
+          ) : (
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#F5ECE8] text-[#9A5A45]">
+              <XCircle className="h-4 w-4" />
+            </div>
+          )}
+          <span className="text-xs font-extrabold tracking-tight">{banner.message}</span>
+        </div>
+      )}
+
       {/* Trading Header */}
       <TradingHeader />
 
@@ -350,19 +401,19 @@ export default function PaperTradingPage() {
           {[
             {
               label: "Paper balance",
-              value: accountInfo ? `$${parseFloat(accountInfo.current_cash).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$100,000.00",
+              value: accountInfo ? `$${parseFloat(accountInfo.current_cash).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$100,000.00",
               change: "Available",
               icon: WalletCards,
             },
             {
               label: "Portfolio value",
-              value: portfolioSummary && portfolioSummary.total_equity !== null ? `$${parseFloat(portfolioSummary.total_equity).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$100,000.00",
+              value: portfolioSummary && portfolioSummary.total_equity !== null ? `$${parseFloat(portfolioSummary.total_equity).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$100,000.00",
               change: portfolioSummary && portfolioSummary.total_equity && accountInfo ? `${((parseFloat(portfolioSummary.total_equity) - parseFloat(accountInfo.initial_balance)) / parseFloat(accountInfo.initial_balance) * 100).toFixed(2)}%` : "0.00%",
               icon: TrendingUp,
             },
             {
               label: "Today's P&L",
-              value: portfolioSummary && portfolioSummary.unrealized_pnl !== null ? `${parseFloat(portfolioSummary.unrealized_pnl) >= 0 ? "+" : ""}$${parseFloat(portfolioSummary.unrealized_pnl).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$0.00",
+              value: portfolioSummary && portfolioSummary.unrealized_pnl !== null ? `${parseFloat(portfolioSummary.unrealized_pnl) >= 0 ? "+" : ""}$${parseFloat(portfolioSummary.unrealized_pnl).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$0.00",
               change: portfolioSummary && portfolioSummary.unrealized_pnl !== null && portfolioSummary.total_equity ? `${(parseFloat(portfolioSummary.unrealized_pnl) / parseFloat(portfolioSummary.total_equity) * 100).toFixed(2)}%` : "0.00%",
               icon: BarChart3,
             },
@@ -496,7 +547,7 @@ export default function PaperTradingPage() {
                             </td>
 
                             <td className="py-4 text-xs font-extrabold">
-                              {`$${totalVal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                              {`$${totalVal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                             </td>
 
                             <td
@@ -506,7 +557,7 @@ export default function PaperTradingPage() {
                                   : "text-[#9A5A45]"
                               }`}
                             >
-                              {`${isPositive ? "+" : ""}$${pnl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                              {`${isPositive ? "+" : ""}$${pnl.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                             </td>
 
                             <td className="py-4">
@@ -714,7 +765,7 @@ export default function PaperTradingPage() {
                   </span>
 
                   <span className="text-[10px] font-extrabold">
-                    {`$${selectedAssetPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+                    {`$${selectedAssetPrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
                   </span>
                 </div>
 
@@ -732,28 +783,32 @@ export default function PaperTradingPage() {
               {/* Place Order */}
               <button
                 type="button"
-                disabled={isLive || !running || !amount.trim()}
+                disabled={isLive || !running || !amount.trim() || isPlacing}
                 onClick={placeOrder}
                 className={[
-                  "mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl text-xs font-extrabold text-white shadow-[0_8px_20px_rgba(15,45,31,0.14)] transition",
-                  isLive || !running || !amount.trim()
-                    ? "cursor-not-allowed bg-[#A09F96] shadow-none"
+                  "mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl text-xs font-extrabold text-white shadow-[0_8px_20px_rgba(15,45,31,0.14)] transition-all duration-200 active:scale-95 active:translate-y-0",
+                  isLive || !running || !amount.trim() || isPlacing
+                    ? "cursor-not-allowed bg-[#A09F96] shadow-none opacity-80"
                     : side === "BUY"
-                      ? "bg-[#0F2D1F] hover:-translate-y-0.5 hover:bg-[#17452F]"
-                      : "bg-[#8B5140] hover:-translate-y-0.5 hover:bg-[#754333]",
+                      ? "bg-[#0F2D1F] hover:-translate-y-0.5 hover:bg-[#17452F] hover:shadow-[0_12px_24px_rgba(15,45,31,0.22)]"
+                      : "bg-[#8B5140] hover:-translate-y-0.5 hover:bg-[#754333] hover:shadow-[0_12px_24px_rgba(139,81,64,0.22)]",
                 ].join(" ")}
               >
-                {side === "BUY" ? (
-                  <ArrowUpRight size={15} />
+                {isPlacing ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : side === "BUY" ? (
+                  <ArrowUpRight size={15} className="animate-pulse" />
                 ) : (
-                  <ArrowDownRight size={15} />
+                  <ArrowDownRight size={15} className="animate-pulse" />
                 )}
 
                 {isLive
                   ? "Paper Trading Disabled"
                   : !running
                     ? "Simulation Paused"
-                    : `Place ${side} order`}
+                    : isPlacing
+                      ? "Executing simulated order..."
+                      : `Place ${side} order`}
               </button>
 
               <div className="mt-3 flex items-center justify-center gap-1.5 text-[8px] font-semibold text-[#9A998F]">
@@ -787,7 +842,7 @@ export default function PaperTradingPage() {
                   </span>
 
                   <span className="text-[10px] font-extrabold">
-                    {accountInfo ? `$${parseFloat(accountInfo.initial_balance).toLocaleString()}` : "$100,000"}
+                    {accountInfo ? `$${parseFloat(accountInfo.initial_balance).toLocaleString("en-US")}` : "$100,000"}
                   </span>
                 </div>
 
@@ -797,7 +852,7 @@ export default function PaperTradingPage() {
                   </span>
 
                   <span className="text-[10px] font-extrabold">
-                    {accountInfo ? `$${parseFloat(accountInfo.current_cash).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "$100,000.00"}
+                    {accountInfo ? `$${parseFloat(accountInfo.current_cash).toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "$100,000.00"}
                   </span>
                 </div>
 
@@ -807,7 +862,7 @@ export default function PaperTradingPage() {
                   </span>
 
                   <span className="text-[10px] font-extrabold">
-                    {portfolioSummary ? `$${parseFloat(portfolioSummary.invested_value).toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "$0.00"}
+                    {portfolioSummary ? `$${parseFloat(portfolioSummary.invested_value).toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "$0.00"}
                   </span>
                 </div>
               </div>
@@ -882,7 +937,7 @@ export default function PaperTradingPage() {
                       : "Pending"
                     const orderId = order.id ? order.id.slice(0, 8).toUpperCase() : "ORD"
                     const orderQty = order.quantity ? parseFloat(order.quantity).toFixed(4) : "0.0000"
-                    const orderPrice = order.requested_price ? parseFloat(order.requested_price).toLocaleString(undefined, { minimumFractionDigits: 2 }) : "0.00"
+                    const orderPrice = order.requested_price ? parseFloat(order.requested_price).toLocaleString("en-US", { minimumFractionDigits: 2 }) : "0.00"
                     
                     let orderTime = "Just now"
                     if (order.created_at) {

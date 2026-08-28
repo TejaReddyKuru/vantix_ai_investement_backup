@@ -87,10 +87,10 @@ export default function ChatHeader({
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#18794E]/40" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#18794E]" />
                 </span>
-                {community.onlineCount.toLocaleString()} online
+                {community.onlineCount.toLocaleString("en-US")} online
               </span>
               <span>·</span>
-              <span>{community.memberCount.toLocaleString()} members</span>
+              <span>{community.memberCount.toLocaleString("en-US")} members</span>
             </div>
           </div>
         </div>

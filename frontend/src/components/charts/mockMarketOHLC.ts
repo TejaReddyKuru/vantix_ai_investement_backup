@@ -12,24 +12,31 @@ function generateCandles(
   const candles: CandleData[] = []
   let currentPrice = basePrice
 
+  // Seedable deterministic pseudo-random generator initialized per call based on basePrice
+  let localSeed = Math.floor(basePrice)
+  function nextRandom() {
+    const x = Math.sin(localSeed++) * 10000
+    return x - Math.floor(x)
+  }
+
   for (let i = 0; i < count; i++) {
     const date = new Date(startDate.getTime() + i * intervalDays * 24 * 60 * 60 * 1000)
     const dateStr = date.toISOString().split("T")[0]
 
     // Realistic day open close
     const open = currentPrice
-    const change = (Math.sin(i * 0.4) * 0.5 + (Math.random() - 0.47) + trendFactor) * volatility * currentPrice
+    const change = (Math.sin(i * 0.4) * 0.5 + (nextRandom() - 0.47) + trendFactor) * volatility * currentPrice
     const close = Math.max(open + change, open * 0.8)
 
     const isBull = close >= open
-    const highWick = Math.random() * volatility * 0.7 * currentPrice
-    const lowWick = Math.random() * volatility * 0.7 * currentPrice
+    const highWick = nextRandom() * volatility * 0.7 * currentPrice
+    const lowWick = nextRandom() * volatility * 0.7 * currentPrice
 
     const high = Math.max(open, close) + highWick
     const low = Math.min(open, close) - lowWick
 
     // Realistic volume distribution
-    const volume = Math.floor((15000 + Math.random() * 25000 + Math.abs(change) * 50) * (basePrice > 1000 ? 10 : 100))
+    const volume = Math.floor((15000 + nextRandom() * 25000 + Math.abs(change) * 50) * (basePrice > 1000 ? 10 : 100))
 
     candles.push({
       time: dateStr,
