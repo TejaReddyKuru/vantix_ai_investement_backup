@@ -66,11 +66,40 @@ class PaperTradingService:
         self.db = db
         self.binance_service = binance_service or BinanceService()
 
+    async def update_account_equity(self, account: PaperAccount) -> None:
+        """Calculate and persist current balance and equity for the paper account."""
+        # 1. Update balance to current cash
+        account.balance = account.current_cash
+
+        # 2. Calculate current value of positions
+        pos_stmt = select(PaperPosition).where(PaperPosition.paper_account_id == account.id)
+        pos_res = await self.db.execute(pos_stmt)
+        positions = pos_res.scalars().all()
+
+        total_position_value = Decimal("0")
+        for pos in positions:
+            pos_price = pos.current_price or pos.average_entry_price
+            if pos.symbol:
+                try:
+                    price_val = await self.binance_service.get_current_price(pos.symbol)
+                    pos_price = Decimal(str(price_val))
+                    pos.current_price = pos_price
+                except Exception:
+                    pass
+            total_position_value += pos.quantity * pos_price
+            pos.unrealized_pnl = (pos_price - pos.average_entry_price) * pos.quantity
+
+        account.equity = account.current_cash + total_position_value
+
     async def get_paper_account(self, user_id: UUID) -> PaperAccount | None:
         """Fetch the paper trading account for a user."""
         stmt = select(PaperAccount).where(PaperAccount.user_id == user_id)
         result = await self.db.execute(stmt)
-        return result.scalar_one_or_none()
+        account = result.scalar_one_or_none()
+        if account:
+            await self.update_account_equity(account)
+            await self.db.commit()
+        return account
 
     async def create_order(self, user_id: UUID, payload: PaperOrderCreate) -> PaperOrder:
         """
@@ -161,11 +190,12 @@ class PaperTradingService:
                 if not assessment.approved:
                     raise RiskValidationFailedError(assessment.rejection_reason)
 
-
             # Create PaperOrder
             order = PaperOrder(
+                user_id=user_id,
                 paper_account_id=account.id,
                 asset_id=asset.id,
+                symbol=symbol,
                 side=side,
                 order_type=order_type,
                 quantity=quantity,
@@ -176,6 +206,8 @@ class PaperTradingService:
             )
             self.db.add(order)
             await self.db.flush()  # Generate order.id
+
+            realized_pnl = Decimal("0")
 
             if is_triggered:
                 # Compute notional value & fee
@@ -200,10 +232,13 @@ class PaperTradingService:
 
                     if not position:
                         position = PaperPosition(
+                            user_id=user_id,
                             paper_account_id=account.id,
                             asset_id=asset.id,
+                            symbol=symbol,
                             quantity=quantity,
                             average_entry_price=execution_price,
+                            current_price=execution_price,
                             realized_pnl=Decimal("0"),
                             unrealized_pnl=Decimal("0"),
                         )
@@ -216,8 +251,8 @@ class PaperTradingService:
                         
                         position.quantity = new_qty
                         position.average_entry_price = new_avg
+                        position.current_price = execution_price
 
-                    realized_pnl = Decimal("0")
                     txn_amount = -total_cost
 
                 else:  # SELL
@@ -242,6 +277,7 @@ class PaperTradingService:
 
                     position.realized_pnl += realized_pnl
                     position.quantity -= quantity
+                    position.current_price = execution_price
 
                     if position.quantity == Decimal("0"):
                         await self.db.delete(position)
@@ -250,9 +286,11 @@ class PaperTradingService:
 
                 # Create PaperTrade
                 trade = PaperTrade(
+                    user_id=user_id,
                     paper_account_id=account.id,
                     order_id=order.id,
                     asset_id=asset.id,
+                    symbol=symbol,
                     side=side,
                     quantity=quantity,
                     execution_price=execution_price,
@@ -266,6 +304,7 @@ class PaperTradingService:
 
                 # Create PaperTransaction referencing the executed trade ID
                 transaction = PaperTransaction(
+                    user_id=user_id,
                     paper_account_id=account.id,
                     transaction_type="TRADE_BUY" if side == "BUY" else "TRADE_SELL",
                     amount=txn_amount,
@@ -278,6 +317,10 @@ class PaperTradingService:
                 # Update order status
                 order.status = "filled"
                 order.executed_price = execution_price
+                order.realized_pnl = realized_pnl
+
+            # Recalculate equity & balance
+            await self.update_account_equity(account)
 
             # Atomic Commit
             await self.db.commit()
@@ -303,6 +346,7 @@ class PaperTradingService:
             await self.db.execute(delete(PaperTransaction).where(PaperTransaction.paper_account_id == account.id))
             
             account.current_cash = account.initial_balance
+            await self.update_account_equity(account)
             await self.db.commit()
             await self.db.refresh(account)
             return account

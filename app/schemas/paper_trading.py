@@ -13,6 +13,8 @@ class PaperAccountOut(BaseModel):
     name: str
     initial_balance: Decimal
     current_cash: Decimal
+    balance: Optional[Decimal] = None
+    equity: Optional[Decimal] = None
     currency: str
     status: str
     created_at: datetime

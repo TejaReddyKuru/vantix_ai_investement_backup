@@ -24,6 +24,7 @@ class User(Base):
     profile = relationship("UserProfile", back_populates="user", cascade="all, delete-orphan", passive_deletes=True)
     sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan", passive_deletes=True)
     preferences = relationship("UserPreferences", back_populates="user", cascade="all, delete-orphan", passive_deletes=True)
+    paper_account = relationship("PaperAccount", back_populates="user", uselist=False, cascade="all, delete-orphan", passive_deletes=True)
 
     __table_args__ = (
         Index('ix_users_created_at', 'created_at'),
@@ -54,7 +55,9 @@ class UserProfile(Base):
 def _delete_user_related(mapper, connection, target):
     from app.models.preferences import UserPreferences
     from app.models.session import UserSession
+    from app.models.paper_trading import PaperAccount
 
     connection.execute(UserProfile.__table__.delete().where(UserProfile.user_id == target.id))
     connection.execute(UserSession.__table__.delete().where(UserSession.user_id == target.id))
     connection.execute(UserPreferences.__table__.delete().where(UserPreferences.user_id == target.id))
+    connection.execute(PaperAccount.__table__.delete().where(PaperAccount.user_id == target.id))

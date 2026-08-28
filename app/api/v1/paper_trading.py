@@ -39,7 +39,8 @@ async def _get_account_for_user(db, user_id: UUID) -> PaperAccount | None:
 @router.get("/account", response_model=PaperAccountOut, summary="Get the user's paper account")
 async def get_paper_account(current_user: User = Depends(get_current_user)):
     async with AsyncSessionLocal() as db:
-        account = await _get_account_for_user(db, current_user.id)
+        service = PaperTradingService(db)
+        account = await service.get_paper_account(current_user.id)
         if account is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Paper account not found.")
         return {
@@ -48,6 +49,8 @@ async def get_paper_account(current_user: User = Depends(get_current_user)):
             "name": account.name,
             "initial_balance": account.initial_balance,
             "current_cash": account.current_cash,
+            "balance": account.balance if account.balance is not None else account.current_cash,
+            "equity": account.equity if account.equity is not None else account.current_cash,
             "currency": account.currency,
             "status": account.status,
             "created_at": account.created_at,
@@ -300,6 +303,8 @@ async def reset_paper_account(current_user: User = Depends(get_current_user)):
             return {
                 "message": "Paper trading account reset successfully",
                 "current_cash": account.current_cash,
+                "balance": account.balance if account.balance is not None else account.current_cash,
+                "equity": account.equity if account.equity is not None else account.current_cash,
                 "initial_balance": account.initial_balance,
             }
         except AccountNotFoundError as exc:

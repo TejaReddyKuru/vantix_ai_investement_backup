@@ -209,6 +209,8 @@ async def _ensure_default_paper_account(db, user_id):
             name='Default Paper Account',
             initial_balance=100000,
             current_cash=100000,
+            balance=100000,
+            equity=100000,
             currency='USDT',
         )
     )

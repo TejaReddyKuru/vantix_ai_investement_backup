@@ -24,6 +24,7 @@ import TradingHeader from "@/components/trading/TradingHeader"
 import TradingChart from "@/components/trading/TradingChart"
 import { useTradingMode } from "@/context/TradingModeContext"
 import { useAuth } from "@/context/AuthContext"
+import DashboardShell from "@/components/dashboard/DashboardShell"
 import { apiClient } from "@/lib/client"
 
 type OrderSide = "BUY" | "SELL"
@@ -266,7 +267,7 @@ export default function PaperTradingPage() {
   }
 
   return (
-    <div className="min-h-full bg-[#F7F6E8] text-[#171717] relative">
+    <DashboardShell>
       {/* Premium Banner Alert Notification */}
       {banner && (
         <div
@@ -295,7 +296,7 @@ export default function PaperTradingPage() {
       {/* Trading Header */}
       <TradingHeader />
 
-      <main className="mx-auto w-full max-w-[1600px] px-4 py-5 sm:px-6 lg:px-8">
+      <div className="mt-4">
         {/* Live mode warning */}
         {isLive && (
           <div className="mb-5 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4">
@@ -1032,7 +1033,7 @@ export default function PaperTradingPage() {
           Paper trading uses simulated funds. No real orders are
           executed.
         </div>
-      </main>
-    </div>
+      </div>
+    </DashboardShell>
   )
 }
