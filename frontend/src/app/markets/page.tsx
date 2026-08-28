@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import CoinCrestBrand from "../../components/branding/CoinCrestBrand"
 import SiteFooter from "../../components/landing/SiteFooter"
+import DashboardShell from "@/components/dashboard/DashboardShell"
 
 type MarketToken = {
   symbol: string
@@ -425,6 +426,7 @@ export default function MarketsPage() {
         : "Market feed unavailable · Last snapshot shown"
 
   return (
+    <DashboardShell>
     <main className="min-h-screen overflow-hidden bg-[#07111F] text-white">
       <div className="flex min-h-9 items-center justify-center border-b border-white/8 bg-black px-5 text-center text-[10px] font-black uppercase tracking-[0.14em] text-[#FFEA93]">
         Markets move fast. CoinCrest helps you slow the decision down.
@@ -678,5 +680,6 @@ export default function MarketsPage() {
 
       <SiteFooter />
     </main>
+    </DashboardShell>
   )
 }

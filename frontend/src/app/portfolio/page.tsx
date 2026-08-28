@@ -11,6 +11,7 @@ import {
   TrendingUp,
   Wallet,
 } from "lucide-react"
+import DashboardShell from "@/components/dashboard/DashboardShell"
 
 const holdings = [
   {
@@ -115,6 +116,7 @@ export default function PortfolioPage() {
   const areaPath = buildAreaPath(chartValues)
 
   return (
+    <DashboardShell>
     <main className="min-h-screen bg-[#F7F6E8] text-[#171717]">
       <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8">
 
@@ -624,5 +626,6 @@ export default function PortfolioPage() {
         </div>
       </div>
     </main>
+    </DashboardShell>
   )
 }

@@ -15,6 +15,7 @@ import {
   Wallet,
 } from "lucide-react"
 import { useState } from "react"
+import DashboardShell from "@/components/dashboard/DashboardShell"
 
 type Notification = {
   id: number
@@ -158,6 +159,7 @@ export default function NotificationsPage() {
   }
 
   return (
+    <DashboardShell>
     <main className="min-h-screen bg-[#F7F6E8] px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
 
@@ -350,5 +352,6 @@ export default function NotificationsPage() {
         </div>
       </div>
     </main>
+    </DashboardShell>
   )
 }

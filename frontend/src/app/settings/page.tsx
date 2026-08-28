@@ -20,6 +20,7 @@ import {
   X,
   RotateCcw,
 } from "lucide-react"
+import DashboardShell from "@/components/dashboard/DashboardShell"
 
 type Section =
   | "profile"
@@ -260,6 +261,7 @@ export default function SettingsPage() {
   }
 
   return (
+    <DashboardShell>
     <main className="min-h-screen bg-[#F7F6E8] text-[#171717]">
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-[#DCDCD1] bg-[#F7F6E8]/95 backdrop-blur">
@@ -1112,6 +1114,7 @@ export default function SettingsPage() {
         </div>
       </div>
     </main>
+    </DashboardShell>
   )
 }
 
