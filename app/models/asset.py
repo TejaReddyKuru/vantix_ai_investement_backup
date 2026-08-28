@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import Column, DateTime, String, Index, UniqueConstraint, Text
+from sqlalchemy import Column, DateTime, String, Index, UniqueConstraint, JSON
 from sqlalchemy.dialects.postgresql import UUID
 
 from database.base import Base
@@ -17,7 +17,7 @@ class Asset(Base):
     name = Column(String(255), nullable=False)
     exchange = Column(String(50), default="binance")
     status = Column(String(50), default="active")
-    asset_metadata = Column(Text, nullable=True)
+    asset_metadata = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 

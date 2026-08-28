@@ -308,19 +308,19 @@ export default function CandlestickChart({
               <span className="text-[#8A897F]">
                 O:{" "}
                 <strong className="text-[#171717]">
-                  ${activeHeader.open.toLocaleString()}
+                  ${activeHeader.open.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </strong>
               </span>
               <span className="text-[#8A897F]">
                 H:{" "}
                 <strong className="text-[#171717]">
-                  ${activeHeader.high.toLocaleString()}
+                  ${activeHeader.high.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </strong>
               </span>
               <span className="text-[#8A897F]">
                 L:{" "}
                 <strong className="text-[#171717]">
-                  ${activeHeader.low.toLocaleString()}
+                  ${activeHeader.low.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </strong>
               </span>
               <span className="text-[#8A897F]">
@@ -330,7 +330,7 @@ export default function CandlestickChart({
                     color: activeHeader.isBullish ? BULLISH_COLOR : BEARISH_COLOR,
                   }}
                 >
-                  ${activeHeader.close.toLocaleString()}
+                  ${activeHeader.close.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </strong>
               </span>
               <span

@@ -78,7 +78,7 @@ export default function CommunityInfo({
         <div className="mt-4 grid grid-cols-2 gap-2">
           <div className="rounded-xl border border-[#DDDCD0] bg-white p-2.5 text-center">
             <div className="text-sm font-extrabold text-[#171717]">
-              {community.memberCount.toLocaleString()}
+              {community.memberCount.toLocaleString("en-US")}
             </div>
             <div className="text-[9px] font-bold uppercase tracking-wider text-[#8A897F]">
               Members
@@ -88,7 +88,7 @@ export default function CommunityInfo({
           <div className="rounded-xl border border-[#D5E2D8] bg-[#E8F2EA] p-2.5 text-center">
             <div className="flex items-center justify-center gap-1 text-sm font-extrabold text-[#18794E]">
               <span className="h-1.5 w-1.5 rounded-full bg-[#18794E]" />
-              {community.onlineCount.toLocaleString()}
+              {community.onlineCount.toLocaleString("en-US")}
             </div>
             <div className="text-[9px] font-bold uppercase tracking-wider text-[#607367]">
               Online Now

@@ -1,7 +1,9 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
+import { useAuth } from "../../context/AuthContext"
 import {
   Bell,
   ChevronDown,
@@ -15,6 +17,7 @@ import {
   User,
   X,
 } from "lucide-react"
+
 
 type TopBarProps = {
   onMenuClick: () => void
@@ -60,6 +63,8 @@ export default function TopBar({
   fridayOpen,
   onFridayToggle,
 }: TopBarProps) {
+  const { user, logout } = useAuth()
+  const router = useRouter()
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [accountOpen, setAccountOpen] = useState(false)
@@ -292,16 +297,16 @@ export default function TopBar({
                 ].join(" ")}
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#0F2D1F] text-[9px] font-extrabold text-white">
-                  VS
+                  {((user?.display_name || user?.email || "VS").slice(0, 2)).toUpperCase()}
                 </div>
 
                 <div className="hidden text-left lg:block">
-                  <div className="text-[9px] font-extrabold leading-none text-[#171717]">
-                    Vish
+                  <div className="text-[9px] font-extrabold leading-none text-[#171717] max-w-[100px] truncate">
+                    {user?.display_name || user?.email || "Guest"}
                   </div>
 
                   <div className="mt-0.5 text-[7px] font-semibold leading-none text-[#64645D]">
-                    Pro Account
+                    {user ? "Active Member" : "Guest Mode"}
                   </div>
                 </div>
 
@@ -322,16 +327,16 @@ export default function TopBar({
                   <div className="border-b border-[#ECECE4] bg-[#FAFAF7] p-4">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F2D1F] text-xs font-extrabold text-white">
-                        VS
+                        {((user?.display_name || user?.email || "VS").slice(0, 2)).toUpperCase()}
                       </div>
 
-                      <div>
-                        <div className="text-xs font-extrabold text-[#171717]">
-                          Vish
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-xs font-extrabold text-[#171717]">
+                          {user?.display_name || user?.email || "Guest"}
                         </div>
 
                         <div className="mt-1 text-[9px] font-semibold text-[#8A897F]">
-                          Pro Account
+                          {user ? "Active Member" : "Guest Mode"}
                         </div>
                       </div>
                     </div>
@@ -379,11 +384,10 @@ export default function TopBar({
                   <div className="border-t border-[#ECECE4] p-2">
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={async () => {
                         setAccountOpen(false)
-                        window.dispatchEvent(
-                          new Event("logout-request")
-                        )
+                        await logout()
+                        router.push("/login")
                       }}
                       className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-bold text-[#8A403A] transition-colors hover:bg-[#FFF4F2]"
                     >

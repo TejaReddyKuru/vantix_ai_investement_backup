@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = "0005_phase2_paper_trading"
-down_revision = "0004_phase2_assets_and_watchlists"
+down_revision = "0004_phase2_assets_watchlist"
 branch_labels = None
 seqrevision = None
 

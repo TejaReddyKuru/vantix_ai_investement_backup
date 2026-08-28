@@ -71,28 +71,21 @@ export const AuthProvider = ({
 }: {
   children: React.ReactNode
 }) => {
-  const [initialAuth] = useState<StoredAuth | null>(() =>
-    getStoredAuth()
-  )
-
-  const [user, setUser] = useState<User | null>(
-    () => initialAuth?.user ?? null
-  )
-
-  const [token, setToken] = useState<string | null>(
-    () => initialAuth?.token ?? null
-  )
+  const [user, setUser] = useState<User | null>(null)
+  const [token, setToken] = useState<string | null>(null)
 
   /*
    * Restore the saved authentication token when
-   * the application starts.
+   * the application starts on the client.
    */
   useEffect(() => {
-    if (initialAuth?.token) {
-      apiClient.defaults.headers.common["Authorization"] =
-        `Bearer ${initialAuth.token}`
+    const auth = getStoredAuth()
+    if (auth) {
+      setUser(auth.user)
+      setToken(auth.token)
+      apiClient.defaults.headers.common["Authorization"] = `Bearer ${auth.token}`
     }
-  }, [initialAuth])
+  }, [])
 
   /*
    * Login

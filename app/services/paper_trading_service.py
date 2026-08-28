@@ -288,3 +288,24 @@ class PaperTradingService:
             # Atomic Rollback
             await self.db.rollback()
             raise e
+
+    async def reset_account(self, user_id: UUID) -> PaperAccount:
+        """Reset the paper trading account: clears all orders, positions, trades, transactions and restores cash."""
+        account = await self.get_paper_account(user_id)
+        if not account:
+            raise AccountNotFoundError("Paper account not found.")
+
+        from sqlalchemy import delete
+        try:
+            await self.db.execute(delete(PaperOrder).where(PaperOrder.paper_account_id == account.id))
+            await self.db.execute(delete(PaperPosition).where(PaperPosition.paper_account_id == account.id))
+            await self.db.execute(delete(PaperTrade).where(PaperTrade.paper_account_id == account.id))
+            await self.db.execute(delete(PaperTransaction).where(PaperTransaction.paper_account_id == account.id))
+            
+            account.current_cash = account.initial_balance
+            await self.db.commit()
+            await self.db.refresh(account)
+            return account
+        except Exception as e:
+            await self.db.rollback()
+            raise e

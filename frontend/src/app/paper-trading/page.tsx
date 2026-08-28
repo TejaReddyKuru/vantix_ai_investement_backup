@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -17,11 +17,14 @@ import {
   TrendingUp,
   WalletCards,
   XCircle,
+  Loader2,
 } from "lucide-react"
 
 import TradingHeader from "@/components/trading/TradingHeader"
 import TradingChart from "@/components/trading/TradingChart"
 import { useTradingMode } from "@/context/TradingModeContext"
+import { useAuth } from "@/context/AuthContext"
+import { apiClient } from "@/lib/client"
 
 type OrderSide = "BUY" | "SELL"
 
@@ -97,49 +100,198 @@ const positions = [
 
 export default function PaperTradingPage() {
   const { isPaper, isLive } = useTradingMode()
+  const { token } = useAuth()
 
   const [side, setSide] = useState<OrderSide>("BUY")
   const [asset, setAsset] = useState("BTC")
   const [amount, setAmount] = useState("")
-  const [orders, setOrders] = useState(initialOrders)
   const [running, setRunning] = useState(true)
 
-  const estimatedPrice =
-    asset === "BTC"
-      ? "$118,420"
-      : asset === "ETH"
-        ? "$4,318"
-        : "$188.40"
+  const [assetsList, setAssetsList] = useState<any[]>([])
+  const [accountInfo, setAccountInfo] = useState<any>(null)
+  const [portfolioSummary, setPortfolioSummary] = useState<any>(null)
+  const [positionsList, setPositionsList] = useState<any[]>([])
+  const [ordersList, setOrdersList] = useState<any[]>([])
 
-  function placeOrder() {
+  const [isPlacing, setIsPlacing] = useState(false)
+  const [banner, setBanner] = useState<{ message: string; type: "success" | "error" } | null>(null)
+  const [bannerVisible, setBannerVisible] = useState(false)
+
+  const showBanner = (message: string, type: "success" | "error") => {
+    setBanner({ message, type })
+    setTimeout(() => setBannerVisible(true), 50)
+  }
+
+  // Auto-dismiss banner after 4 seconds
+  useEffect(() => {
+    if (!banner) return
+    const dismissId = setTimeout(() => {
+      setBannerVisible(false)
+      const removeId = setTimeout(() => setBanner(null), 300)
+      return () => clearTimeout(removeId)
+    }, 4000)
+    return () => clearTimeout(dismissId)
+  }, [banner])
+
+  const [selectedAssetPrice, setSelectedAssetPrice] = useState<number>(118420)
+  const [selectedAssetChange, setSelectedAssetChange] = useState<number>(0)
+  const [orderType, setOrderType] = useState<"MARKET" | "LIMIT">("MARKET")
+  const [limitPrice, setLimitPrice] = useState<string>("")
+
+  // 1. Initial Load of Core Portfolios, Positions, Orders, and Asset mapping
+  useEffect(() => {
+    if (!token) return
+
+    async function loadData() {
+      try {
+        const assetsRes = await apiClient.get("/api/v1/markets")
+        setAssetsList(assetsRes.data)
+
+        const accountRes = await apiClient.get("/api/v1/paper-trading/account")
+        setAccountInfo(accountRes.data)
+
+        const summaryRes = await apiClient.get("/api/v1/portfolio/summary")
+        setPortfolioSummary(summaryRes.data)
+
+        const positionsRes = await apiClient.get("/api/v1/paper-trading/positions")
+        setPositionsList(positionsRes.data.items || [])
+
+        const ordersRes = await apiClient.get("/api/v1/paper-trading/orders")
+        setOrdersList(ordersRes.data.items || [])
+      } catch (err) {
+        console.error("Failed to load paper trading data", err)
+      }
+    }
+
+    loadData()
+  }, [token])
+
+  // 2. Poll live ticker details (price and percent change) for selected asset
+  useEffect(() => {
+    if (!token || !asset || assetsList.length === 0) return
+
+    const selectedAssetObj = assetsList.find(a => a.base_asset === asset || a.symbol === asset)
+    if (!selectedAssetObj) return
+
+    async function fetchTicker() {
+      try {
+        const res = await apiClient.get(`/api/v1/markets/${selectedAssetObj.symbol}/ticker`)
+        setSelectedAssetPrice(res.data.price)
+        setSelectedAssetChange(res.data.change_24h)
+      } catch (err) {
+        console.error("Failed to fetch ticker price", err)
+      }
+    }
+
+    fetchTicker()
+    const intervalId = setInterval(fetchTicker, 5000)
+    return () => clearInterval(intervalId)
+  }, [token, asset, assetsList])
+
+  // 3. Keep limitPrice input preset synchronized with ticker price
+  useEffect(() => {
+    if (selectedAssetPrice) {
+      setLimitPrice(selectedAssetPrice.toString())
+    }
+  }, [asset, selectedAssetPrice])
+
+  async function placeOrder() {
     if (!isPaper) return
     if (!running) return
     if (!amount.trim()) return
 
-    const newOrder: Order = {
-      id: `ORD-${1050 + orders.length}`,
-      side,
-      asset,
-      amount: `${amount} ${asset}`,
-      price: estimatedPrice,
-      status: "Pending",
-      time: "Just now",
-    }
+    const selectedAssetObj = assetsList.find(a => a.base_asset === asset || a.symbol === asset)
+    if (!selectedAssetObj) return
 
-    setOrders((current) => [newOrder, ...current])
-    setAmount("")
+    const qty = parseFloat(amount)
+    if (isNaN(qty) || qty <= 0) return
+
+    const reqPrice = orderType === "MARKET" ? selectedAssetPrice : parseFloat(limitPrice)
+    if (isNaN(reqPrice) || reqPrice <= 0) return
+
+    setIsPlacing(true)
+    try {
+      await apiClient.post("/api/v1/paper-trading/orders", {
+        asset_id: selectedAssetObj.id,
+        side,
+        order_type: orderType,
+        quantity: qty,
+        requested_price: reqPrice,
+      })
+
+      const [accountRes, summaryRes, positionsRes, ordersRes] = await Promise.all([
+        apiClient.get("/api/v1/paper-trading/account"),
+        apiClient.get("/api/v1/portfolio/summary"),
+        apiClient.get("/api/v1/paper-trading/positions"),
+        apiClient.get("/api/v1/paper-trading/orders")
+      ])
+
+      setAccountInfo(accountRes.data)
+      setPortfolioSummary(summaryRes.data)
+      setPositionsList(positionsRes.data.items || [])
+      setOrdersList(ordersRes.data.items || [])
+      setAmount("")
+      showBanner(`Successfully placed simulated ${side} order!`, "success")
+    } catch (err: any) {
+      const errMsg = err.response?.data?.detail || err.message || "Failed to place simulated order"
+      showBanner(errMsg, "error")
+    } finally {
+      setIsPlacing(false)
+    }
   }
 
-  function resetSimulation() {
-    setOrders(initialOrders)
-    setAmount("")
-    setSide("BUY")
-    setAsset("BTC")
-    setRunning(true)
+  async function resetSimulation() {
+    try {
+      await apiClient.post("/api/v1/paper-trading/reset")
+
+      const [accountRes, summaryRes, positionsRes, ordersRes] = await Promise.all([
+        apiClient.get("/api/v1/paper-trading/account"),
+        apiClient.get("/api/v1/portfolio/summary"),
+        apiClient.get("/api/v1/paper-trading/positions"),
+        apiClient.get("/api/v1/paper-trading/orders")
+      ])
+
+      setAccountInfo(accountRes.data)
+      setPortfolioSummary(summaryRes.data)
+      setPositionsList(positionsRes.data.items || [])
+      setOrdersList(ordersRes.data.items || [])
+      setAmount("")
+      setSide("BUY")
+      setAsset("BTC")
+      showBanner("Simulated trading account reset successfully.", "success")
+    } catch (err: any) {
+      const errMsg = err.response?.data?.detail || err.message || "Failed to reset simulation"
+      showBanner(errMsg, "error")
+    }
   }
 
   return (
-    <div className="min-h-full bg-[#F7F6E8] text-[#171717]">
+    <div className="min-h-full bg-[#F7F6E8] text-[#171717] relative">
+      {/* Premium Banner Alert Notification */}
+      {banner && (
+        <div
+          role="alert"
+          className={[
+            "fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl border shadow-[0_20px_40px_rgba(23,23,23,0.12)] bg-white/95 backdrop-blur-md transition-all duration-500 ease-out transform",
+            bannerVisible ? "top-6 opacity-100 scale-100" : "-top-16 opacity-0 scale-95",
+            banner.type === "success"
+              ? "border-[#D1E8D5] text-[#18794E]"
+              : "border-[#F5ECE8] text-[#9A5A45]",
+          ].join(" ")}
+        >
+          {banner.type === "success" ? (
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#EAF4EC] text-[#18794E]">
+              <CheckCircle2 className="h-4 w-4" />
+            </div>
+          ) : (
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#F5ECE8] text-[#9A5A45]">
+              <XCircle className="h-4 w-4" />
+            </div>
+          )}
+          <span className="text-xs font-extrabold tracking-tight">{banner.message}</span>
+        </div>
+      )}
+
       {/* Trading Header */}
       <TradingHeader />
 
@@ -249,26 +401,26 @@ export default function PaperTradingPage() {
           {[
             {
               label: "Paper balance",
-              value: "$100,000.00",
+              value: accountInfo ? `$${parseFloat(accountInfo.current_cash).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$100,000.00",
               change: "Available",
               icon: WalletCards,
             },
             {
               label: "Portfolio value",
-              value: "$102,418.60",
-              change: "+2.42%",
+              value: portfolioSummary && portfolioSummary.total_equity !== null ? `$${parseFloat(portfolioSummary.total_equity).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$100,000.00",
+              change: portfolioSummary && portfolioSummary.total_equity && accountInfo ? `${((parseFloat(portfolioSummary.total_equity) - parseFloat(accountInfo.initial_balance)) / parseFloat(accountInfo.initial_balance) * 100).toFixed(2)}%` : "0.00%",
               icon: TrendingUp,
             },
             {
               label: "Today's P&L",
-              value: "+$684.20",
-              change: "+0.67%",
+              value: portfolioSummary && portfolioSummary.unrealized_pnl !== null ? `${parseFloat(portfolioSummary.unrealized_pnl) >= 0 ? "+" : ""}$${parseFloat(portfolioSummary.unrealized_pnl).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "$0.00",
+              change: portfolioSummary && portfolioSummary.unrealized_pnl !== null && portfolioSummary.total_equity ? `${(parseFloat(portfolioSummary.unrealized_pnl) / parseFloat(portfolioSummary.total_equity) * 100).toFixed(2)}%` : "0.00%",
               icon: BarChart3,
             },
             {
               label: "Risk status",
               value: "Healthy",
-              change: "34% exposure",
+              change: portfolioSummary && portfolioSummary.drawdown !== null ? `${parseFloat(portfolioSummary.drawdown).toFixed(2)}% drawdown` : "0.00% drawdown",
               icon: ShieldCheck,
             },
           ].map((stat) => {
@@ -311,11 +463,12 @@ export default function PaperTradingPage() {
             <TradingChart
               assetSymbol={asset}
               assetName={
-                asset === "BTC"
+                assetsList.find(a => a.base_asset === asset || a.symbol === asset)?.name ||
+                (asset === "BTC"
                   ? "Bitcoin"
                   : asset === "ETH"
                     ? "Ethereum"
-                    : "Solana"
+                    : "Solana")
               }
               height={380}
             />
@@ -334,7 +487,7 @@ export default function PaperTradingPage() {
                 </div>
 
                 <span className="rounded-full bg-[#F5F5EF] px-2 py-1 text-[8px] font-extrabold text-[#8A897F]">
-                  3 positions
+                  {`${positionsList.length} positions`}
                 </span>
               </div>
 
@@ -360,57 +513,74 @@ export default function PaperTradingPage() {
                   </thead>
 
                   <tbody className="divide-y divide-[#F0F0EA]">
-                    {positions.map((position) => (
-                      <tr key={position.asset}>
-                        <td className="py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#F1F1E9] text-[9px] font-extrabold text-[#34342F]">
-                              {position.asset.slice(0, 2)}
-                            </div>
+                    {positionsList.length > 0 ? (
+                      positionsList.map((position) => {
+                        const qty = parseFloat(position.quantity)
+                        const avg = parseFloat(position.average_entry_price)
+                        const pnl = parseFloat(position.unrealized_pnl)
+                        const totalVal = qty * avg + pnl
+                        const returnPct = avg > 0 ? (pnl / (qty * avg)) * 100 : 0
+                        const isPositive = pnl >= 0
 
-                            <div>
-                              <div className="text-xs font-extrabold">
-                                {position.asset}
+                        return (
+                          <tr key={position.id}>
+                            <td className="py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#F1F1E9] text-[9px] font-extrabold text-[#34342F]">
+                                  {position.asset_symbol ? position.asset_symbol.slice(0, 2) : "AS"}
+                                </div>
+
+                                <div>
+                                  <div className="text-xs font-extrabold">
+                                    {position.asset_symbol || "Asset"}
+                                  </div>
+
+                                  <div className="mt-0.5 text-[9px] text-[#9A998F]">
+                                    {position.asset_name || "Cryptocurrency"}
+                                  </div>
+                                </div>
                               </div>
+                            </td>
 
-                              <div className="mt-0.5 text-[9px] text-[#9A998F]">
-                                {position.name}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
+                            <td className="py-4 text-xs font-semibold text-[#55554F]">
+                              {qty.toFixed(4)}
+                            </td>
 
-                        <td className="py-4 text-xs font-semibold text-[#55554F]">
-                          {position.quantity}
-                        </td>
+                            <td className="py-4 text-xs font-extrabold">
+                              {`$${totalVal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                            </td>
 
-                        <td className="py-4 text-xs font-extrabold">
-                          {position.value}
-                        </td>
+                            <td
+                              className={`py-4 text-xs font-extrabold ${
+                                isPositive
+                                  ? "text-[#18794E]"
+                                  : "text-[#9A5A45]"
+                              }`}
+                            >
+                              {`${isPositive ? "+" : ""}$${pnl.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                            </td>
 
-                        <td
-                          className={`py-4 text-xs font-extrabold ${
-                            position.positive
-                              ? "text-[#18794E]"
-                              : "text-[#9A5A45]"
-                          }`}
-                        >
-                          {position.pnl}
-                        </td>
-
-                        <td className="py-4">
-                          <span
-                            className={`rounded-full px-2 py-1 text-[8px] font-extrabold ${
-                              position.positive
-                                ? "bg-[#EAF4EC] text-[#18794E]"
-                                : "bg-[#F5ECE8] text-[#9A5A45]"
-                            }`}
-                          >
-                            {position.change}
-                          </span>
+                            <td className="py-4">
+                              <span
+                                className={`rounded-full px-2 py-1 text-[8px] font-extrabold ${
+                                  isPositive
+                                    ? "bg-[#EAF4EC] text-[#18794E]"
+                                    : "bg-[#F5ECE8] text-[#9A5A45]"
+                                }`}
+                              >
+                                {`${isPositive ? "+" : ""}${returnPct.toFixed(2)}%`}
+                              </span>
+                            </td>
+                          </tr>
+                        )
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="py-8 text-center text-xs text-[#9A998F]">
+                          No open positions. Use the order form to start trading.
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -484,8 +654,30 @@ export default function PaperTradingPage() {
                 ))}
               </div>
 
-              {/* Asset */}
-              <label className="mt-5 block">
+              {/* Order Type Toggle (MARKET/LIMIT) */}
+              <div className="mt-4 grid grid-cols-2 gap-2 rounded-xl bg-[#F5F5EF] p-1">
+                {(["MARKET", "LIMIT"] as const).map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    disabled={isLive}
+                    onClick={() => setOrderType(type)}
+                    className={[
+                      "rounded-lg py-2 text-[9px] font-extrabold transition",
+                      isLive
+                        ? "cursor-not-allowed text-[#B5B4AB]"
+                        : orderType === type
+                          ? "bg-[#0F2D1F] text-white shadow-sm"
+                          : "text-[#8A897F] hover:text-[#34342F]",
+                    ].join(" ")}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+
+              {/* Asset Selector */}
+              <label className="mt-4 block">
                 <span className="mb-2 block text-[9px] font-extrabold uppercase tracking-[0.12em] text-[#8A897F]">
                   Asset
                 </span>
@@ -499,9 +691,17 @@ export default function PaperTradingPage() {
                     }
                     className="h-11 w-full appearance-none rounded-xl border border-[#DCDDD4] bg-[#FAFAF7] px-3 pr-10 text-xs font-extrabold outline-none transition focus:border-[#0F2D1F] disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <option>BTC</option>
-                    <option>ETH</option>
-                    <option>SOL</option>
+                    {assetsList.length > 0 ? (
+                      assetsList.map((a) => (
+                        <option key={a.id} value={a.base_asset}>{a.base_asset} ({a.name})</option>
+                      ))
+                    ) : (
+                      <>
+                        <option>BTC</option>
+                        <option>ETH</option>
+                        <option>SOL</option>
+                      </>
+                    )}
                   </select>
 
                   <ChevronDown
@@ -510,6 +710,28 @@ export default function PaperTradingPage() {
                   />
                 </div>
               </label>
+
+              {/* Limit Price Input if orderType is LIMIT */}
+              {orderType === "LIMIT" && (
+                <label className="mt-4 block">
+                  <span className="mb-2 block text-[9px] font-extrabold uppercase tracking-[0.12em] text-[#8A897F]">
+                    Limit Price (USDT)
+                  </span>
+
+                  <div className="flex h-11 items-center rounded-xl border border-[#DCDDD4] bg-[#FAFAF7] px-3 focus-within:border-[#0F2D1F]">
+                    <input
+                      value={limitPrice}
+                      disabled={isLive}
+                      onChange={(event) =>
+                        setLimitPrice(event.target.value)
+                      }
+                      placeholder="0.00"
+                      inputMode="decimal"
+                      className="min-w-0 flex-1 bg-transparent text-sm font-extrabold outline-none placeholder:text-[#B3B2A8] disabled:cursor-not-allowed"
+                    />
+                  </div>
+                </label>
+              )}
 
               {/* Amount */}
               <label className="mt-4 block">
@@ -543,7 +765,7 @@ export default function PaperTradingPage() {
                   </span>
 
                   <span className="text-[10px] font-extrabold">
-                    {estimatedPrice}
+                    {`$${selectedAssetPrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
                   </span>
                 </div>
 
@@ -561,28 +783,32 @@ export default function PaperTradingPage() {
               {/* Place Order */}
               <button
                 type="button"
-                disabled={isLive || !running || !amount.trim()}
+                disabled={isLive || !running || !amount.trim() || isPlacing}
                 onClick={placeOrder}
                 className={[
-                  "mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl text-xs font-extrabold text-white shadow-[0_8px_20px_rgba(15,45,31,0.14)] transition",
-                  isLive || !running || !amount.trim()
-                    ? "cursor-not-allowed bg-[#A09F96] shadow-none"
+                  "mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl text-xs font-extrabold text-white shadow-[0_8px_20px_rgba(15,45,31,0.14)] transition-all duration-200 active:scale-95 active:translate-y-0",
+                  isLive || !running || !amount.trim() || isPlacing
+                    ? "cursor-not-allowed bg-[#A09F96] shadow-none opacity-80"
                     : side === "BUY"
-                      ? "bg-[#0F2D1F] hover:-translate-y-0.5 hover:bg-[#17452F]"
-                      : "bg-[#8B5140] hover:-translate-y-0.5 hover:bg-[#754333]",
+                      ? "bg-[#0F2D1F] hover:-translate-y-0.5 hover:bg-[#17452F] hover:shadow-[0_12px_24px_rgba(15,45,31,0.22)]"
+                      : "bg-[#8B5140] hover:-translate-y-0.5 hover:bg-[#754333] hover:shadow-[0_12px_24px_rgba(139,81,64,0.22)]",
                 ].join(" ")}
               >
-                {side === "BUY" ? (
-                  <ArrowUpRight size={15} />
+                {isPlacing ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : side === "BUY" ? (
+                  <ArrowUpRight size={15} className="animate-pulse" />
                 ) : (
-                  <ArrowDownRight size={15} />
+                  <ArrowDownRight size={15} className="animate-pulse" />
                 )}
 
                 {isLive
                   ? "Paper Trading Disabled"
                   : !running
                     ? "Simulation Paused"
-                    : `Place ${side} order`}
+                    : isPlacing
+                      ? "Executing simulated order..."
+                      : `Place ${side} order`}
               </button>
 
               <div className="mt-3 flex items-center justify-center gap-1.5 text-[8px] font-semibold text-[#9A998F]">
@@ -616,7 +842,7 @@ export default function PaperTradingPage() {
                   </span>
 
                   <span className="text-[10px] font-extrabold">
-                    $100,000
+                    {accountInfo ? `$${parseFloat(accountInfo.initial_balance).toLocaleString("en-US")}` : "$100,000"}
                   </span>
                 </div>
 
@@ -626,17 +852,17 @@ export default function PaperTradingPage() {
                   </span>
 
                   <span className="text-[10px] font-extrabold">
-                    $72,903.50
+                    {accountInfo ? `$${parseFloat(accountInfo.current_cash).toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "$100,000.00"}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span className="text-[9px] font-semibold text-[#8A897F]">
-                    Used margin
+                    Invested value
                   </span>
 
                   <span className="text-[10px] font-extrabold">
-                    $27,096.50
+                    {portfolioSummary ? `$${parseFloat(portfolioSummary.invested_value).toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "$0.00"}
                   </span>
                 </div>
               </div>
@@ -675,7 +901,7 @@ export default function PaperTradingPage() {
 
             <span className="flex items-center gap-1.5 rounded-full bg-[#F5F5EF] px-2 py-1 text-[8px] font-bold text-[#8A897F]">
               <Clock3 size={10} />
-              {orders.length} orders
+              {`${ordersList.length} orders`}
             </span>
           </div>
 
@@ -703,65 +929,97 @@ export default function PaperTradingPage() {
               </thead>
 
               <tbody className="divide-y divide-[#F0F0EA]">
-                {orders.map((order) => (
-                  <tr key={order.id}>
-                    <td className="py-4 text-[10px] font-extrabold text-[#34342F]">
-                      {order.id}
-                    </td>
+                {ordersList.length > 0 ? (
+                  ordersList.map((order) => {
+                    if (!order) return null
+                    const statusVal = order.status
+                      ? order.status.charAt(0).toUpperCase() + order.status.slice(1)
+                      : "Pending"
+                    const orderId = order.id ? order.id.slice(0, 8).toUpperCase() : "ORD"
+                    const orderQty = order.quantity ? parseFloat(order.quantity).toFixed(4) : "0.0000"
+                    const orderPrice = order.requested_price ? parseFloat(order.requested_price).toLocaleString("en-US", { minimumFractionDigits: 2 }) : "0.00"
+                    
+                    let orderTime = "Just now"
+                    if (order.created_at) {
+                      try {
+                        const d = new Date(order.created_at)
+                        if (!isNaN(d.getTime())) {
+                          orderTime = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+                        }
+                      } catch (e) {
+                        console.error("Invalid order date", e)
+                      }
+                    }
 
-                    <td className="py-4">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[8px] font-extrabold ${
-                          order.side === "BUY"
-                            ? "bg-[#EAF4EC] text-[#18794E]"
-                            : "bg-[#F5ECE8] text-[#9A5A45]"
-                        }`}
-                      >
-                        {order.side === "BUY" ? (
-                          <ArrowUpRight size={10} />
-                        ) : (
-                          <ArrowDownRight size={10} />
-                        )}
+                    return (
+                      <tr key={order.id || Math.random().toString()}>
+                        <td className="py-4 text-[10px] font-extrabold text-[#34342F]">
+                          {orderId}
+                        </td>
 
-                        {order.side}
-                      </span>
-                    </td>
+                        <td className="py-4">
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[8px] font-extrabold ${
+                              order.side === "BUY"
+                                ? "bg-[#EAF4EC] text-[#18794E]"
+                                : "bg-[#F5ECE8] text-[#9A5A45]"
+                            }`}
+                          >
+                            {order.side === "BUY" ? (
+                              <ArrowUpRight size={10} />
+                            ) : (
+                              <ArrowDownRight size={10} />
+                            )}
 
-                    <td className="py-4 text-xs font-extrabold">
-                      {order.asset}
-                    </td>
+                            {order.side || "BUY"}
+                          </span>
+                        </td>
 
-                    <td className="py-4 text-[10px] font-semibold text-[#55554F]">
-                      {order.amount}
-                    </td>
+                        <td className="py-4 text-xs font-extrabold">
+                          {order.asset_symbol || "Asset"}
+                        </td>
 
-                    <td className="py-4 text-[10px] font-extrabold">
-                      {order.price}
-                    </td>
+                        <td className="py-4 text-[10px] font-semibold text-[#55554F]">
+                          {orderQty}
+                        </td>
 
-                    <td className="py-4">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[8px] font-extrabold ${
-                          order.status === "Filled"
-                            ? "bg-[#EAF4EC] text-[#18794E]"
-                            : "bg-[#F5F1E4] text-[#8A7445]"
-                        }`}
-                      >
-                        {order.status === "Filled" ? (
-                          <CheckCircle2 size={10} />
-                        ) : (
-                          <Clock3 size={10} />
-                        )}
+                        <td className="py-4 text-[10px] font-extrabold">
+                          {`$${orderPrice}`}
+                        </td>
 
-                        {order.status}
-                      </span>
-                    </td>
+                        <td className="py-4">
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[8px] font-extrabold ${
+                              order.status === "filled"
+                                ? "bg-[#EAF4EC] text-[#18794E]"
+                                : order.status === "cancelled"
+                                  ? "bg-gray-100 text-gray-500"
+                                  : "bg-[#F5F1E4] text-[#8A7445]"
+                            }`}
+                          >
+                            {order.status === "filled" ? (
+                              <CheckCircle2 size={10} />
+                            ) : (
+                              <Clock3 size={10} />
+                            )}
 
-                    <td className="py-4 text-[9px] font-semibold text-[#9A998F]">
-                      {order.time}
+                            {statusVal}
+                          </span>
+                        </td>
+
+                        <td className="py-4 text-[9px] font-semibold text-[#9A998F]">
+                          {orderTime}
+                        </td>
+                      </tr>
+                    )
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="py-8 text-center text-xs text-[#9A998F]">
+                      No recent orders.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

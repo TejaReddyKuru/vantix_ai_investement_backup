@@ -19,6 +19,11 @@ from app.models.community import (
     CommunityBookmark,
     CommunityReport,
 )
+from app.models.community_chat import (
+    ChatCommunity,
+    ChatCommunityMember,
+    ChatCommunityMessage,
+)
 from app.models.tutor import (
     TutorCourse,
     TutorLesson,
@@ -75,6 +80,10 @@ __all__ = [
     "CommunityFollow",
     "CommunityBookmark",
     "CommunityReport",
+    # Community Chat Domain
+    "ChatCommunity",
+    "ChatCommunityMember",
+    "ChatCommunityMessage",
     # Tutor Domain
     "TutorCourse",
     "TutorLesson",
