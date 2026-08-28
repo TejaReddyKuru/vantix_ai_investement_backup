@@ -16,6 +16,7 @@ from app.api.v1.execution import router as execution_router
 from app.api.v1.users import router as users_router
 from app.api.v1.watchlists import router as watchlists_router
 from app.api.v1.chat_routes import router as chat_router
+from app.api.v1.markets import router as markets_router
 
 router = APIRouter(prefix="/api/v1")
 
@@ -24,6 +25,7 @@ router.include_router(assets_router)
 router.include_router(portfolio_router)
 router.include_router(watchlists_router)
 router.include_router(paper_trading_router)
+router.include_router(markets_router)
 router.include_router(journal_router)
 router.include_router(alerts_router)
 router.include_router(notifications_router)

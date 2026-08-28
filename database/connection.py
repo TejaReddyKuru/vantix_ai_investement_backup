@@ -1,3 +1,4 @@
+# Bedrocks can't see the building they support - this is the core database connector code of this project.
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 

@@ -100,13 +100,14 @@ async def list_paper_orders(
         account = await _get_account_for_user(db, current_user.id)
         if account is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Paper account not found.")
-        stmt = select(PaperOrder).where(PaperOrder.paper_account_id == account.id).order_by(PaperOrder.created_at.desc())
+        from app.models.asset import Asset
+        stmt = select(PaperOrder, Asset).join(Asset, PaperOrder.asset_id == Asset.id).where(PaperOrder.paper_account_id == account.id).order_by(PaperOrder.created_at.desc())
         total_stmt = select(func.count()).select_from(PaperOrder).where(PaperOrder.paper_account_id == account.id)
         total_result = await db.execute(total_stmt)
         total = total_result.scalar_one() or 0
         stmt = stmt.limit(page_size).offset((page - 1) * page_size)
         result = await db.execute(stmt)
-        items = result.scalars().all()
+        items = result.all()
         return {
             "page": page,
             "page_size": page_size,
@@ -116,6 +117,7 @@ async def list_paper_orders(
                     "id": str(item.id),
                     "paper_account_id": str(item.paper_account_id),
                     "asset_id": str(item.asset_id),
+                    "asset_symbol": asset.symbol,
                     "side": item.side,
                     "order_type": item.order_type,
                     "quantity": item.quantity,
@@ -127,7 +129,7 @@ async def list_paper_orders(
                     "created_at": item.created_at,
                     "updated_at": item.updated_at,
                 }
-                for item in items
+                for item, asset in items
             ],
         }
 
@@ -190,13 +192,14 @@ async def get_positions(
         account = await _get_account_for_user(db, current_user.id)
         if account is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Paper account not found.")
-        stmt = select(PaperPosition).where(PaperPosition.paper_account_id == account.id).order_by(PaperPosition.created_at.desc())
+        from app.models.asset import Asset
+        stmt = select(PaperPosition, Asset).join(Asset, PaperPosition.asset_id == Asset.id).where(PaperPosition.paper_account_id == account.id).order_by(PaperPosition.created_at.desc())
         total_stmt = select(func.count()).select_from(PaperPosition).where(PaperPosition.paper_account_id == account.id)
         total_result = await db.execute(total_stmt)
         total = total_result.scalar_one() or 0
         stmt = stmt.limit(page_size).offset((page - 1) * page_size)
         result = await db.execute(stmt)
-        items = result.scalars().all()
+        items = result.all()
         return {
             "page": page,
             "page_size": page_size,
@@ -205,13 +208,15 @@ async def get_positions(
                 "id": str(item.id),
                 "paper_account_id": str(item.paper_account_id),
                 "asset_id": str(item.asset_id),
+                "asset_symbol": asset.symbol,
+                "asset_name": asset.name,
                 "quantity": item.quantity,
                 "average_entry_price": item.average_entry_price,
                 "realized_pnl": item.realized_pnl,
                 "unrealized_pnl": item.unrealized_pnl,
                 "created_at": item.created_at,
                 "updated_at": item.updated_at,
-            } for item in items],
+            } for item, asset in items],
         }
 
 
@@ -225,13 +230,14 @@ async def get_trades(
         account = await _get_account_for_user(db, current_user.id)
         if account is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Paper account not found.")
-        stmt = select(PaperTrade).where(PaperTrade.paper_account_id == account.id).order_by(PaperTrade.executed_at.desc())
+        from app.models.asset import Asset
+        stmt = select(PaperTrade, Asset).join(Asset, PaperTrade.asset_id == Asset.id).where(PaperTrade.paper_account_id == account.id).order_by(PaperTrade.executed_at.desc())
         total_stmt = select(func.count()).select_from(PaperTrade).where(PaperTrade.paper_account_id == account.id)
         total_result = await db.execute(total_stmt)
         total = total_result.scalar_one() or 0
         stmt = stmt.limit(page_size).offset((page - 1) * page_size)
         result = await db.execute(stmt)
-        items = result.scalars().all()
+        items = result.all()
         return {
             "page": page,
             "page_size": page_size,
@@ -241,6 +247,7 @@ async def get_trades(
                 "paper_account_id": str(item.paper_account_id),
                 "order_id": str(item.order_id) if item.order_id else None,
                 "asset_id": str(item.asset_id),
+                "asset_symbol": asset.symbol,
                 "side": item.side,
                 "quantity": item.quantity,
                 "execution_price": item.execution_price,
@@ -248,7 +255,7 @@ async def get_trades(
                 "slippage": item.slippage,
                 "realized_pnl": item.realized_pnl,
                 "executed_at": item.executed_at,
-            } for item in items],
+            } for item, asset in items],
         }
 
 
@@ -282,3 +289,20 @@ async def get_transactions(
                 "created_at": item.created_at,
             } for item in items],
         }
+
+
+@router.post("/reset", summary="Reset the user's paper trading account")
+async def reset_paper_account(current_user: User = Depends(get_current_user)):
+    async with AsyncSessionLocal() as db:
+        service = PaperTradingService(db)
+        try:
+            account = await service.reset_account(current_user.id)
+            return {
+                "message": "Paper trading account reset successfully",
+                "current_cash": account.current_cash,
+                "initial_balance": account.initial_balance,
+            }
+        except AccountNotFoundError as exc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+        except Exception as exc:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Failed to reset account: {exc}")
