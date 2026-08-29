@@ -153,6 +153,7 @@ export default function CommunityView() {
       }
 
       ws.onerror = (err) => {
+        if (isDestroyed) return
         console.error("WebSocket connection error on URL: " + wsUrl, err)
       }
 

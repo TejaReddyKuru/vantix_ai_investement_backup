@@ -119,12 +119,12 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
           </main>
         </div>
         <FridayPanel
-          key={user?.id ?? "guest"}
+          key={`friday-${user?.id ?? "guest"}`}
           open={ahnaOpen}
           onClose={() => setAhnaOpen(false)}
         />
         <NotificationWidget
-          key={user?.id ?? "guest"}
+          key={`notif-${user?.id ?? "guest"}`}
           open={notificationsOpen}
           onOpenChange={setNotificationsOpen}
         />
