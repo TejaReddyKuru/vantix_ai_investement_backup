@@ -18,7 +18,7 @@ export default function MarketList() {
               <div className="text-xs text-neutral-400">{m.name}</div>
             </div>
             <div className="text-right">
-              <div className="font-medium">${m.price.toLocaleString("en-US")}</div>
+              <div className="font-medium">${m.price.toLocaleString()}</div>
               <div className={`text-sm ${m.change24h >= 0 ? 'text-green-400' : 'text-red-400'}`}>{m.change24h}%</div>
             </div>
           </div>

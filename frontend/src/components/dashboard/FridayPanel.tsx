@@ -1,251 +1,47 @@
-"use client"
-
-import {
-  ArrowUpRight,
-  BrainCircuit,
-  ChevronRight,
-  Sparkles,
-  X,
-} from "lucide-react"
-
-type FridayPanelProps = {
-  open: boolean
-  onClose: () => void
-}
-
-const insights = [
-  {
-    label: "Market regime",
-    value: "Constructive",
-  },
-  {
-    label: "BTC momentum",
-    value: "Strong",
-  },
-  {
-    label: "Volatility",
-    value: "Elevated",
-  },
-]
-
-export default function FridayPanel({
-  open,
-  onClose,
-}: FridayPanelProps) {
-  if (!open) return null
-
-  return (
-    <>
-      {/* Friday AI side panel */}
-      <aside
-        aria-label="Friday AI intelligence panel"
-        className={[
-          "fixed inset-y-0 right-0 z-[70] flex",
-          "w-full sm:w-[400px] lg:w-[390px] xl:w-[410px]",
-          "border-l border-[#DCE7DE]",
-          "bg-[#F7F6E8]",
-          "shadow-[-12px_0_40px_rgba(15,45,31,0.10)]",
-          "animate-in slide-in-from-right duration-300",
-        ].join(" ")}
-      >
-        <div className="flex min-h-0 w-full flex-col">
-
-          {/* Header */}
-          <div className="flex h-[68px] shrink-0 items-center justify-between border-b border-[#E2E1D5] bg-[#F7F6E8] px-4 sm:px-5">
-
-            <div className="flex items-center gap-3">
-
-              {/* Friday icon */}
-              <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-[#0F2D1F] text-white shadow-[0_8px_24px_rgba(15,45,31,0.16)]">
-                <Sparkles size={16} />
-
-                <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#F7F6E8] bg-[#65C18C]" />
-              </div>
-
-              {/* Friday identity */}
-              <div>
-                <div className="text-sm font-extrabold tracking-[-0.02em] text-[#171717]">
-                  Friday AI
-                </div>
-
-                <div className="mt-0.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-[#18794E]">
-
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#65C18C] opacity-50" />
-                    <span className="relative h-1.5 w-1.5 rounded-full bg-[#65C18C]" />
-                  </span>
-
-                  Intelligence online
-                </div>
-              </div>
-            </div>
-
-            {/* Close */}
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close Friday AI"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#E2E1D5] bg-white text-[#55554F] transition-all duration-200 hover:border-[#C9D7CD] hover:bg-[#F1F5F0] hover:text-[#0F2D1F]"
-            >
-              <X size={17} />
-            </button>
-          </div>
-
-          {/* Content */}
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5">
-
-            {/* Intelligence hero */}
-            <section className="overflow-hidden rounded-2xl border border-[#DCE7DE] bg-white shadow-[0_12px_35px_rgba(23,23,23,0.045)]">
-
-              <div className="relative overflow-hidden p-5">
-
-                {/* Decorative glow */}
-                <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#E8F2EA] blur-3xl" />
-
-                <div className="relative">
-
-                  {/* Section label */}
-                  <div className="flex items-center gap-2 text-[9px] font-extrabold uppercase tracking-[0.16em] text-[#8A897F]">
-                    <BrainCircuit size={13} />
-                    Market intelligence
-                  </div>
-
-                  {/* Main insight */}
-                  <h2 className="mt-3 text-[21px] font-extrabold leading-tight tracking-[-0.035em] text-[#171717]">
-                    The market looks constructive.
-                  </h2>
-
-                  <p className="mt-3 text-sm leading-6 text-[#6B6B63]">
-                    BTC continues to lead large-cap crypto assets.
-                    Momentum remains positive, although volatility
-                    is elevated near resistance.
-                  </p>
-
-                  {/* AI Score */}
-                  <div className="mt-4 rounded-xl bg-[#F7F6E8] p-4">
-
-                    <div className="flex items-center justify-between">
-
-                      <span className="text-[9px] font-extrabold uppercase tracking-[0.14em] text-[#8A897F]">
-                        Friday AI score
-                      </span>
-
-                      <span className="text-lg font-extrabold text-[#0F2D1F]">
-                        87/100
-                      </span>
-                    </div>
-
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#E8E7DC]">
-                      <div className="h-full w-[87%] rounded-full bg-[#0F2D1F]" />
-                    </div>
-
-                    <div className="mt-2 flex justify-between text-[8px] font-semibold text-[#AAA99F]">
-                      <span>BEARISH</span>
-                      <span>NEUTRAL</span>
-                      <span>BULLISH</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Signals */}
-            <section className="mt-4 rounded-2xl border border-[#E2E1D5] bg-white p-4 shadow-[0_8px_28px_rgba(23,23,23,0.025)]">
-
-              <div className="flex items-center justify-between">
-
-                <div>
-                  <div className="text-sm font-extrabold text-[#171717]">
-                    Market signals
-                  </div>
-
-                  <div className="mt-1 text-[10px] text-[#55554F]">
-                    Current intelligence snapshot
-                  </div>
-                </div>
-
-                <span className="rounded-full bg-[#E8F2EA] px-2.5 py-1 text-[8px] font-extrabold uppercase tracking-wide text-[#18794E]">
-                  Updated
-                </span>
-              </div>
-
-              <div className="mt-4 space-y-2">
-
-                {insights.map((insight) => (
-                  <div
-                    key={insight.label}
-                    className="group flex items-center justify-between rounded-xl border border-transparent bg-[#FAFAF7] px-3.5 py-3 transition-all duration-200 hover:border-[#DCE7DE] hover:bg-[#F7F9F5]"
-                  >
-                    <span className="text-xs font-semibold text-[#6B6B63]">
-                      {insight.label}
-                    </span>
-
-                    <span className="flex items-center gap-2 text-xs font-extrabold text-[#0F2D1F]">
-
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#65C18C]" />
-
-                      {insight.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Recommendation */}
-            <section className="relative mt-4 overflow-hidden rounded-2xl border border-[#CFE0D3] bg-[#E8F2EA] p-5">
-
-              <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-white/30 blur-2xl" />
-
-              <div className="relative">
-
-                <div className="flex items-center gap-2">
-
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-[#0F2D1F]">
-                    <Sparkles size={14} />
-                  </div>
-
-                  <div className="text-[9px] font-extrabold uppercase tracking-[0.16em] text-[#18794E]">
-                    Friday&apos;s view
-                  </div>
-                </div>
-
-                <p className="mt-4 text-sm font-semibold leading-6 text-[#0F2D1F]">
-                  Focus on position sizing and risk controls before
-                  adding exposure around resistance.
-                </p>
-
-                <button
-                  type="button"
-                  className="mt-4 flex items-center gap-1.5 rounded-lg text-xs font-extrabold text-[#0F2D1F] transition-all duration-200 hover:gap-2.5"
-                >
-                  View detailed analysis
-                  <ArrowUpRight size={14} />
-                </button>
-              </div>
-            </section>
-
-          </div>
-
-          {/* Bottom action */}
-          <div className="shrink-0 border-t border-[#E2E1D5] bg-[#F7F6E8] p-4">
-
-            <button
-              type="button"
-              className="group flex w-full items-center justify-between rounded-xl bg-[#0F2D1F] px-4 py-3.5 text-xs font-extrabold text-white shadow-[0_10px_28px_rgba(15,45,31,0.15)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#17452F]"
-            >
-              <span>
-                Ask Friday anything
-              </span>
-
-              <ChevronRight
-                size={15}
-                className="transition-transform duration-200 group-hover:translate-x-1"
-              />
-            </button>
-          </div>
-
-        </div>
-      </aside>
-    </>
-  )
+"use client";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import * as Dialog from "@radix-ui/react-dialog";
+import { ArrowUp, RefreshCw, Sparkles, Trash2, X } from "lucide-react";
+import { useWorkspace } from "./WorkspaceContext";
+import { useMarketSnapshot } from "@/hooks/useMarketSnapshot";
+import { useUnifiedAnalysis } from "@/hooks/useTerminalAccount";
+import { backendError } from "@/hooks/useWorkspaceData";
+import { type MarketCoin } from "@/lib/market-data";
+import { terminalSymbolForId } from "@/lib/asset-directory";
+import { evidenceReply, otherMentionedAsset, questionIntent, type EvidenceIntent } from "@/lib/agent-evidence";
+import { type Unified } from "@/lib/terminal-account";
+import BriefCard from "@/components/intelligence/BriefCard";
+type Message = { id: number; question: string; reply: string; intent: EvidenceIntent; data?: Unified; coin?: MarketCoin; symbol: string };
+export default function FridayPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [mobile, setMobile] = useState(false), [draft, setDraft] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const { activeSymbol, activeCoinId } = useWorkspace();
+  const connected = Boolean(activeCoinId && terminalSymbolForId(activeCoinId));
+  const market = useMarketSnapshot(open), analysis = useUnifiedAnalysis(`${activeSymbol}USDT`, "1h", false, open && connected);
+  const analysisData = connected ? analysis.data : undefined;
+  const coin = market.data?.coins.find(c => c.id === activeCoinId);
+  const end = useRef<HTMLDivElement>(null);
+  useEffect(() => { const media = matchMedia("(max-width: 767px)"); const update = () => setMobile(media.matches); update(); media.addEventListener("change", update); return () => media.removeEventListener("change", update); }, []);
+  useEffect(() => { setMessages([]); setDraft(""); }, [activeSymbol, activeCoinId]);
+  useEffect(() => { if (messages.length) end.current?.scrollIntoView({ block: "nearest", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }, [messages.length]);
+  function ask(question: string) {
+    if (!question.trim()) return;
+    const otherAsset = otherMentionedAsset(question, activeSymbol);
+    const intent = !connected || otherAsset ? "unsupported" : questionIntent(question);
+    const reply = !connected ? `Agent analysis for ${activeSymbol} (${activeCoinId ?? "unknown asset"}) is not connected yet. I won’t substitute another coin’s results.` : otherAsset ? terminalSymbolForId(otherAsset.id) ? `This panel is using ${activeSymbol}. Select ${otherAsset.symbol} in the workstation or Intelligence page before asking for its analysis.` : `This panel is using ${activeSymbol}. You can search ${otherAsset.name} on Markets, but its agent analysis is not connected to the current workstation.` : evidenceReply(intent, analysisData);
+    setMessages(old => [...old.slice(-7), { id: Date.now(), question: question.trim().slice(0, 1500), reply, intent, data: analysisData, coin, symbol: activeSymbol }]); setDraft("");
+  }
+  function submit(event: FormEvent) { event.preventDefault(); ask(draft); }
+  return <Dialog.Root open={open} onOpenChange={value => { if (!value) onClose(); }} modal={mobile}><Dialog.Portal>{mobile && <Dialog.Overlay className="cc-mobile-backdrop"/>}<Dialog.Content id="cc-ahna-panel" className="cc-dialog cc-ahna-panel cc-ahna-v4" onInteractOutside={event => { if (!mobile) event.preventDefault(); }} onCloseAutoFocus={event => { event.preventDefault(); document.querySelector<HTMLButtonElement>("[aria-controls='cc-ahna-panel']")?.focus(); }}>
+    <div className="cc-panel-heading"><div className="cc-inline"><span className="cc-ahna-symbol"><Sparkles size={20}/></span><div><Dialog.Title>AHNA</Dialog.Title><span className="cc-muted">Your research copilot</span></div></div><div className="cc-inline"><button className="cc-icon-button" type="button" onClick={() => setMessages([])} disabled={!messages.length} aria-label="Clear this session’s questions"><Trash2 size={16}/></button><Dialog.Close className="cc-panel-close" aria-label="Close AHNA"><X size={18}/></Dialog.Close></div></div>
+    <Dialog.Description className="cc-ahna-mode">Evidence mode · structured responses from returned data. Conversational AI is not connected. No order execution.</Dialog.Description>
+    <div className="cc-ahna-context"><span>{activeSymbol} · {connected ? "1h analysis" : "not connected"}</span><button type="button" disabled={!connected || analysis.isFetching} onClick={() => { void analysis.refetch(); void market.refetch(); }}><RefreshCw size={13}/>{analysis.isFetching ? "Fetching…" : "Refresh evidence"}</button></div>
+    <div className="cc-ahna-content"><div className="cc-ahna-welcome"><span className="cc-eyebrow">A clearer view of your market</span><h2>Ask. Inspect. Decide.</h2><p>Explore the market brief, news and risk evidence for <strong>{activeSymbol}</strong>.</p></div>
+      {((connected && analysis.isError) || market.isError) && <p className="cc-data-warning" role="status">{connected && analysis.isError ? backendError(analysis.error) : "Market quote refresh failed."} Last returned information may be stale.</p>}
+      <div className="cc-question-chips">{["Market brief", "News impact", "Risk check", "Explain the evidence"].map(q => <button type="button" key={q} onClick={() => ask(q)}>{q}</button>)}</div>
+      {!messages.length && <BriefCard symbol={activeSymbol} coin={coin} data={analysisData}/>}
+      <div className="cc-chat-messages" aria-live="polite" aria-relevant="additions">{messages.map(message => <article className="cc-chat-exchange" key={message.id}><p className="cc-chat-question">{message.question}</p><div className="cc-chat-answer"><span className="cc-eyebrow">AHNA · evidence response · {message.symbol}</span><p>{message.reply}</p>{message.intent !== "unsupported" && <BriefCard symbol={message.symbol} coin={message.coin} data={message.data} intent={message.intent}/>}<small className="cc-chat-snapshot-note">Reply uses the evidence available when asked. Refresh and ask again for an updated brief.</small></div></article>)}</div><div ref={end}/>
+    </div>
+    <form className="cc-composer" onSubmit={submit}><label htmlFor="cc-ahna-question">Ask about the selected market</label><textarea id="cc-ahna-question" value={draft} onChange={e => setDraft(e.target.value)} placeholder="Explain the news impact or review the risk…" maxLength={1500} rows={2}/><div className="cc-composer-footer"><small>Session-only · supported research prompts</small><button type="submit" className="cc-send-question" disabled={!draft.trim()} aria-label="Get an evidence-based response"><ArrowUp size={18}/></button></div></form>
+  </Dialog.Content></Dialog.Portal></Dialog.Root>;
 }

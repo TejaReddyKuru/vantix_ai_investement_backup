@@ -1,0 +1,13 @@
+:root{--cc-paper:#fbf8ee;--cc-surface:#ffffff;--cc-ink:#07111f;--cc-text:#07111f;--cc-muted:#657080;--cc-border:#e3e2d9;--cc-mint:#eef4fa;--cc-positive:#22704e;--cc-negative:#b44842;--cc-accent:#2f78b7;--cc-warning:#8a611c;color-scheme:light}
+:root[data-theme=dark],html[data-theme=dark] .cc-app,html[data-theme=dark] .cc-dialog{--cc-paper:#0b1220;--cc-surface:#121e30;--cc-ink:#e6edf7;--cc-text:#e6edf7;--cc-muted:#a3b3c9;--cc-border:#29394e;--cc-mint:#192c43;--cc-positive:#6cdbb1;--cc-negative:#ff9896;--cc-accent:#80bef0;--cc-warning:#edc275;--background:#0b1220;--surface:#121e30;--foreground:#e6edf7;--muted:#a3b3c9;--border:#29394e;--surface-mint:#192c43;--surface-mint-strong:#233c4d;--positive:#6cdbb1;--negative:#ff9896;color-scheme:dark}
+html[data-theme=dark] .ct-workstation{--ct-line:var(--cc-border);--ct-muted:var(--cc-muted);--ct-blue:var(--cc-accent);--ct-ink:var(--cc-ink)}
+html[data-theme=dark] .text-black{color:var(--cc-ink)}
+html[data-theme=dark] img[src*="coincrest-mark.png"]:not(.invert){filter:brightness(0) invert(1)}
+html[data-theme=dark] input,html[data-theme=dark] textarea,html[data-theme=dark] select{color-scheme:dark}
+html[data-theme=dark] .ct-chart-body svg [fill="#fff"],html[data-theme=dark] .ct-chart-body svg [fill="white"]{fill:var(--cc-surface)}
+html[data-theme=dark] .ct-chart-body svg text{fill:var(--cc-muted)}
+html[data-theme=dark] .ct-chart-body svg [stroke="#e3e8ee"],html[data-theme=dark] .ct-chart-body svg [stroke="#edf1f5"]{stroke:var(--cc-border)}
+html[data-theme=dark] .cc-button-primary,html[data-theme=dark] .cc-send-question{background:#2f78b7;color:white}
+html[data-theme=dark] .cc-button-primary:hover{background:#28679e}
+html[data-theme=dark] .cc-nav-link[aria-current=page]{background:#245584;color:#fff}
+html[data-theme=dark] .cc-segmented button[aria-pressed=true]{background:var(--cc-mint);color:var(--cc-ink)}

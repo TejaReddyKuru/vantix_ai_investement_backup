@@ -1,0 +1,281 @@
+/* CoinCrest v8 — premium glassmorphism layer. Scoped to authenticated workspace only. */
+.cc-workspace-v8 {
+  --cc-glass-bg: color-mix(in srgb, var(--cc-surface) 74%, transparent);
+  --cc-glass-bg-strong: color-mix(in srgb, var(--cc-surface) 88%, transparent);
+  --cc-glass-border: color-mix(in srgb, #8eb8e6 24%, var(--cc-border));
+  --cc-glass-highlight: rgba(255,255,255,.72);
+  --cc-glass-shadow: 0 10px 30px rgba(31,64,111,.08), inset 0 1px 0 rgba(255,255,255,.76);
+  --cc-glass-shadow-hover: 0 14px 34px rgba(35,91,163,.14), inset 0 1px 0 rgba(255,255,255,.88);
+  --cc-glass-blue: #2f7fe6;
+  --cc-glass-blue-2: #62a8ff;
+  --cc-glass-radius: 13px;
+  background:
+    radial-gradient(circle at 84% -8%, rgba(97,166,255,.16), transparent 34%),
+    radial-gradient(circle at 2% 28%, rgba(143,197,255,.10), transparent 28%),
+    linear-gradient(145deg, #f7fbff 0%, #f8fafc 48%, #f3f8ff 100%);
+}
+
+.cc-workspace-v8 .cc-workspace,
+.cc-workspace-v8 .cc-main { background: transparent; }
+
+.cc-workspace-v8 .cc-sidebar,
+.cc-workspace-v8 .cc-topbar,
+.cc-workspace-v8 .cc-ticker,
+.cc-workspace-v8 .cc-card,
+.cc-workspace-v8 .cc-account-strip,
+.cc-workspace-v8 .cc-legacy-notice,
+.cc-workspace-v8 .cc-section-message,
+.cc-workspace-v8 .cc-community-brand,
+.cc-workspace-v8 .cc-channel-search {
+  background: var(--cc-glass-bg);
+  border-color: var(--cc-glass-border);
+  box-shadow: var(--cc-glass-shadow);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+  backdrop-filter: blur(22px) saturate(145%);
+}
+
+.cc-workspace-v8 .cc-sidebar-desktop {
+  border-right: 1px solid var(--cc-glass-border);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.80), rgba(242,248,255,.68)),
+    radial-gradient(circle at 0 0, rgba(84,154,246,.10), transparent 42%);
+  box-shadow: 10px 0 34px rgba(46,85,135,.07), inset -1px 0 0 rgba(255,255,255,.78);
+  overflow: visible;
+}
+
+.cc-workspace-v8 .cc-brand-row {
+  border-bottom: 1px solid rgba(141,181,227,.16);
+}
+
+/* One control only: a narrow floating glass arrow on the navigation edge. */
+.cc-workspace-v8 .cc-sidebar-edge-toggle {
+  position: absolute;
+  top: 21px;
+  right: -12px;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid rgba(125,168,219,.38);
+  border-radius: 0 12px 12px 0;
+  color: #315d8e;
+  background: linear-gradient(145deg, rgba(255,255,255,.86), rgba(232,243,255,.72));
+  box-shadow: 5px 5px 18px rgba(45,89,145,.12), inset 0 1px 0 rgba(255,255,255,.92);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  transition: width .18s ease, transform .18s ease, box-shadow .18s ease, color .18s ease;
+}
+.cc-workspace-v8 .cc-sidebar-edge-toggle:hover {
+  width: 29px;
+  color: #1264c9;
+  transform: translateX(2px);
+  box-shadow: 6px 8px 22px rgba(37,104,185,.18), inset 0 1px 0 rgba(255,255,255,1);
+}
+.cc-workspace-v8.cc-nav-rail .cc-sidebar-edge-toggle { right: -12px; }
+
+/* Navigation becomes a stack of subtle glass pills, with a luminous active state. */
+.cc-workspace-v8 .cc-nav-link,
+.cc-workspace-v8 .cc-ahna-launch {
+  position: relative;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: rgba(255,255,255,.22);
+  transition: transform .16s ease, background .16s ease, border-color .16s ease, box-shadow .16s ease, color .16s ease;
+}
+.cc-workspace-v8 .cc-nav-link:hover,
+.cc-workspace-v8 .cc-ahna-launch:hover {
+  transform: translateY(-1px);
+  background: rgba(255,255,255,.68);
+  border-color: rgba(118,169,229,.25);
+  box-shadow: 0 8px 20px rgba(39,89,147,.08), inset 0 1px 0 rgba(255,255,255,.82);
+}
+.cc-workspace-v8 .cc-nav-link[aria-current="page"] {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(42,125,231,.96), rgba(31,104,207,.88));
+  border-color: rgba(255,255,255,.55);
+  box-shadow: 0 9px 20px rgba(25,104,214,.26), inset 0 1px 0 rgba(255,255,255,.38);
+}
+.cc-workspace-v8 .cc-ahna-launch {
+  background: linear-gradient(135deg, rgba(233,244,255,.78), rgba(247,241,255,.74));
+  border-color: rgba(103,154,226,.22);
+}
+.cc-workspace-v8 .cc-nav-divider { border-color: rgba(133,172,218,.18); }
+
+/* Topbar and ticker float as one polished instrument frame. */
+.cc-workspace-v8 .cc-topbar {
+  background: rgba(250,253,255,.68);
+  border-bottom: 1px solid rgba(131,174,224,.20);
+  box-shadow: 0 7px 24px rgba(41,77,122,.055), inset 0 -1px 0 rgba(255,255,255,.68);
+}
+.cc-workspace-v8 .cc-breadcrumb {
+  padding: 7px 11px;
+  border: 1px solid rgba(131,174,224,.20);
+  border-radius: 11px;
+  background: rgba(255,255,255,.46);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.80);
+}
+.cc-workspace-v8 .cc-ticker {
+  border-bottom: 1px solid rgba(131,174,224,.17);
+  background: rgba(247,251,255,.56);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72);
+}
+.cc-workspace-v8 .cc-ticker-set > a {
+  margin: 3px 2px;
+  border: 1px solid rgba(128,171,220,.14);
+  border-radius: 9px;
+  background: rgba(255,255,255,.38);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72);
+}
+.cc-workspace-v8 .cc-ticker-set > a:hover {
+  background: rgba(255,255,255,.78);
+  border-color: rgba(81,146,220,.27);
+}
+
+/* All principal controls get the same tactile glass material. */
+.cc-workspace-v8 :is(.cc-button,.cc-icon-button,.cc-search-trigger,.cc-workspace-control,.cc-small-button,.cc-watchlist-pager button,.cc-asset-results > button),
+.cc-workspace-v8 button:not(.cc-text-button):not(.cc-sidebar-edge-toggle) {
+  border-color: rgba(125,168,219,.25);
+  background: linear-gradient(145deg, rgba(255,255,255,.74), rgba(236,246,255,.54));
+  box-shadow: 0 5px 14px rgba(44,83,130,.07), inset 0 1px 0 rgba(255,255,255,.85);
+  -webkit-backdrop-filter: blur(16px) saturate(145%);
+  backdrop-filter: blur(16px) saturate(145%);
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease, background .15s ease, color .15s ease;
+}
+.cc-workspace-v8 :is(.cc-button,.cc-icon-button,.cc-search-trigger,.cc-workspace-control,.cc-small-button):hover,
+.cc-workspace-v8 button:not(.cc-text-button):not(.cc-sidebar-edge-toggle):hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(70,139,221,.38);
+  background: linear-gradient(145deg, rgba(255,255,255,.90), rgba(229,242,255,.72));
+  box-shadow: var(--cc-glass-shadow-hover);
+}
+.cc-workspace-v8 :is(.cc-button,.cc-icon-button,.cc-search-trigger,.cc-workspace-control):active,
+.cc-workspace-v8 button:not(.cc-text-button):not(.cc-sidebar-edge-toggle):active:not(:disabled) {
+  transform: translateY(0) scale(.985);
+}
+.cc-workspace-v8 :is(.cc-button,.cc-icon-button,.cc-search-trigger)[aria-pressed="true"],
+.cc-workspace-v8 button[aria-pressed="true"] {
+  color: #0c62c9;
+  border-color: rgba(45,126,224,.42);
+  background: linear-gradient(145deg, rgba(220,238,255,.88), rgba(243,248,255,.64));
+  box-shadow: 0 6px 18px rgba(44,124,216,.13), inset 0 1px 0 rgba(255,255,255,.94);
+}
+.cc-workspace-v8 .cc-button-primary,
+.cc-workspace-v8 .cc-ahna-button {
+  color: #fff;
+  border-color: rgba(255,255,255,.46);
+  background: linear-gradient(135deg, rgba(45,135,242,.96), rgba(28,99,207,.93));
+  box-shadow: 0 8px 22px rgba(28,105,212,.22), inset 0 1px 0 rgba(255,255,255,.34);
+}
+.cc-workspace-v8 .cc-button-primary:hover,
+.cc-workspace-v8 .cc-ahna-button:hover {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(57,149,255,.99), rgba(28,99,207,.96));
+}
+
+.cc-workspace-v8 .cc-search-trigger {
+  background: rgba(255,255,255,.58);
+  border-color: rgba(116,161,215,.24);
+  box-shadow: 0 6px 18px rgba(50,88,137,.07), inset 0 1px 0 rgba(255,255,255,.88);
+}
+.cc-workspace-v8 .cc-search-trigger kbd {
+  border: 1px solid rgba(120,164,217,.20);
+  border-radius: 7px;
+  background: rgba(255,255,255,.50);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+}
+
+.cc-workspace-v8 .cc-segmented {
+  padding: 3px;
+  border: 1px solid rgba(121,166,220,.23);
+  border-radius: 12px;
+  background: rgba(255,255,255,.42);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.82), 0 5px 14px rgba(44,83,130,.05);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+.cc-workspace-v8 .cc-segmented button {
+  border: 1px solid transparent !important;
+  border-radius: 9px;
+  box-shadow: none;
+  background: transparent;
+}
+.cc-workspace-v8 .cc-segmented button[aria-pressed="true"] {
+  color: #0e63cb;
+  border-color: rgba(88,147,216,.20) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.90), rgba(224,239,255,.76));
+  box-shadow: 0 4px 12px rgba(47,111,190,.12), inset 0 1px 0 white;
+}
+
+.cc-workspace-v8 .cc-account summary,
+.cc-workspace-v8 .cc-account-panel,
+.cc-dialog.cc-search-modal,
+.cc-dialog .cc-search-form,
+.cc-dialog .cc-search-results > a,
+.cc-dialog .cc-search-categories a {
+  border-color: rgba(125,168,219,.25);
+  background: linear-gradient(145deg, rgba(255,255,255,.86), rgba(235,245,255,.72));
+  box-shadow: var(--cc-glass-shadow);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+}
+.cc-dialog.cc-search-modal { background: rgba(247,251,255,.88); }
+.cc-dialog .cc-search-form input { background: transparent; }
+
+.cc-workspace-v8 :is(input,select,textarea) {
+  border-color: rgba(121,165,217,.27) !important;
+  background: rgba(255,255,255,.58) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.88), 0 4px 12px rgba(43,82,128,.05);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.cc-workspace-v8 :is(input,select,textarea):focus {
+  border-color: rgba(50,128,223,.50) !important;
+  box-shadow: 0 0 0 3px rgba(66,145,235,.10), inset 0 1px 0 rgba(255,255,255,.95);
+}
+
+.cc-workspace-v8 .cc-avatar {
+  box-shadow: 0 6px 16px rgba(35,106,201,.18), inset 0 1px 0 rgba(255,255,255,.45);
+}
+
+/* The rail is deliberately compact but never fully disappears. */
+.cc-workspace-v8.cc-nav-rail .cc-sidebar-desktop { background: rgba(248,252,255,.72); }
+.cc-workspace-v8.cc-nav-rail .cc-nav-link,
+.cc-workspace-v8.cc-nav-rail .cc-ahna-launch { border-radius: 11px; }
+
+@media (max-width: 767px) {
+  .cc-workspace-v8 .cc-sidebar-edge-toggle { display: none; }
+  .cc-workspace-v8 .cc-breadcrumb { padding: 6px 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-workspace-v8 *, .cc-workspace-v8 *::before, .cc-workspace-v8 *::after { transition-duration: .001ms !important; }
+}
+
+/* Carry the material language across Overview, Markets, Portfolio, Risk, Intelligence and Settings. */
+.cc-workspace-v8 :is(
+  .cc-market-table-card,.cc-pulse-card,.cc-capital-card,.cc-broker-card,.cc-source-card,
+  .cc-watch-card,.cc-order-ticket,.cc-paper-account,.cc-ahna-brief,.cc-analysis-result,
+  .cc-settings-notice,.cc-notifications,.cc-user-watchlist,.cc-paper-intro,.cc-market-feature,
+  .cc-community-guidelines,.cc-connection-notice,.cc-order-estimate
+) {
+  border-color: var(--cc-glass-border) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.72), rgba(238,247,255,.54)) !important;
+  box-shadow: var(--cc-glass-shadow);
+  -webkit-backdrop-filter: blur(20px) saturate(145%);
+  backdrop-filter: blur(20px) saturate(145%);
+}
+.cc-workspace-v8 :is(.cc-card-heading,.cc-panel-heading,.cc-settings-header,.cc-personal-heading) {
+  border-color: rgba(125,168,219,.18) !important;
+}
+.cc-workspace-v8 :is(.cc-market-filters,.cc-market-controls,.cc-market-table-tools,.cc-notification-tools,.cc-position-tabs,.cc-symbol-tabs,.cc-news-tabs,.cc-community-tabs) button {
+  border-radius: 9px;
+}
+.cc-workspace-v8 :is(.cc-tag,.cc-status-tag,.cc-dark-tag,.cc-feed-status) {
+  border: 1px solid rgba(118,163,216,.20);
+  background: rgba(255,255,255,.50);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.78);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}

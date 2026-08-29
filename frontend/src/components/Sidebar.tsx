@@ -11,7 +11,6 @@ import {
   LayoutDashboard,
   Settings,
   Sparkles,
-  Users,
   WalletCards,
 } from "lucide-react"
 
@@ -121,30 +120,13 @@ export default function Sidebar() {
         </Link>
       </div>
 
-      <div className="border-t border-[var(--border)] p-3 space-y-1">
+      <div className="border-t border-[var(--border)] p-3">
         <Link
           href="/settings"
-          className={[
-            "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition",
-            pathname.startsWith("/settings")
-              ? "bg-[var(--surface-mint)] text-[var(--primary)]"
-              : "text-[var(--muted)] hover:bg-[#F7F7F2] hover:text-[var(--foreground)]",
-          ].join(" ")}
+          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-[var(--muted)] transition hover:bg-[#F7F7F2] hover:text-[var(--foreground)]"
         >
           <Settings size={18} />
-          <span>Settings</span>
-        </Link>
-        <Link
-          href="/community"
-          className={[
-            "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition",
-            pathname.startsWith("/community")
-              ? "bg-[var(--surface-mint)] text-[var(--primary)]"
-              : "text-[var(--muted)] hover:bg-[#F7F7F2] hover:text-[var(--foreground)]",
-          ].join(" ")}
-        >
-          <Users size={18} />
-          <span>Community</span>
+          Settings
         </Link>
       </div>
     </aside>

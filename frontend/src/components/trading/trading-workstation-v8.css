@@ -1,0 +1,193 @@
+/* CoinCrest Trading Workstation v8 — glass controls + luminous data surfaces. */
+.ct-workstation-v7 {
+  --ct-glass: rgba(255,255,255,.58);
+  --ct-glass-strong: rgba(255,255,255,.76);
+  --ct-glass-border: rgba(116,161,215,.24);
+  --ct-glass-shadow: 0 8px 24px rgba(37,77,126,.075), inset 0 1px 0 rgba(255,255,255,.82);
+}
+
+.ct-workstation-v7 :is(.ct-instrument,.ct-panel,.ct-order-book,.ct-market-depth-card,.ct-recent-trades-card,.ct-profile-ideas,.ct-account-orders,.ct-alert-layer) {
+  border-color: var(--ct-glass-border);
+  background: linear-gradient(145deg, rgba(255,255,255,.71), rgba(240,248,255,.55));
+  box-shadow: var(--ct-glass-shadow);
+  -webkit-backdrop-filter: blur(20px) saturate(145%);
+  backdrop-filter: blur(20px) saturate(145%);
+}
+
+.ct-workstation-v7 .ct-instrument {
+  background:
+    radial-gradient(circle at 0 0, rgba(83,157,246,.095), transparent 30%),
+    linear-gradient(145deg, rgba(255,255,255,.76), rgba(239,247,255,.58));
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(38,78,128,.08), inset 0 1px 0 rgba(255,255,255,.9);
+}
+
+.ct-workstation-v7 .ct-pro-layout > * {
+  border-radius: 14px;
+  overflow: hidden;
+}
+.ct-workstation-v7 .ct-pro-chart,
+.ct-workstation-v7 .ct-pro-book,
+.ct-workstation-v7 .ct-pro-trade,
+.ct-workstation-v7 .ct-pro-ai,
+.ct-workstation-v7 .ct-pro-secondary,
+.ct-workstation-v7 .ct-pro-account,
+.ct-workstation-v7 .ct-pro-ideas {
+  border: 1px solid var(--ct-glass-border);
+  background: rgba(255,255,255,.46);
+  box-shadow: 0 9px 26px rgba(35,74,121,.07), inset 0 1px 0 rgba(255,255,255,.76);
+  -webkit-backdrop-filter: blur(19px) saturate(145%);
+  backdrop-filter: blur(19px) saturate(145%);
+}
+
+.ct-workstation-v7 .ct-chart {
+  border: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.68), rgba(249,252,255,.50));
+}
+.ct-workstation-v7 .ct-chart-controls,
+.ct-workstation-v7 .ct-chart-readout,
+.ct-workstation-v7 .ct-indicator-legend {
+  background: rgba(255,255,255,.28);
+}
+
+/* Chart controls use compact glass chips instead of flat text buttons. */
+.ct-workstation-v7 .ct-chart-controls button,
+.ct-workstation-v7 .ct-book-controls button,
+.ct-workstation-v7 .ct-panel-tabs button,
+.ct-workstation-v7 .ct-order-types button,
+.ct-workstation-v7 .ct-size-shortcuts button,
+.ct-workstation-v7 .ct-feed-state button,
+.ct-workstation-v7 .ct-ai-actions a,
+.ct-workstation-v7 .ct-ai-actions button,
+.ct-workstation-v7 .ct-profile-list a,
+.ct-workstation-v7 .ct-records-footer button {
+  border: 1px solid rgba(117,162,216,.22);
+  border-radius: 9px;
+  background: linear-gradient(145deg, rgba(255,255,255,.68), rgba(235,245,255,.48));
+  box-shadow: 0 4px 12px rgba(44,83,130,.055), inset 0 1px 0 rgba(255,255,255,.82);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+.ct-workstation-v7 .ct-chart-controls button:hover,
+.ct-workstation-v7 .ct-book-controls button:hover,
+.ct-workstation-v7 .ct-panel-tabs button:hover,
+.ct-workstation-v7 .ct-order-types button:hover,
+.ct-workstation-v7 .ct-size-shortcuts button:hover:not(:disabled),
+.ct-workstation-v7 .ct-ai-actions a:hover,
+.ct-workstation-v7 .ct-ai-actions button:hover {
+  border-color: rgba(55,133,224,.38);
+  background: linear-gradient(145deg, rgba(255,255,255,.88), rgba(223,239,255,.68));
+  box-shadow: 0 7px 16px rgba(43,112,198,.11), inset 0 1px 0 white;
+}
+.ct-workstation-v7 :is(.ct-chart-controls,.ct-book-controls,.ct-panel-tabs,.ct-order-types) button[aria-pressed="true"] {
+  color: #0d63ca;
+  border-color: rgba(47,125,219,.38);
+  background: linear-gradient(145deg, rgba(217,237,255,.92), rgba(247,250,255,.72));
+  box-shadow: 0 5px 14px rgba(46,121,211,.13), inset 0 1px 0 rgba(255,255,255,.95);
+}
+
+.ct-workstation-v7 .cc-asset-picker-trigger {
+  border-color: rgba(117,162,216,.25);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(255,255,255,.78), rgba(232,244,255,.58));
+  box-shadow: 0 6px 16px rgba(43,82,128,.07), inset 0 1px 0 rgba(255,255,255,.88);
+}
+
+/* Trading action buttons preserve side semantics while still reading as glass. */
+.ct-workstation-v7 .ct-order-sides button.buy,
+.ct-workstation-v7 .ct-review-order {
+  color: #fff;
+  border-color: rgba(255,255,255,.42);
+  background: linear-gradient(135deg, rgba(34,180,126,.92), rgba(11,143,96,.88));
+  box-shadow: 0 9px 20px rgba(20,153,106,.22), inset 0 1px 0 rgba(255,255,255,.33);
+}
+.ct-workstation-v7 .ct-order-sides button.sell {
+  color: #fff;
+  border-color: rgba(255,255,255,.42);
+  background: linear-gradient(135deg, rgba(241,91,96,.92), rgba(205,53,60,.89));
+  box-shadow: 0 9px 20px rgba(210,62,68,.20), inset 0 1px 0 rgba(255,255,255,.31);
+}
+.ct-workstation-v7 .ct-order-sides button:not([aria-pressed="true"]) {
+  opacity: .64;
+  filter: saturate(.78);
+}
+.ct-workstation-v7 .ct-order-sides button[aria-pressed="true"] {
+  opacity: 1;
+  transform: translateY(-1px);
+}
+.ct-workstation-v7 .ct-review-order:disabled { filter: grayscale(.25); }
+
+.ct-workstation-v7 .ct-order-planner :is(input,select,output) {
+  border: 1px solid rgba(116,161,215,.24);
+  border-radius: 10px;
+  background: rgba(255,255,255,.56);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.88), 0 4px 12px rgba(43,82,128,.045);
+}
+.ct-workstation-v7 .ct-local-risk,
+.ct-workstation-v7 .ct-order-protection,
+.ct-workstation-v7 .ct-order-totals,
+.ct-workstation-v7 .ct-order-disclosure {
+  border-color: rgba(116,161,215,.18);
+  background: rgba(246,250,255,.46);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72);
+}
+
+/* AHNA reads as a purpose-built intelligence console, not a chat window. */
+.ct-workstation-v7 .ct-ai-dashboard {
+  background:
+    radial-gradient(circle at 0 0, rgba(49,131,235,.11), transparent 34%),
+    linear-gradient(145deg, rgba(251,253,255,.72), rgba(236,246,255,.55));
+  border: 1px solid rgba(75,142,221,.24);
+  box-shadow: 0 10px 28px rgba(35,101,185,.10), inset 0 1px 0 rgba(255,255,255,.88);
+  -webkit-backdrop-filter: blur(22px) saturate(145%);
+  backdrop-filter: blur(22px) saturate(145%);
+}
+.ct-workstation-v7 .ct-ai-card {
+  border: 1px solid rgba(105,155,215,.19);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(255,255,255,.69), rgba(238,247,255,.47));
+  box-shadow: 0 6px 16px rgba(40,81,131,.055), inset 0 1px 0 rgba(255,255,255,.82);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+.ct-workstation-v7 .ct-ai-card:hover {
+  border-color: rgba(57,132,222,.30);
+  box-shadow: 0 9px 21px rgba(40,104,183,.095), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.ct-workstation-v7 .ct-ai-gauge:after,
+.ct-workstation-v7 .ct-ai-consensus-ring:after { background: rgba(249,252,255,.92); }
+
+.ct-workstation-v7 .ct-profile-list > a {
+  border-radius: 8px;
+  margin: 2px 4px;
+  border-bottom-color: transparent;
+}
+.ct-workstation-v7 .ct-profile-list > a:hover {
+  transform: translateX(2px);
+  background: rgba(231,243,255,.68);
+}
+
+.ct-workstation-v7 .ct-feed-state,
+.ct-workstation-v7 .ct-terminal-footer,
+.ct-workstation-v7 .ct-account-scope {
+  color: color-mix(in srgb, var(--ct-muted) 86%, #3e72ab);
+}
+
+.ct-workstation-v7 .ct-alert-layer {
+  background: rgba(248,252,255,.90);
+  border-color: rgba(95,149,214,.32);
+  box-shadow: 0 24px 70px rgba(25,67,117,.22), inset 0 1px 0 rgba(255,255,255,.92);
+}
+
+/* Keep the dense workstation feeling precise rather than bubbly. */
+.ct-workstation-v7 :is(.ct-pro-chart,.ct-pro-book,.ct-pro-trade,.ct-pro-ai,.ct-pro-secondary,.ct-pro-account,.ct-pro-ideas) {
+  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+.ct-workstation-v7 :is(.ct-pro-chart,.ct-pro-book,.ct-pro-trade,.ct-pro-ai,.ct-pro-secondary,.ct-pro-account,.ct-pro-ideas):hover {
+  border-color: rgba(71,142,224,.29);
+  box-shadow: 0 11px 30px rgba(40,93,157,.095), inset 0 1px 0 rgba(255,255,255,.86);
+}
+
+@media (max-width: 760px) {
+  .ct-workstation-v7 .ct-pro-layout > * { border-radius: 12px; }
+}

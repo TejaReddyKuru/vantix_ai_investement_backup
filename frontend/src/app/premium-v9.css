@@ -1,0 +1,246 @@
+/*
+ * CoinCrest Premium UI v9
+ * Visual-only theme layer: compact, flat, high-contrast trading surfaces.
+ * No feature, data-flow, route, component hierarchy, or workspace layout changes.
+ */
+
+:root {
+  --cc-paper: #f5f1e5;
+  --cc-surface: #fffdf7;
+  --cc-surface-2: #f0ede2;
+  --cc-surface-3: #e9e4d6;
+  --cc-ink: #10120f;
+  --cc-text: #10120f;
+  --cc-muted: #6d7168;
+  --cc-border: #d8d4c7;
+  --cc-border-strong: #bcb7a7;
+  --cc-mint: #eceee5;
+  --cc-positive: #267a57;
+  --cc-negative: #c95852;
+  --cc-accent: #2f78b7;
+  --cc-accent-strong: #245f93;
+  --cc-warning: #a76f10;
+  --cc-warm: #ffea93;
+  --background: #f5f1e5;
+  --surface: #fffdf7;
+  --foreground: #10120f;
+  --muted: #6d7168;
+  --border: #d8d4c7;
+  --positive: #267a57;
+  --negative: #c95852;
+  --warning: #a76f10;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --cc-paper: #0f100e;
+  --cc-surface: #151713;
+  --cc-surface-2: #1a1c18;
+  --cc-surface-3: #20231d;
+  --cc-ink: #f4f0e4;
+  --cc-text: #f4f0e4;
+  --cc-muted: #9da096;
+  --cc-border: #2b2e27;
+  --cc-border-strong: #44483e;
+  --cc-mint: #20231d;
+  --cc-positive: #70c891;
+  --cc-negative: #e16a64;
+  --cc-accent: #70a8d7;
+  --cc-accent-strong: #8ab9df;
+  --cc-warning: #e2b85c;
+  --cc-warm: #ffea93;
+  --background: #0f100e;
+  --surface: #151713;
+  --foreground: #f4f0e4;
+  --muted: #9da096;
+  --border: #2b2e27;
+  --positive: #70c891;
+  --negative: #e16a64;
+  --warning: #e2b85c;
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Premium surfaces are intentionally opaque. Remove the previous glass language. */
+body :is(.cc-app, .cc-dialog, .cc-public-markets),
+body :is(.cc-app, .cc-dialog, .cc-public-markets) * {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Shared tactile language: crisp borders, small radii, restrained motion. */
+:is(.cc-app, .cc-dialog, .cc-public-markets) :is(button, a, input, select, textarea) {
+  transition: color .14s ease, background-color .14s ease, border-color .14s ease, opacity .14s ease !important;
+}
+
+:is(.cc-app, .cc-dialog, .cc-public-markets) :is(.cc-button, .cc-icon-button, .cc-search-trigger, .cc-theme-toggle) {
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+:is(.cc-app, .cc-dialog, .cc-public-markets) :is(.cc-button, .cc-search-trigger) {
+  border-radius: 7px !important;
+}
+
+:is(.cc-app, .cc-dialog, .cc-public-markets) .cc-icon-button {
+  border-radius: 7px !important;
+}
+
+:is(.cc-app, .cc-dialog, .cc-public-markets) .cc-theme-toggle {
+  border-radius: 8px !important;
+  background: var(--cc-surface-2) !important;
+  border-color: var(--cc-border) !important;
+}
+
+:is(.cc-app, .cc-dialog, .cc-public-markets) .cc-theme-toggle .cc-theme-thumb {
+  box-shadow: none !important;
+  background: var(--cc-surface) !important;
+  border: 1px solid var(--cc-border);
+}
+
+:is(.cc-app, .cc-dialog, .cc-public-markets) .cc-theme-toggle.is-dark {
+  background: var(--cc-surface-2) !important;
+  color: var(--cc-muted) !important;
+}
+
+/* Public pages: keep the existing page structure, only unify the material and palette. */
+body:not(:has(.cc-app)) main {
+  background-color: #fbf8ee;
+  color: #10120f;
+}
+
+html[data-theme="dark"] body:not(:has(.cc-app)) main {
+  background-color: #0f100e;
+  color: #f4f0e4;
+}
+
+body:not(:has(.cc-app)) header[class*="sticky"],
+body:not(:has(.cc-app)) header[class*="border-b"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+body:not(:has(.cc-app)) header[class*="sticky"] {
+  background: #fbf8ee !important;
+  border-color: #d8d4c7 !important;
+}
+
+html[data-theme="dark"] body:not(:has(.cc-app)) header[class*="sticky"] {
+  background: #11120f !important;
+  border-color: #2b2e27 !important;
+}
+
+body:not(:has(.cc-app)) :is(a, button)[class*="rounded-full"] {
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+body:not(:has(.cc-app)) :is(a, button)[class*="bg-[#2F78B7]"] {
+  background: #2f78b7 !important;
+  border: 1px solid #2f78b7 !important;
+  box-shadow: none !important;
+}
+
+body:not(:has(.cc-app)) :is(a, button)[class*="bg-[#2F78B7]"]:hover {
+  background: #245f93 !important;
+  border-color: #245f93 !important;
+}
+
+body:not(:has(.cc-app)) [class*="backdrop-blur"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+body:not(:has(.cc-app)) [class*="shadow-["] {
+  box-shadow: none !important;
+}
+
+body:not(:has(.cc-app)) article[class*="rounded-["],
+body:not(:has(.cc-app)) div[class*="rounded-[22px]"],
+body:not(:has(.cc-app)) div[class*="rounded-[26px]"],
+body:not(:has(.cc-app)) div[class*="rounded-[28px]"] {
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+/* Auth side/cards: solid institutional surfaces instead of translucent glass cards. */
+body:not(:has(.cc-app)) [class*="bg-white/78"],
+body:not(:has(.cc-app)) [class*="bg-white/55"] {
+  background: #fffdf7 !important;
+  border-color: #d8d4c7 !important;
+  box-shadow: 0 16px 44px rgba(16,18,15,.08) !important;
+}
+
+html[data-theme="dark"] body:not(:has(.cc-app)) [class*="bg-white/78"],
+html[data-theme="dark"] body:not(:has(.cc-app)) [class*="bg-white/55"] {
+  background: #151713 !important;
+  border-color: #2b2e27 !important;
+  color: #f4f0e4 !important;
+  box-shadow: none !important;
+}
+
+/* Landing/public palette alignment. */
+html[data-theme="dark"] body:not(:has(.cc-app)) [class*="bg-[#FBF8EE]"] { background: #0f100e !important; }
+html[data-theme="dark"] body:not(:has(.cc-app)) [class*="bg-[#F4E6B0]"] { background: #1b1d18 !important; }
+html[data-theme="dark"] body:not(:has(.cc-app)) [class*="bg-[#F4E7B2]"] { background: #1b1d18 !important; }
+html[data-theme="dark"] body:not(:has(.cc-app)) [class*="bg-[#FBF6DF]"] { background: #151713 !important; }
+html[data-theme="dark"] body:not(:has(.cc-app)) [class*="bg-[#FFFCF5]"] { background: #11120f !important; }
+html[data-theme="dark"] body:not(:has(.cc-app)) [class*="bg-[#A9CFAF]"] { background: #1d2a21 !important; }
+html[data-theme="dark"] body:not(:has(.cc-app)) [class*="text-[#07111F]"] { color: #f4f0e4 !important; }
+html[data-theme="dark"] body:not(:has(.cc-app)) [class*="text-black"] { color: #f4f0e4 !important; }
+html[data-theme="dark"] body:not(:has(.cc-app)) [class*="border-black"] { border-color: #34372f !important; }
+html[data-theme="dark"] body:not(:has(.cc-app)) [class*="bg-white"] { background-color: #151713 !important; }
+
+/* Public market page uses the same semantic tokens as the workspace. */
+.cc-public-markets {
+  background: var(--cc-paper) !important;
+  color: var(--cc-text) !important;
+}
+.cc-public-markets :is(.cc-public-header, .cc-market-table-card, .cc-market-search, .cc-market-table th) {
+  background: var(--cc-surface) !important;
+  border-color: var(--cc-border) !important;
+  box-shadow: none !important;
+}
+
+/* Dialogs shared across public and authenticated areas. */
+.cc-dialog {
+  background: var(--cc-surface) !important;
+  color: var(--cc-text) !important;
+  border: 1px solid var(--cc-border) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 22px 70px rgba(0,0,0,.18) !important;
+}
+
+.cc-modal-backdrop {
+  background: rgba(7,8,6,.64) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Recharts tooltip follows the selected theme. */
+.recharts-default-tooltip {
+  background: var(--cc-surface) !important;
+  border: 1px solid var(--cc-border) !important;
+  border-radius: 7px !important;
+  color: var(--cc-text) !important;
+  box-shadow: none !important;
+}
+.recharts-tooltip-label,
+.recharts-tooltip-item { color: var(--cc-text) !important; }
+
+/* Scrollbars: quiet, terminal-like. */
+* { scrollbar-color: var(--cc-border-strong, #bcb7a7) transparent; }
+*::-webkit-scrollbar-thumb { background: var(--cc-border-strong, #bcb7a7); border-radius: 5px; }
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.cc-app, .cc-dialog, .cc-public-markets) *,
+  :is(.cc-app, .cc-dialog, .cc-public-markets) *::before,
+  :is(.cc-app, .cc-dialog, .cc-public-markets) *::after { transition-duration: .001ms !important; }
+}

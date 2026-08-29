@@ -17,10 +17,11 @@ import {
 
 import { useAuth } from "../../context/AuthContext"
 import AuthShell from "../../components/auth/AuthShell"
+import { safeReturnPath } from "@/lib/workspace-navigation"
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login, token } = useAuth()
+  const { login } = useAuth()
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -31,24 +32,13 @@ export default function LoginPage() {
   const [nextPath, setNextPath] = useState("/dashboard")
 
   useEffect(() => {
-    if (token) {
-      router.replace(nextPath)
-    }
-  }, [token, router, nextPath])
-
-  useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const requestedPath = params.get("next")
 
     setRegistered(params.get("registered") === "true")
 
-    if (requestedPath?.startsWith("/") && !requestedPath.startsWith("//")) {
-      setNextPath(requestedPath)
-      router.prefetch(requestedPath)
-    } else {
-      router.prefetch("/dashboard")
-    }
-  }, [router])
+    setNextPath(safeReturnPath(requestedPath))
+  }, [])
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -59,7 +49,6 @@ export default function LoginPage() {
       await login(email.trim().toLowerCase(), password)
       router.replace(nextPath)
     } catch (err: unknown) {
-      setLoading(false)
       if (axios.isAxiosError(err)) {
         const detail = err.response?.data?.detail
 
@@ -83,6 +72,8 @@ export default function LoginPage() {
       } else {
         setError("We could not verify that email and password.")
       }
+    } finally {
+      setLoading(false)
     }
   }
 

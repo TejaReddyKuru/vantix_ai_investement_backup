@@ -1,6 +1,7 @@
 "use client"
 
-import React, { createContext, useContext, useState } from "react"
+import React, { createContext, useContext, useEffect, useState } from "react"
+import axios from "axios"
 import { apiClient } from "../lib/client"
 
 type User = {
@@ -18,7 +19,7 @@ type AuthContextValue = {
   user: User | null
   token: string | null
   login: (email: string, password: string) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -70,23 +71,28 @@ export const AuthProvider = ({
 }: {
   children: React.ReactNode
 }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    if (typeof window !== "undefined") {
-      const auth = getStoredAuth()
-      return auth ? auth.user : null
+  const [initialAuth] = useState<StoredAuth | null>(() =>
+    getStoredAuth()
+  )
+
+  const [user, setUser] = useState<User | null>(
+    () => initialAuth?.user ?? null
+  )
+
+  const [token, setToken] = useState<string | null>(
+    () => initialAuth?.token ?? null
+  )
+
+  /*
+   * Restore the saved authentication token when
+   * the application starts.
+   */
+  useEffect(() => {
+    if (initialAuth?.token) {
+      apiClient.defaults.headers.common["Authorization"] =
+        `Bearer ${initialAuth.token}`
     }
-    return null
-  })
-  const [token, setToken] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      const auth = getStoredAuth()
-      if (auth) {
-        apiClient.defaults.headers.common["Authorization"] = `Bearer ${auth.token}`
-        return auth.token
-      }
-    }
-    return null
-  })
+  }, [initialAuth])
 
   /*
    * Login
@@ -140,20 +146,24 @@ export const AuthProvider = ({
   }
 
   /*
-   * Logout (Optimistic/Local-First)
+   * Logout
    */
-  const logout = () => {
-    // 1. Clear everything immediately
+  const logout = async () => {
+    try {
+      await apiClient.post("/api/v1/auth/logout")
+    } catch {
+      /*
+       * Even if the backend logout request fails,
+       * clear the local authentication state.
+       */
+    }
+
     setUser(null)
     setToken(null)
 
     delete apiClient.defaults.headers.common["Authorization"]
-    localStorage.removeItem("vc_auth")
 
-    // 2. Fire backend logout without blocking navigation
-    apiClient.post("/api/v1/auth/logout").catch(() => {
-      // Ignore backend logout failure
-    })
+    localStorage.removeItem("vc_auth")
   }
 
   return (

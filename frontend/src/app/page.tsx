@@ -16,19 +16,10 @@ import {
   WalletCards,
 } from "lucide-react"
 import CoinCrestBrand from "../components/branding/CoinCrestBrand"
+import { ThemeControl } from "@/context/ThemeContext"
+import MarketTicker from "@/components/market/MarketTicker"
 import Hero3D from "../components/landing/Hero3D"
 import SiteFooter from "../components/landing/SiteFooter"
-
-const markets = [
-  { symbol: "BTC", price: "$111,820", change: "+2.84%", positive: true },
-  { symbol: "ETH", price: "$4,632", change: "+1.72%", positive: true },
-  { symbol: "SOL", price: "$213.08", change: "+3.11%", positive: true },
-  { symbol: "USDT", price: "$1.00", change: "+0.01%", positive: true },
-  { symbol: "BNB", price: "$884.56", change: "+0.93%", positive: true },
-  { symbol: "XRP", price: "$3.08", change: "-1.21%", positive: false },
-  { symbol: "ADA", price: "$0.91", change: "+0.38%", positive: true },
-  { symbol: "AVAX", price: "$32.47", change: "-0.46%", positive: false },
-]
 
 const capabilities = [
   {
@@ -162,6 +153,7 @@ export default function Home() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <ThemeControl />
             <Link href="/login" className="hidden px-3 py-2 text-[15px] font-bold tracking-[-0.01em] sm:block">Sign in</Link>
             <Link
               href="/register"
@@ -173,17 +165,7 @@ export default function Home() {
         </div>
       </header>
 
-      <section id="markets" className="border-b border-black/10 bg-white">
-        <div className="flex min-w-max animate-[marquee_35s_linear_infinite]">
-          {[...markets, ...markets].map((market, index) => (
-            <div key={`${market.symbol}-${index}`} className="flex h-10 items-center gap-3 border-r border-black/10 px-5 text-[11px]">
-              <b>{market.symbol}</b>
-              <span className="text-black/55">{market.price}</span>
-              <span className={market.positive ? "font-bold text-[#267A57]" : "font-bold text-[#C18A18]"}>{market.change}</span>
-            </div>
-          ))}
-        </div>
-      </section>
+      <section id="markets"><MarketTicker /></section>
 
       <section className="relative min-h-[720px] overflow-hidden bg-black lg:min-h-[calc(100svh-158px)]">
         <Hero3D />
