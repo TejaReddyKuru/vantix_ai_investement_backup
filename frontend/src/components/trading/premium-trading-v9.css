@@ -1,0 +1,274 @@
+/* CoinCrest Trading Workstation v9 — premium terminal material only. Layout and behavior untouched. */
+
+.ct-workstation-v7 {
+  --ct-line: var(--cc-border);
+  --ct-muted: var(--cc-muted);
+  --ct-blue: var(--cc-accent);
+  --ct-ink: var(--cc-ink);
+  color: var(--cc-text);
+}
+
+.ct-workstation-v7,
+.ct-workstation-v7 * {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+.ct-workstation-v7 :is(
+  .ct-instrument,.ct-panel,.ct-order-book,.ct-market-depth-card,.ct-recent-trades-card,
+  .ct-profile-ideas,.ct-account-orders,.ct-alert-layer,.ct-pro-chart,.ct-pro-book,.ct-pro-trade,
+  .ct-pro-ai,.ct-pro-secondary,.ct-pro-account,.ct-pro-ideas
+) {
+  background: var(--cc-surface) !important;
+  background-image: none !important;
+  border-color: var(--cc-border) !important;
+  border-radius: 7px !important;
+  box-shadow: none !important;
+}
+
+.ct-workstation-v7 .ct-instrument {
+  background: #11130f !important;
+  color: #fff8e0 !important;
+  border-color: #11130f !important;
+  border-radius: 7px !important;
+}
+html[data-theme="dark"] .ct-workstation-v7 .ct-instrument {
+  background: #151713 !important;
+  border-color: #34372f !important;
+}
+
+.ct-workstation-v7 .ct-instrument :is(dt, small),
+.ct-workstation-v7 .ct-instrument .ct-feed-state { color: #b9b9ad !important; }
+.ct-workstation-v7 .ct-instrument dd { color: #fff8e0 !important; }
+.ct-workstation-v7 .ct-instrument .cc-asset-picker-trigger {
+  color: #fff8e0 !important;
+  background: #1a1c18 !important;
+  background-image: none !important;
+  border: 1px solid #34372f !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+}
+
+/* Chart: clean trading canvas. */
+.ct-workstation-v7 .ct-chart {
+  background: var(--cc-surface) !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.ct-workstation-v7 :is(.ct-chart-controls,.ct-chart-readout,.ct-indicator-legend,.ct-chart-footer) {
+  background: var(--cc-surface) !important;
+  background-image: none !important;
+  border-color: var(--cc-border) !important;
+}
+.ct-workstation-v7 .ct-chart-body,
+.ct-workstation-v7 .ct-chart-body > svg {
+  background: var(--cc-surface) !important;
+}
+
+/* Dark SVG grid/text overrides; presentation attributes remain in the component. */
+html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg [stroke="#e8ecf0"],
+html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg [stroke="#e4e8ee"],
+html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg [stroke="#e3e8ee"],
+html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg [stroke="#edf1f5"] {
+  stroke: #2b2e27 !important;
+}
+html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg [fill="#697788"],
+html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg [fill="#8190a0"] {
+  fill: #9da096 !important;
+}
+html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg [stroke="#8190a0"] { stroke: #62675c !important; }
+html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg [fill="#b0d9cd"] { fill: #315d45 !important; }
+html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg [fill="#e9c0c1"] { fill: #673934 !important; }
+html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg [fill="#07111f"] { fill: #f4f0e4 !important; }
+html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg text[fill="white"] { fill: #10120f !important; }
+
+/* Drawing tools are dock controls, not floating glass. */
+.ct-workstation-v7 .ct-drawing-tools {
+  background: var(--cc-surface) !important;
+  border-color: var(--cc-border) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+}
+.ct-workstation-v7 .ct-drawing-tools button {
+  color: var(--cc-muted) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+}
+.ct-workstation-v7 .ct-drawing-tools button:hover,
+.ct-workstation-v7 .ct-drawing-tools button[aria-pressed="true"] {
+  color: var(--cc-ink) !important;
+  background: var(--cc-surface-2) !important;
+}
+
+/* Toolbars/tabs: compact flat controls. */
+.ct-workstation-v7 :is(
+  .ct-chart-controls button,.ct-book-controls button,.ct-panel-tabs button,.ct-order-types button,
+  .ct-size-shortcuts button,.ct-feed-state button,.ct-ai-actions a,.ct-ai-actions button,
+  .ct-records-footer button
+) {
+  color: var(--cc-muted) !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 1px solid transparent !important;
+  border-radius: 5px !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.ct-workstation-v7 :is(
+  .ct-chart-controls button,.ct-book-controls button,.ct-panel-tabs button,.ct-order-types button,
+  .ct-size-shortcuts button,.ct-ai-actions a,.ct-ai-actions button
+):hover:not(:disabled) {
+  color: var(--cc-ink) !important;
+  background: var(--cc-surface-2) !important;
+  border-color: var(--cc-border) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.ct-workstation-v7 :is(.ct-chart-controls,.ct-book-controls,.ct-panel-tabs,.ct-order-types) button[aria-pressed="true"] {
+  color: var(--cc-ink) !important;
+  background: var(--cc-surface-2) !important;
+  border-color: var(--cc-border) !important;
+  box-shadow: inset 0 -2px 0 var(--cc-accent) !important;
+}
+
+.ct-workstation-v7 .ct-intervals button[aria-pressed="true"] {
+  color: var(--cc-ink) !important;
+  background: var(--cc-surface-2) !important;
+  box-shadow: inset 0 -2px 0 var(--cc-accent) !important;
+}
+
+.ct-workstation-v7 .ct-style-select select,
+.ct-workstation-v7 .ct-book-controls select,
+.ct-workstation-v7 .ct-order-planner :is(input,select,output) {
+  color: var(--cc-ink) !important;
+  background: var(--cc-surface-2) !important;
+  background-image: none !important;
+  border: 1px solid var(--cc-border) !important;
+  border-radius: 5px !important;
+  box-shadow: none !important;
+}
+
+/* Order entry: green/red only where action semantics require them. */
+.ct-workstation-v7 .ct-order-sides {
+  background: var(--cc-surface-2) !important;
+  border: 1px solid var(--cc-border) !important;
+  border-radius: 6px !important;
+}
+.ct-workstation-v7 .ct-order-sides button {
+  color: var(--cc-muted) !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 1px solid transparent !important;
+  border-radius: 5px !important;
+  box-shadow: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+.ct-workstation-v7 .ct-order-sides .buy[aria-pressed="true"] {
+  color: #fff !important;
+  background: #198a5c !important;
+  border-color: #198a5c !important;
+}
+.ct-workstation-v7 .ct-order-sides .sell[aria-pressed="true"] {
+  color: #fff !important;
+  background: #c84947 !important;
+  border-color: #c84947 !important;
+}
+.ct-workstation-v7 .ct-review-order {
+  color: #10120f !important;
+  background: #ffea93 !important;
+  background-image: none !important;
+  border: 1px solid #e8ce68 !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.ct-workstation-v7 .ct-review-order:hover:not(:disabled) { background: #f4d96f !important; }
+
+.ct-workstation-v7 :is(.ct-local-risk,.ct-order-protection,.ct-order-totals,.ct-order-disclosure) {
+  background: var(--cc-surface-2) !important;
+  background-image: none !important;
+  border-color: var(--cc-border) !important;
+  box-shadow: none !important;
+}
+
+/* Order book/tape: neutral background, numbers carry the meaning. */
+.ct-workstation-v7 .ct-depth-row:hover,
+.ct-workstation-v7 .ct-tape-row:hover { background: var(--cc-surface-2) !important; }
+.ct-workstation-v7 .ct-book-mid { background: var(--cc-surface-2) !important; border-color: var(--cc-border) !important; }
+.ct-workstation-v7 .ct-depth-row.asks > span:first-of-type,
+.ct-workstation-v7 .ct-tape-row.sell > span:first-child { color: var(--cc-negative) !important; }
+.ct-workstation-v7 .ct-depth-row.bids > span:first-of-type,
+.ct-workstation-v7 .ct-tape-row.buy > span:first-child { color: var(--cc-positive) !important; }
+
+/* AHNA intelligence: premium analytic console, no glow/glass. */
+.ct-workstation-v7 .ct-ai-dashboard {
+  background: #f0ede2 !important;
+  background-image: none !important;
+  border: 1px solid #d8d4c7 !important;
+  border-radius: 7px !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .ct-workstation-v7 .ct-ai-dashboard {
+  background: #131a20 !important;
+  border-color: #263643 !important;
+}
+.ct-workstation-v7 .ct-ai-card {
+  background: var(--cc-surface) !important;
+  background-image: none !important;
+  border: 1px solid var(--cc-border) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+html[data-theme="dark"] .ct-workstation-v7 .ct-ai-card { background: #171c1f !important; border-color: #2b3438 !important; }
+.ct-workstation-v7 .ct-ai-card:hover { border-color: var(--cc-border-strong) !important; box-shadow: none !important; }
+.ct-workstation-v7 .ct-ai-mark {
+  background: #2f78b7 !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+.ct-workstation-v7 .ct-ai-gauge:after,
+.ct-workstation-v7 .ct-ai-consensus-ring:after { background: var(--cc-surface) !important; }
+html[data-theme="dark"] .ct-workstation-v7 .ct-ai-gauge:after,
+html[data-theme="dark"] .ct-workstation-v7 .ct-ai-consensus-ring:after { background: #171c1f !important; }
+
+/* Position / recent / profile surfaces. */
+.ct-workstation-v7 :is(.ct-recent-list > div,.ct-profile-list > a) {
+  border-color: var(--cc-border) !important;
+}
+.ct-workstation-v7 .ct-profile-list > a {
+  background: transparent !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.ct-workstation-v7 .ct-profile-list > a:hover {
+  background: var(--cc-surface-2) !important;
+  transform: none !important;
+}
+.ct-workstation-v7 .ct-records-scroll th { background: var(--cc-surface-2) !important; color: var(--cc-muted) !important; }
+.ct-workstation-v7 .ct-records-scroll th,
+.ct-workstation-v7 .ct-records-scroll td { border-color: var(--cc-border) !important; }
+
+/* Market depth fills stay restrained. */
+.ct-workstation-v7 .ct-market-depth-card .buy-area { fill: color-mix(in srgb, var(--cc-positive) 14%, transparent) !important; }
+.ct-workstation-v7 .ct-market-depth-card .sell-area { fill: color-mix(in srgb, var(--cc-negative) 14%, transparent) !important; }
+
+.ct-workstation-v7 .ct-alert-layer {
+  background: var(--cc-surface) !important;
+  border-color: var(--cc-border-strong) !important;
+  box-shadow: 0 22px 60px rgba(0,0,0,.22) !important;
+}
+
+.ct-workstation-v7 .ct-terminal-footer {
+  color: var(--cc-muted) !important;
+  border-color: var(--cc-border) !important;
+}
+
+/* The chart-focus and responsive layout rules from v7 remain untouched. */

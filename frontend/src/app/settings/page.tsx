@@ -1,41 +1,41 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
+import DashboardShell from "@/components/dashboard/DashboardShell";
+import { BrokerConnectionsCard } from "@/components/dashboard/AccountCards";
+import { useAuth } from "@/context/AuthContext";
+import { ThemeSettings, useTheme } from "@/context/ThemeContext";
 import {
   Bell,
   Check,
   ChevronRight,
   CircleHelp,
   Lock,
-  Monitor,
-  Moon,
   Palette,
   Save,
   ShieldCheck,
   Sparkles,
-  Sun,
   SlidersHorizontal,
   User,
   Wallet,
   X,
   RotateCcw,
-} from "lucide-react"
+} from "lucide-react";
 
 type Section =
   | "profile"
   | "trading"
-  | "risk"
   | "notifications"
   | "friday"
   | "appearance"
   | "security"
-  | "account"
+  | "account";
 
 const sections: {
-  id: Section
-  label: string
-  description: string
-  icon: typeof User
+  id: Section;
+  label: string;
+  description: string;
+  icon: typeof User;
 }[] = [
   {
     id: "profile",
@@ -50,12 +50,6 @@ const sections: {
     icon: Wallet,
   },
   {
-    id: "risk",
-    label: "Risk",
-    description: "Risk controls",
-    icon: ShieldCheck,
-  },
-  {
     id: "notifications",
     label: "Notifications",
     description: "Alerts & updates",
@@ -63,7 +57,7 @@ const sections: {
   },
   {
     id: "friday",
-    label: "Friday AI",
+    label: "AHNA AI",
     description: "AI assistant",
     icon: Sparkles,
   },
@@ -85,14 +79,14 @@ const sections: {
     description: "Subscription & account",
     icon: SlidersHorizontal,
   },
-]
+];
 
 function Toggle({
   enabled,
   onChange,
 }: {
-  enabled: boolean
-  onChange: () => void
+  enabled: boolean;
+  onChange: () => void;
 }) {
   return (
     <button
@@ -101,7 +95,7 @@ function Toggle({
       aria-pressed={enabled}
       className={[
         "relative h-6 w-11 rounded-full transition-all duration-200",
-        enabled ? "bg-[#0F2D1F]" : "bg-[#D5D6CC]",
+        enabled ? "bg-[#2F78B7]" : "bg-[#D5D6CC]",
       ].join(" ")}
     >
       <span
@@ -111,7 +105,7 @@ function Toggle({
         ].join(" ")}
       />
     </button>
-  )
+  );
 }
 
 function SettingRow({
@@ -119,22 +113,22 @@ function SettingRow({
   description,
   children,
 }: {
-  title: string
-  description: string
-  children: React.ReactNode
+  title: string;
+  description: string;
+  children: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-4 border-b border-[#ECECE4] py-5 last:border-b-0 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
         <div className="text-xs font-extrabold text-[#292923]">{title}</div>
-        <div className="mt-1 max-w-[600px] text-[10px] leading-4 text-[#8A897F]">
+        <div className="mt-1 max-w-[600px] text-[12px] leading-4 text-[#8A897F]">
           {description}
         </div>
       </div>
 
       <div className="shrink-0">{children}</div>
     </div>
-  )
+  );
 }
 
 function SelectInput({
@@ -142,46 +136,40 @@ function SelectInput({
   onChange,
   children,
 }: {
-  value: string
-  onChange: (value: string) => void
-  children: React.ReactNode
+  value: string;
+  onChange: (value: string) => void;
+  children: React.ReactNode;
 }) {
   return (
     <select
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-9 min-w-[150px] rounded-lg border border-[#DCDDD3] bg-[#FAFAF7] px-3 text-[10px] font-bold text-[#34342F] outline-none transition-colors focus:border-[#8FB49B]"
+      className="h-9 min-w-[150px] rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 text-[12px] font-bold text-[#34342F] outline-none transition-colors focus:border-[#8FB49B]"
     >
       {children}
     </select>
-  )
+  );
 }
 
-export default function SettingsPage() {
-  const [activeSection, setActiveSection] = useState<Section>("profile")
-  const [saved, setSaved] = useState(false)
+function SettingsContent() {
+  const { user } = useAuth();
+  const { change: changeTheme } = useTheme();
+  const [activeSection, setActiveSection] = useState<Section>("profile");
+  const [saved, setSaved] = useState(false);
 
   const [profile, setProfile] = useState({
-    firstName: "Vish",
-    lastName: "Sai",
-    email: "vish@example.com",
+    firstName: user?.display_name?.split(" ")[0] ?? "",
+    lastName: user?.display_name?.split(" ").slice(1).join(" ") ?? "",
+    email: user?.email ?? "",
     timezone: "Asia/Kolkata",
-  })
+  });
 
   const [trading, setTrading] = useState({
     orderType: "Market",
     confirmation: true,
     slippage: "0.50%",
     sizing: "Risk based",
-  })
-
-  const [risk, setRisk] = useState({
-    riskPerTrade: 2,
-    maxExposure: 20,
-    maxDrawdown: 15,
-    cashReserve: 5,
-    autoBlock: true,
-  })
+  });
 
   const [notifications, setNotifications] = useState({
     priceAlerts: true,
@@ -189,52 +177,45 @@ export default function SettingsPage() {
     fridayAlerts: true,
     portfolioUpdates: true,
     email: false,
-  })
+  });
 
-  const [friday, setFriday] = useState({
+  const [friday, setAHNA] = useState({
     enabled: true,
     sidebar: true,
     marketInsights: true,
     riskInsights: true,
     tradeAlerts: true,
-  })
+  });
 
   const [appearance, setAppearance] = useState({
     theme: "System",
     density: "Comfortable",
     animations: true,
-  })
+  });
 
   function handleSave() {
-    setSaved(true)
+    setSaved(true);
 
     window.setTimeout(() => {
-      setSaved(false)
-    }, 2200)
+      setSaved(false);
+    }, 2200);
   }
 
   function handleReset() {
+    changeTheme("system");
     setProfile({
-      firstName: "Vish",
-      lastName: "Sai",
-      email: "vish@example.com",
+      firstName: user?.display_name?.split(" ")[0] ?? "",
+      lastName: user?.display_name?.split(" ").slice(1).join(" ") ?? "",
+      email: user?.email ?? "",
       timezone: "Asia/Kolkata",
-    })
+    });
 
     setTrading({
       orderType: "Market",
       confirmation: true,
       slippage: "0.50%",
       sizing: "Risk based",
-    })
-
-    setRisk({
-      riskPerTrade: 2,
-      maxExposure: 20,
-      maxDrawdown: 15,
-      cashReserve: 5,
-      autoBlock: true,
-    })
+    });
 
     setNotifications({
       priceAlerts: true,
@@ -242,34 +223,40 @@ export default function SettingsPage() {
       fridayAlerts: true,
       portfolioUpdates: true,
       email: false,
-    })
+    });
 
-    setFriday({
+    setAHNA({
       enabled: true,
       sidebar: true,
       marketInsights: true,
       riskInsights: true,
       tradeAlerts: true,
-    })
+    });
 
     setAppearance({
       theme: "System",
       density: "Comfortable",
       animations: true,
-    })
+    });
   }
 
   return (
-    <main className="min-h-screen bg-[#F7F6E8] text-[#171717]">
+    <div className="cc-legacy-page">
+      <BrokerConnectionsCard />
+      <p className="cc-settings-notice">
+        Settings below are interface previews. Changes are not saved and do not
+        alter server-side risk limits, security, notifications or account
+        permissions.
+      </p>
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-[#DCDCD1] bg-[#F7F6E8]/95 backdrop-blur">
+      <header className="cc-settings-header">
         <div className="mx-auto flex h-16 max-w-[1500px] items-center justify-between px-4 sm:px-6 lg:px-8">
           <div>
-            <div className="text-[8px] font-extrabold uppercase tracking-[0.2em] text-[#8A897F]">
-              Vish Capitals
+            <div className="text-[12px] font-extrabold uppercase tracking-[0.2em] text-[#8A897F]">
+              CoinCrest
             </div>
 
-            <h1 className="mt-0.5 text-[15px] font-extrabold tracking-[-0.02em] text-[#171717]">
+            <h1 className="mt-0.5 text-[15px] font-extrabold tracking-[-0.02em] text-[#07111F]">
               Settings
             </h1>
           </div>
@@ -278,7 +265,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={handleReset}
-              className="hidden h-9 items-center gap-2 rounded-lg border border-[#D8D9CF] bg-white px-3 text-[10px] font-extrabold text-[#55554E] transition-all hover:border-[#BFC9C1] hover:bg-[#FAFAF7] sm:flex"
+              className="hidden h-9 items-center gap-2 rounded-lg border border-[#D8D9CF] bg-white px-3 text-[12px] font-extrabold text-[#55554E] transition-all hover:border-[#BFC9C1] hover:bg-[#FAFAF7] sm:flex"
             >
               <RotateCcw size={13} />
               Reset
@@ -286,11 +273,12 @@ export default function SettingsPage() {
 
             <button
               type="button"
-              onClick={handleSave}
-              className="flex h-9 items-center gap-2 rounded-lg bg-[#0F2D1F] px-4 text-[10px] font-extrabold text-white shadow-[0_8px_20px_rgba(15,45,31,0.16)] transition-all hover:-translate-y-0.5 hover:bg-[#17452F]"
+              disabled
+              title="Settings persistence is not connected"
+              className="flex h-9 items-center gap-2 rounded-lg bg-[#2F78B7] px-4 text-[12px] font-extrabold text-white shadow-[0_8px_20px_rgba(15,45,31,0.16)] transition-all hover:-translate-y-0.5 hover:bg-[#245F93]"
             >
               {saved ? <Check size={14} /> : <Save size={14} />}
-              {saved ? "Saved" : "Save changes"}
+              {"Saving not connected"}
             </button>
           </div>
         </div>
@@ -299,32 +287,32 @@ export default function SettingsPage() {
       <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         {/* Intro */}
         <section className="mb-7">
-          <div className="flex items-center gap-2 text-[9px] font-extrabold uppercase tracking-[0.18em] text-[#18794E]">
+          <div className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#18794E]">
             <span className="h-1.5 w-1.5 rounded-full bg-[#18794E]" />
             Control center
           </div>
 
-          <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.04em] text-[#171717] sm:text-3xl">
+          <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.04em] text-[#07111F] sm:text-3xl">
             Configure your workspace.
           </h2>
 
           <p className="mt-2 max-w-[650px] text-xs leading-5 text-[#77776F]">
-            Manage your trading preferences, risk controls, Friday AI behavior,
+            Manage your trading preferences, risk controls, AHNA AI behavior,
             notifications, security, and account settings from one place.
           </p>
         </section>
 
         <div className="grid gap-5 lg:grid-cols-[260px_minmax(0,1fr)]">
           {/* Settings navigation */}
-          <aside className="h-fit rounded-2xl border border-[#E1E2D8] bg-white p-2 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
-            <div className="px-3 pb-2 pt-3 text-[8px] font-extrabold uppercase tracking-[0.18em] text-[#AAA99F]">
+          <aside className="h-fit rounded-2xl border border-[#E3E2D9] bg-white p-2 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
+            <div className="px-3 pb-2 pt-3 text-[12px] font-extrabold uppercase tracking-[0.18em] text-[#AAA99F]">
               Settings
             </div>
 
             <nav className="space-y-1">
               {sections.map((section) => {
-                const Icon = section.icon
-                const active = activeSection === section.id
+                const Icon = section.icon;
+                const active = activeSection === section.id;
 
                 return (
                   <button
@@ -334,7 +322,7 @@ export default function SettingsPage() {
                     className={[
                       "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-200",
                       active
-                        ? "bg-[#E8F2EA] text-[#0F2D1F]"
+                        ? "bg-[#EEF4FA] text-[#2F78B7]"
                         : "text-[#66665F] hover:bg-[#FAFAF7] hover:text-[#292923]",
                     ].join(" ")}
                   >
@@ -342,42 +330,41 @@ export default function SettingsPage() {
                       className={[
                         "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
                         active
-                          ? "bg-white text-[#0F2D1F] shadow-sm"
-                          : "bg-[#F4F4EE] text-[#77776F] group-hover:text-[#0F2D1F]",
+                          ? "bg-white text-[#2F78B7] shadow-sm"
+                          : "bg-[#F4F4EE] text-[#77776F] group-hover:text-[#2F78B7]",
                       ].join(" ")}
                     >
                       <Icon size={14} />
                     </span>
 
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[10px] font-extrabold">
+                      <span className="block text-[12px] font-extrabold">
                         {section.label}
                       </span>
-                      <span className="mt-0.5 block text-[8px] font-medium text-[#99988F]">
+                      <span className="mt-0.5 block text-[12px] font-medium text-[#99988F]">
                         {section.description}
                       </span>
                     </span>
 
                     {active && <ChevronRight size={13} />}
                   </button>
-                )
+                );
               })}
             </nav>
 
-            <div className="mt-3 rounded-xl bg-[#0F2D1F] p-3.5 text-white">
+            <div className="mt-3 rounded-xl bg-[#2F78B7] p-3.5 text-white">
               <div className="flex items-center gap-2">
                 <Sparkles size={14} />
-                <span className="text-[9px] font-extrabold">Friday AI</span>
+                <span className="text-[11px] font-extrabold">AHNA AI</span>
               </div>
 
-              <p className="mt-2 text-[8px] leading-4 text-white/55">
-                Your AI intelligence layer is online and monitoring your
-                workspace.
+              <p className="mt-2 text-[12px] leading-4 text-white/55">
+                Open AHNA from the top bar to request a market analysis.
               </p>
 
-              <div className="mt-3 flex items-center gap-1.5 text-[8px] font-bold text-[#A8D2B5]">
+              <div className="mt-3 flex items-center gap-1.5 text-[12px] font-bold text-[#A8D2B5]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#65C18C]" />
-                AI ONLINE
+                ANALYSIS ON DEMAND
               </div>
             </div>
           </aside>
@@ -390,26 +377,28 @@ export default function SettingsPage() {
                 <PageHeading
                   icon={User}
                   title="Profile"
-                  description="Manage the personal information associated with your Vish Capitals account."
+                  description="Manage the personal information associated with your CoinCrest account."
                 />
 
                 <Card>
                   <div className="flex flex-col gap-5 border-b border-[#ECECE4] pb-6 sm:flex-row sm:items-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0F2D1F] text-lg font-extrabold text-white shadow-[0_10px_25px_rgba(15,45,31,0.16)]">
-                      VS
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#2F78B7] text-lg font-extrabold text-white shadow-[0_10px_25px_rgba(15,45,31,0.16)]">
+                      {(user?.display_name || user?.email || "CC").slice(0, 2).toUpperCase()}
                     </div>
 
                     <div>
                       <div className="text-sm font-extrabold text-[#292923]">
-                        Vish Sai
+                        {user?.display_name || "Your profile"}
                       </div>
-                      <div className="mt-1 text-[10px] text-[#8A897F]">
-                        Pro Account
+                      <div className="mt-1 text-[12px] text-[#8A897F]">
+                        {user?.email || "Signed-in account"}
                       </div>
 
                       <button
                         type="button"
-                        className="mt-3 rounded-lg border border-[#DCDDD3] bg-[#FAFAF7] px-3 py-1.5 text-[9px] font-extrabold text-[#34342F] hover:border-[#BFC9C1]"
+                        disabled
+                        title="This action is not connected yet"
+                        className="mt-3 rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-1.5 text-[11px] font-extrabold text-[#34342F] hover:border-[#BFC9C1]"
                       >
                         Change avatar
                       </button>
@@ -442,7 +431,7 @@ export default function SettingsPage() {
                     />
 
                     <div>
-                      <label className="mb-2 block text-[9px] font-extrabold uppercase tracking-wider text-[#8A897F]">
+                      <label className="mb-2 block text-[11px] font-extrabold uppercase tracking-wider text-[#8A897F]">
                         Timezone
                       </label>
 
@@ -475,7 +464,7 @@ export default function SettingsPage() {
                 <PageHeading
                   icon={Wallet}
                   title="Trading preferences"
-                  description="Configure how Vish Capitals handles your paper and future live trading workflows."
+                  description="Configure how CoinCrest handles your paper and future live trading workflows."
                 />
 
                 <Card>
@@ -547,103 +536,7 @@ export default function SettingsPage() {
               </div>
             )}
 
-            {/* RISK */}
-            {activeSection === "risk" && (
-              <div className="space-y-5">
-                <PageHeading
-                  icon={ShieldCheck}
-                  title="Risk controls"
-                  description="These controls define the guardrails used by the Vish Capitals risk management layer."
-                />
-
-                <div className="rounded-2xl border border-[#D3E3D7] bg-[#E8F2EA] p-5">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#0F2D1F] shadow-sm">
-                      <ShieldCheck size={16} />
-                    </div>
-
-                    <div>
-                      <div className="text-xs font-extrabold text-[#0F2D1F]">
-                        Risk engine active
-                      </div>
-                      <p className="mt-1 text-[10px] leading-4 text-[#607367]">
-                        Risk settings are evaluated before eligible trades are
-                        allowed to proceed.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <Card>
-                  <RiskSlider
-                    label="Maximum risk per trade"
-                    description="Maximum portfolio percentage allowed to be placed at risk on a single trade."
-                    value={risk.riskPerTrade}
-                    suffix="%"
-                    min={0.5}
-                    max={5}
-                    step={0.5}
-                    onChange={(value) =>
-                      setRisk({ ...risk, riskPerTrade: value })
-                    }
-                  />
-
-                  <RiskSlider
-                    label="Maximum portfolio exposure"
-                    description="Maximum percentage of the portfolio that can be exposed to a single position."
-                    value={risk.maxExposure}
-                    suffix="%"
-                    min={5}
-                    max={50}
-                    step={1}
-                    onChange={(value) =>
-                      setRisk({ ...risk, maxExposure: value })
-                    }
-                  />
-
-                  <RiskSlider
-                    label="Maximum portfolio drawdown"
-                    description="Risk threshold at which additional trading activity should be restricted."
-                    value={risk.maxDrawdown}
-                    suffix="%"
-                    min={5}
-                    max={30}
-                    step={1}
-                    onChange={(value) =>
-                      setRisk({ ...risk, maxDrawdown: value })
-                    }
-                  />
-
-                  <RiskSlider
-                    label="Minimum cash reserve"
-                    description="Percentage of portfolio value that should remain unallocated."
-                    value={risk.cashReserve}
-                    suffix="%"
-                    min={0}
-                    max={25}
-                    step={1}
-                    onChange={(value) =>
-                      setRisk({ ...risk, cashReserve: value })
-                    }
-                  />
-
-                  <SettingRow
-                    title="Automatic risk blocking"
-                    description="Block trades that violate configured risk limits."
-                  >
-                    <Toggle
-                      enabled={risk.autoBlock}
-                      onChange={() =>
-                        setRisk({
-                          ...risk,
-                          autoBlock: !risk.autoBlock,
-                        })
-                      }
-                    />
-                  </SettingRow>
-                </Card>
-              </div>
-            )}
+            {/* Risk preferences live directly on /risk; no duplicate settings panel. */}
 
             {/* NOTIFICATIONS */}
             {activeSection === "notifications" && (
@@ -651,7 +544,7 @@ export default function SettingsPage() {
                 <PageHeading
                   icon={Bell}
                   title="Notifications"
-                  description="Control the alerts and updates you receive from Vish Capitals."
+                  description="Control the alerts and updates you receive from CoinCrest."
                 />
 
                 <Card>
@@ -686,8 +579,8 @@ export default function SettingsPage() {
                   </SettingRow>
 
                   <SettingRow
-                    title="Friday AI alerts"
-                    description="Allow Friday to notify you about important market intelligence."
+                    title="AHNA AI alerts"
+                    description="Allow AHNA to notify you about important market intelligence."
                   >
                     <Toggle
                       enabled={notifications.fridayAlerts}
@@ -738,11 +631,11 @@ export default function SettingsPage() {
               <div className="space-y-5">
                 <PageHeading
                   icon={Sparkles}
-                  title="Friday AI"
-                  description="Configure how Friday interacts with your workspace and trading intelligence."
+                  title="AHNA AI"
+                  description="Configure how AHNA interacts with your workspace and trading intelligence."
                 />
 
-                <div className="relative overflow-hidden rounded-2xl bg-[#0F2D1F] p-5 text-white shadow-[0_15px_40px_rgba(15,45,31,0.14)] sm:p-6">
+                <div className="relative overflow-hidden rounded-2xl bg-[#2F78B7] p-5 text-white shadow-[0_15px_40px_rgba(15,45,31,0.14)] sm:p-6">
                   <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#79A98A]/10 blur-3xl" />
 
                   <div className="relative flex items-start gap-4">
@@ -753,18 +646,18 @@ export default function SettingsPage() {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-extrabold">
-                          Friday Intelligence Layer
+                          AHNA Intelligence Layer
                         </span>
 
-                        <span className="rounded-full bg-[#65C18C]/15 px-2 py-1 text-[7px] font-extrabold text-[#9ED7B2]">
-                          AI ONLINE
+                        <span className="rounded-full bg-white/15 px-2 py-1 text-[10px] font-extrabold text-white">
+                          ANALYSIS ON DEMAND
                         </span>
                       </div>
 
-                      <p className="mt-2 max-w-[650px] text-[10px] leading-5 text-white/55">
-                        Friday monitors market conditions, portfolio risk,
-                        sentiment, and trading signals to provide contextual
-                        intelligence throughout your workspace.
+                      <p className="mt-2 max-w-[650px] text-[12px] leading-5 text-white/55">
+                        Open AHNA to request market context for your selected
+                        asset. These settings are a preview; they do not change
+                        the analysis service or enable background monitoring.
                       </p>
                     </div>
                   </div>
@@ -772,13 +665,13 @@ export default function SettingsPage() {
 
                 <Card>
                   <SettingRow
-                    title="Enable Friday AI"
-                    description="Enable or disable the Friday intelligence layer."
+                    title="Enable AHNA AI"
+                    description="Enable or disable the AHNA intelligence layer."
                   >
                     <Toggle
                       enabled={friday.enabled}
                       onChange={() =>
-                        setFriday({
+                        setAHNA({
                           ...friday,
                           enabled: !friday.enabled,
                         })
@@ -787,13 +680,13 @@ export default function SettingsPage() {
                   </SettingRow>
 
                   <SettingRow
-                    title="Open Friday sidebar by default"
-                    description="Automatically show the Friday AI sidebar when entering the trading workspace."
+                    title="Open AHNA sidebar by default"
+                    description="Automatically show the AHNA AI sidebar when entering the trading workspace."
                   >
                     <Toggle
                       enabled={friday.sidebar}
                       onChange={() =>
-                        setFriday({
+                        setAHNA({
                           ...friday,
                           sidebar: !friday.sidebar,
                         })
@@ -803,12 +696,12 @@ export default function SettingsPage() {
 
                   <SettingRow
                     title="Market intelligence"
-                    description="Allow Friday to provide market analysis and contextual market insights."
+                    description="Allow AHNA to provide market analysis and contextual market insights."
                   >
                     <Toggle
                       enabled={friday.marketInsights}
                       onChange={() =>
-                        setFriday({
+                        setAHNA({
                           ...friday,
                           marketInsights: !friday.marketInsights,
                         })
@@ -818,12 +711,12 @@ export default function SettingsPage() {
 
                   <SettingRow
                     title="Risk intelligence"
-                    description="Allow Friday to explain portfolio risk and risk-management events."
+                    description="Allow AHNA to explain portfolio risk and risk-management events."
                   >
                     <Toggle
                       enabled={friday.riskInsights}
                       onChange={() =>
-                        setFriday({
+                        setAHNA({
                           ...friday,
                           riskInsights: !friday.riskInsights,
                         })
@@ -833,12 +726,12 @@ export default function SettingsPage() {
 
                   <SettingRow
                     title="Trade alerts"
-                    description="Allow Friday to surface relevant trade opportunities and warnings."
+                    description="Allow AHNA to surface relevant trade opportunities and warnings."
                   >
                     <Toggle
                       enabled={friday.tradeAlerts}
                       onChange={() =>
-                        setFriday({
+                        setAHNA({
                           ...friday,
                           tradeAlerts: !friday.tradeAlerts,
                         })
@@ -855,7 +748,7 @@ export default function SettingsPage() {
                 <PageHeading
                   icon={Palette}
                   title="Appearance"
-                  description="Customize the visual experience of your Vish Capitals workspace."
+                  description="Customize the visual experience of your CoinCrest workspace."
                 />
 
                 <Card>
@@ -863,31 +756,7 @@ export default function SettingsPage() {
                     title="Theme"
                     description="Choose the color mode used throughout the application."
                   >
-                    <div className="flex gap-2">
-                      {["Light", "Dark", "System"].map((theme) => (
-                        <button
-                          key={theme}
-                          type="button"
-                          onClick={() =>
-                            setAppearance({
-                              ...appearance,
-                              theme,
-                            })
-                          }
-                          className={[
-                            "flex h-9 items-center gap-1.5 rounded-lg border px-3 text-[9px] font-extrabold transition-all",
-                            appearance.theme === theme
-                              ? "border-[#9DBAA6] bg-[#E8F2EA] text-[#0F2D1F]"
-                              : "border-[#DCDDD3] bg-[#FAFAF7] text-[#77776F] hover:border-[#C6CEC8]",
-                          ].join(" ")}
-                        >
-                          {theme === "Light" && <Sun size={12} />}
-                          {theme === "Dark" && <Moon size={12} />}
-                          {theme === "System" && <Monitor size={12} />}
-                          {theme}
-                        </button>
-                      ))}
-                    </div>
+                    <ThemeSettings />
                   </SettingRow>
 
                   <SettingRow
@@ -939,11 +808,13 @@ export default function SettingsPage() {
                 <Card>
                   <SettingRow
                     title="Password"
-                    description="Change your Vish Capitals account password."
+                    description="Change your CoinCrest account password."
                   >
                     <button
                       type="button"
-                      className="rounded-lg border border-[#DCDDD3] bg-[#FAFAF7] px-3 py-2 text-[9px] font-extrabold text-[#34342F] transition-all hover:border-[#BFC9C1]"
+                      disabled
+                      title="This action is not connected yet"
+                      className="rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-2 text-[11px] font-extrabold text-[#34342F] transition-all hover:border-[#BFC9C1]"
                     >
                       Change password
                     </button>
@@ -955,7 +826,9 @@ export default function SettingsPage() {
                   >
                     <button
                       type="button"
-                      className="rounded-lg bg-[#0F2D1F] px-3 py-2 text-[9px] font-extrabold text-white transition-all hover:bg-[#17452F]"
+                      disabled
+                      title="This action is not connected yet"
+                      className="rounded-lg bg-[#2F78B7] px-3 py-2 text-[11px] font-extrabold text-white transition-all hover:bg-[#245F93]"
                     >
                       Enable 2FA
                     </button>
@@ -967,7 +840,9 @@ export default function SettingsPage() {
                   >
                     <button
                       type="button"
-                      className="rounded-lg border border-[#DCDDD3] bg-[#FAFAF7] px-3 py-2 text-[9px] font-extrabold text-[#34342F]"
+                      disabled
+                      title="This action is not connected yet"
+                      className="rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-2 text-[11px] font-extrabold text-[#34342F]"
                     >
                       View sessions
                     </button>
@@ -979,7 +854,9 @@ export default function SettingsPage() {
                   >
                     <button
                       type="button"
-                      className="rounded-lg border border-[#DCDDD3] bg-[#FAFAF7] px-3 py-2 text-[9px] font-extrabold text-[#34342F]"
+                      disabled
+                      title="This action is not connected yet"
+                      className="rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-2 text-[11px] font-extrabold text-[#34342F]"
                     >
                       View activity
                     </button>
@@ -995,7 +872,7 @@ export default function SettingsPage() {
                         Security reminder
                       </div>
 
-                      <p className="mt-1 text-[10px] leading-4 text-[#897968]">
+                      <p className="mt-1 text-[12px] leading-4 text-[#897968]">
                         Never share your password, API credentials, private
                         keys, or authentication codes with anyone.
                       </p>
@@ -1011,28 +888,28 @@ export default function SettingsPage() {
                 <PageHeading
                   icon={SlidersHorizontal}
                   title="Account"
-                  description="Manage your Vish Capitals subscription and account lifecycle."
+                  description="Manage your CoinCrest subscription and account lifecycle."
                 />
 
                 <Card>
-                  <div className="rounded-xl border border-[#D3E3D7] bg-[#E8F2EA] p-4">
+                  <div className="rounded-xl border border-[#D7E4EF] bg-[#EEF4FA] p-4">
                     <div className="flex items-center justify-between gap-4">
                       <div>
-                        <div className="text-[8px] font-extrabold uppercase tracking-[0.16em] text-[#18794E]">
+                        <div className="text-[12px] font-extrabold uppercase tracking-[0.16em] text-[#18794E]">
                           Current plan
                         </div>
 
-                        <div className="mt-1 text-lg font-extrabold text-[#0F2D1F]">
-                          Pro
+                        <div className="mt-1 text-lg font-extrabold text-[#2F78B7]">
+                          Not loaded
                         </div>
 
-                        <div className="mt-1 text-[9px] text-[#66766B]">
+                        <div className="mt-1 text-[11px] text-[#66766B]">
                           Advanced intelligence and trading workspace
                         </div>
                       </div>
 
-                      <span className="rounded-full bg-white px-3 py-1.5 text-[8px] font-extrabold text-[#18794E] shadow-sm">
-                        ACTIVE
+                      <span className="rounded-full bg-white px-3 py-1.5 text-[12px] font-extrabold text-[#18794E] shadow-sm">
+                        UNAVAILABLE
                       </span>
                     </div>
                   </div>
@@ -1043,7 +920,9 @@ export default function SettingsPage() {
                   >
                     <button
                       type="button"
-                      className="rounded-lg bg-[#0F2D1F] px-3 py-2 text-[9px] font-extrabold text-white hover:bg-[#17452F]"
+                      disabled
+                      title="This action is not connected yet"
+                      className="rounded-lg bg-[#2F78B7] px-3 py-2 text-[11px] font-extrabold text-white hover:bg-[#245F93]"
                     >
                       Manage plan
                     </button>
@@ -1055,7 +934,9 @@ export default function SettingsPage() {
                   >
                     <button
                       type="button"
-                      className="rounded-lg border border-[#DCDDD3] bg-[#FAFAF7] px-3 py-2 text-[9px] font-extrabold text-[#34342F]"
+                      disabled
+                      title="This action is not connected yet"
+                      className="rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-2 text-[11px] font-extrabold text-[#34342F]"
                     >
                       Billing portal
                     </button>
@@ -1067,14 +948,16 @@ export default function SettingsPage() {
                     Danger zone
                   </div>
 
-                  <p className="mt-1 text-[10px] leading-4 text-[#967070]">
+                  <p className="mt-1 text-[12px] leading-4 text-[#967070]">
                     Account deletion is permanent and may remove associated
                     workspace data.
                   </p>
 
                   <button
                     type="button"
-                    className="mt-4 flex items-center gap-2 rounded-lg border border-[#D9BABA] bg-white px-3 py-2 text-[9px] font-extrabold text-[#8B4545] hover:bg-[#FFF9F9]"
+                    disabled
+                    title="This action is not connected yet"
+                    className="mt-4 flex items-center gap-2 rounded-lg border border-[#D9BABA] bg-white px-3 py-2 text-[11px] font-extrabold text-[#8B4545] hover:bg-[#FFF9F9]"
                   >
                     <X size={12} />
                     Delete account
@@ -1088,7 +971,7 @@ export default function SettingsPage() {
               <button
                 type="button"
                 onClick={handleReset}
-                className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-[#D8D9CF] bg-white text-[10px] font-extrabold text-[#55554E]"
+                className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-[#D8D9CF] bg-white text-[12px] font-extrabold text-[#55554E]"
               >
                 <RotateCcw size={13} />
                 Reset
@@ -1096,31 +979,32 @@ export default function SettingsPage() {
 
               <button
                 type="button"
-                onClick={handleSave}
-                className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-[#0F2D1F] text-[10px] font-extrabold text-white"
+                disabled
+                title="Settings persistence is not connected"
+                className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-[#2F78B7] text-[12px] font-extrabold text-white"
               >
                 {saved ? <Check size={14} /> : <Save size={14} />}
-                {saved ? "Saved" : "Save changes"}
+                {"Saving not connected"}
               </button>
             </div>
           </section>
         </div>
 
-        <div className="mt-6 flex items-center justify-center gap-2 text-[9px] font-semibold text-[#A09F96]">
+        <div className="mt-6 flex items-center justify-center gap-2 text-[11px] font-semibold text-[#A09F96]">
           <ShieldCheck size={11} />
-          Vish Capitals secure workspace
+          CoinCrest secure workspace
         </div>
       </div>
-    </main>
-  )
+    </div>
+  );
 }
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-[#E1E2D8] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)] sm:p-6">
+    <section className="rounded-2xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)] sm:p-6">
       {children}
     </section>
-  )
+  );
 }
 
 function PageHeading({
@@ -1128,25 +1012,25 @@ function PageHeading({
   title,
   description,
 }: {
-  icon: typeof User
-  title: string
-  description: string
+  icon: typeof User;
+  title: string;
+  description: string;
 }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E8F2EA] text-[#0F2D1F]">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EEF4FA] text-[#2F78B7]">
         <Icon size={17} />
       </div>
 
       <div>
-        <h2 className="text-sm font-extrabold text-[#171717]">{title}</h2>
+        <h2 className="text-sm font-extrabold text-[#07111F]">{title}</h2>
 
-        <p className="mt-1 max-w-[650px] text-[10px] leading-4 text-[#8A897F]">
+        <p className="mt-1 max-w-[650px] text-[12px] leading-4 text-[#8A897F]">
           {description}
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 function InfoCard({
@@ -1154,27 +1038,27 @@ function InfoCard({
   title,
   description,
 }: {
-  icon: typeof CircleHelp
-  title: string
-  description: string
+  icon: typeof CircleHelp;
+  title: string;
+  description: string;
 }) {
   return (
-    <div className="rounded-2xl border border-[#E1E2D8] bg-[#FAFAF7] p-4">
+    <div className="rounded-2xl border border-[#E3E2D9] bg-[#FAFAF7] p-4">
       <div className="flex gap-3">
         <Icon size={15} className="mt-0.5 shrink-0 text-[#8A897F]" />
 
         <div>
-          <div className="text-[10px] font-extrabold text-[#55554E]">
+          <div className="text-[12px] font-extrabold text-[#55554E]">
             {title}
           </div>
 
-          <p className="mt-1 text-[9px] leading-4 text-[#8A897F]">
+          <p className="mt-1 text-[11px] leading-4 text-[#8A897F]">
             {description}
           </p>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function InputField({
@@ -1182,81 +1066,29 @@ function InputField({
   value,
   onChange,
 }: {
-  label: string
-  value: string
-  onChange: (value: string) => void
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
 }) {
   return (
     <div>
-      <label className="mb-2 block text-[9px] font-extrabold uppercase tracking-wider text-[#8A897F]">
+      <label className="mb-2 block text-[11px] font-extrabold uppercase tracking-wider text-[#8A897F]">
         {label}
       </label>
 
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-10 w-full rounded-lg border border-[#DCDDD3] bg-[#FAFAF7] px-3 text-[10px] font-semibold text-[#34342F] outline-none transition-colors focus:border-[#8FB49B] focus:bg-white"
+        className="h-10 w-full rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 text-[12px] font-semibold text-[#34342F] outline-none transition-colors focus:border-[#8FB49B] focus:bg-white"
       />
     </div>
-  )
+  );
 }
 
-function RiskSlider({
-  label,
-  description,
-  value,
-  suffix,
-  min,
-  max,
-  step,
-  onChange,
-}: {
-  label: string
-  description: string
-  value: number
-  suffix: string
-  min: number
-  max: number
-  step: number
-  onChange: (value: number) => void
-}) {
+export default function SettingsPage() {
   return (
-    <div className="border-b border-[#ECECE4] py-5 last:border-b-0">
-      <div className="flex items-start justify-between gap-5">
-        <div>
-          <div className="text-xs font-extrabold text-[#292923]">{label}</div>
-
-          <div className="mt-1 max-w-[600px] text-[10px] leading-4 text-[#8A897F]">
-            {description}
-          </div>
-        </div>
-
-        <div className="shrink-0 rounded-lg bg-[#E8F2EA] px-2.5 py-1.5 text-[10px] font-extrabold text-[#0F2D1F]">
-          {value}
-          {suffix}
-        </div>
-      </div>
-
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(event) => onChange(Number(event.target.value))}
-        className="mt-5 w-full accent-[#0F2D1F]"
-      />
-
-      <div className="mt-1 flex justify-between text-[8px] font-semibold text-[#AAA99F]">
-        <span>
-          {min}
-          {suffix}
-        </span>
-        <span>
-          {max}
-          {suffix}
-        </span>
-      </div>
-    </div>
-  )
+    <DashboardShell>
+      <SettingsContent />
+    </DashboardShell>
+  );
 }

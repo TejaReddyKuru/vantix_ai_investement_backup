@@ -1,0 +1,16 @@
+"use client";
+import { useState } from "react";
+import { quote, quantity, type Book, type TapeTrade } from "@/lib/terminal-market";
+export default function OrderBook({ book, trades, fresh, pair, price, onPrice }: { book: Book | null; trades: TapeTrade[]; fresh: boolean; pair: string; price: number | undefined; onPrice: (price: number) => void }) {
+  const [tab, setTab] = useState<"book" | "trades">("book"), [levels, setLevels] = useState(10);
+  const base = pair.replace(/USDT$/, "");
+  const max = Math.max(1, ...(book ? [...book.asks, ...book.bids].map(row => row[1]) : []));
+  const spread = book ? book.asks[0][0] - book.bids[0][0] : null;
+  function rows(side: "bids" | "asks") {
+    if (!book) return null;
+    return book[side].slice(0, levels).map((row, i) => ({ row, total: book[side].slice(0, i + 1).reduce((sum, [p, q]) => sum + p * q, 0) })).sort((a, b) => side === "asks" ? b.row[0] - a.row[0] : b.row[0] - a.row[0]).map(({ row: [p, q], total }) => <button type="button" className={`ct-depth-row ${side}`} key={p} onClick={() => onPrice(p)} title={`Use ${quote(p)} USDT as planning limit price`}><i style={{ width: `${q / max * 100}%` }}/><span>{quote(p)}</span><span>{quantity(q)}</span><span>{quote(total, 0)}</span></button>);
+  }
+  return <section className="ct-panel ct-order-book"><header className="ct-panel-tabs"><button aria-pressed={tab === "book"} onClick={() => setTab("book")}>Order book</button><button aria-pressed={tab === "trades"} onClick={() => setTab("trades")}>Trades</button><span className={fresh ? "ct-live-dot" : "ct-stale-dot"} title={fresh ? "Receiving depth snapshots" : "Depth stale / waiting"}/></header>
+    {tab === "book" ? <><div className="ct-book-controls"><span>Binance · top 20</span><select aria-label="Visible depth levels" value={levels} onChange={e => setLevels(Number(e.target.value))}><option value={5}>5 levels</option><option value={10}>10 levels</option><option value={20}>20 levels</option></select></div><div className="ct-book-labels"><span>Price (USDT)</span><span>Size ({base})</span><span>Σ USDT</span></div>{book ? <><div className="ct-depth-side">{rows("asks")}</div><div className="ct-book-mid"><strong>{quote(price)}</strong><small>Spread {quote(spread)} · {spread != null ? (spread / book.asks[0][0] * 100).toFixed(3) + "%" : "—"}</small></div><div className="ct-depth-side">{rows("bids")}</div></> : <p className="ct-empty">Waiting for verified bid/ask snapshots.</p>}<p className="ct-book-foot">{fresh ? "Depth snapshots · updates every second" : "Stale / not connected — do not treat these levels as current."}<br/>Top-of-book depth, not the full exchange book. Click a price to plan a limit order.</p></> : <><div className="ct-book-labels"><span>Price (USDT)</span><span>Size ({base})</span><span>Time UTC</span></div><div className="ct-tape">{trades.length ? trades.slice(0, 30).map(t => <div className={`ct-tape-row ${t.side}`} key={t.id}><span>{quote(t.price)}</span><span>{quantity(t.quantity)}</span><span>{new Date(t.time).toLocaleTimeString("en-GB", { timeZone: "UTC" })}</span></div>) : <p className="ct-empty">Waiting for exchange trades.</p>}</div><p className="ct-book-foot">Public trade prints · taker side. These are not your fills.</p></>}
+  </section>;
+}

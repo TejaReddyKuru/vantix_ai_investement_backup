@@ -1,0 +1,393 @@
+/* CoinCrest v9 authenticated workspace — premium, opaque, compact. */
+
+.cc-app {
+  --cc-paper: #f5f1e5;
+  --cc-surface: #fffdf7;
+  --cc-surface-2: #f0ede2;
+  --cc-surface-3: #e9e4d6;
+  --cc-ink: #10120f;
+  --cc-text: #10120f;
+  --cc-muted: #6d7168;
+  --cc-border: #d8d4c7;
+  --cc-border-strong: #bcb7a7;
+  --cc-mint: #eceee5;
+  --cc-positive: #267a57;
+  --cc-negative: #c95852;
+  --cc-accent: #2f78b7;
+  --cc-warning: #a76f10;
+  --cc-warm: #ffea93;
+  background: var(--cc-paper) !important;
+  color: var(--cc-text);
+}
+
+html[data-theme="dark"] .cc-app,
+html[data-theme="dark"] .cc-dialog {
+  --cc-paper: #0f100e;
+  --cc-surface: #151713;
+  --cc-surface-2: #1a1c18;
+  --cc-surface-3: #20231d;
+  --cc-ink: #f4f0e4;
+  --cc-text: #f4f0e4;
+  --cc-muted: #9da096;
+  --cc-border: #2b2e27;
+  --cc-border-strong: #44483e;
+  --cc-mint: #20231d;
+  --cc-positive: #70c891;
+  --cc-negative: #e16a64;
+  --cc-accent: #70a8d7;
+  --cc-warning: #e2b85c;
+  --cc-warm: #ffea93;
+}
+
+.cc-app,
+.cc-app *,
+.cc-dialog,
+.cc-dialog * {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+.cc-workspace-v6,
+.cc-workspace-v8 {
+  background: var(--cc-paper) !important;
+  background-image: none !important;
+}
+
+.cc-workspace-v6 .cc-workspace,
+.cc-workspace-v8 .cc-workspace,
+.cc-workspace-v6 .cc-main,
+.cc-workspace-v8 .cc-main {
+  background: var(--cc-paper) !important;
+  background-image: none !important;
+}
+
+/* Sidebar: solid terminal navigation with a restrained selected state. */
+.cc-app .cc-sidebar,
+.cc-app .cc-sidebar-desktop {
+  background: var(--cc-surface) !important;
+  background-image: none !important;
+  border-color: var(--cc-border) !important;
+  box-shadow: none !important;
+}
+
+.cc-app .cc-brand-row {
+  border-color: var(--cc-border) !important;
+}
+
+.cc-app .cc-nav-divider {
+  border-color: var(--cc-border) !important;
+}
+
+.cc-app .cc-nav-label {
+  color: var(--cc-muted) !important;
+  letter-spacing: .08em !important;
+}
+
+.cc-app .cc-nav-link,
+.cc-app .cc-ahna-launch {
+  border-radius: 6px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  background-image: none !important;
+  color: var(--cc-muted) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.cc-app .cc-nav-link:hover,
+.cc-app .cc-ahna-launch:hover {
+  color: var(--cc-ink) !important;
+  background: var(--cc-surface-2) !important;
+  border-color: var(--cc-border) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.cc-app .cc-nav-link[aria-current="page"] {
+  color: #fff8e0 !important;
+  background: #11130f !important;
+  border-color: #11130f !important;
+  box-shadow: inset 3px 0 0 #ffea93 !important;
+}
+
+html[data-theme="dark"] .cc-app .cc-nav-link[aria-current="page"] {
+  color: #fff8e0 !important;
+  background: #23251f !important;
+  border-color: #34372f !important;
+  box-shadow: inset 3px 0 0 #ffea93 !important;
+}
+
+.cc-app .cc-ahna-launch {
+  border-color: var(--cc-border) !important;
+  background: var(--cc-surface-2) !important;
+  color: var(--cc-ink) !important;
+}
+
+.cc-app .cc-ahna-symbol {
+  color: #fff !important;
+  background: #2f78b7 !important;
+  box-shadow: none !important;
+}
+
+/* Single edge-arrow control, if the v8.1 navigation markup is installed. */
+.cc-app .cc-sidebar-edge-toggle {
+  position: absolute;
+  top: 18px;
+  right: -10px;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--cc-border) !important;
+  border-radius: 0 6px 6px 0 !important;
+  color: var(--cc-muted) !important;
+  background: var(--cc-surface) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.cc-app .cc-sidebar-edge-toggle:hover {
+  color: var(--cc-ink) !important;
+  background: var(--cc-surface-2) !important;
+  border-color: var(--cc-border-strong) !important;
+  width: 20px !important;
+  transform: none !important;
+}
+
+/* Legacy collapse control also receives the same flat look if v7 is still installed. */
+.cc-app .cc-collapse-sidebar {
+  border-color: var(--cc-border) !important;
+  background: var(--cc-surface) !important;
+  color: var(--cc-muted) !important;
+  box-shadow: none !important;
+}
+
+/* Header/ticker: GM-like continuous instrument chrome, no floating glass. */
+.cc-app .cc-topbar {
+  background: var(--cc-surface) !important;
+  background-image: none !important;
+  border-bottom: 1px solid var(--cc-border) !important;
+  box-shadow: none !important;
+}
+
+.cc-app .cc-breadcrumb {
+  color: var(--cc-muted) !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+.cc-app .cc-breadcrumb strong { color: var(--cc-ink) !important; }
+
+.cc-app .cc-search-trigger {
+  color: var(--cc-muted) !important;
+  background: var(--cc-surface-2) !important;
+  background-image: none !important;
+  border: 1px solid var(--cc-border) !important;
+  border-radius: 7px !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.cc-app .cc-search-trigger:hover {
+  color: var(--cc-ink) !important;
+  background: var(--cc-surface) !important;
+  border-color: var(--cc-border-strong) !important;
+}
+.cc-app .cc-search-trigger kbd {
+  color: var(--cc-muted) !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.cc-app .cc-ticker,
+.cc-app .cc-ticker-empty {
+  background: var(--cc-paper) !important;
+  background-image: none !important;
+  border-color: var(--cc-border) !important;
+  box-shadow: none !important;
+}
+.cc-app .cc-ticker-set > a {
+  margin: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-right: 1px solid var(--cc-border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.cc-app .cc-ticker-set > a:hover { background: var(--cc-surface-2) !important; }
+
+/* Buttons: flat and deliberate, no bubbles, gradients, glow or lift. */
+.cc-app :is(.cc-button, .cc-icon-button),
+.cc-dialog :is(.cc-button, .cc-icon-button) {
+  color: var(--cc-ink) !important;
+  background: var(--cc-surface) !important;
+  background-image: none !important;
+  border: 1px solid var(--cc-border) !important;
+  border-radius: 7px !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.cc-app :is(.cc-button, .cc-icon-button):hover:not(:disabled),
+.cc-dialog :is(.cc-button, .cc-icon-button):hover:not(:disabled) {
+  color: var(--cc-ink) !important;
+  background: var(--cc-surface-2) !important;
+  border-color: var(--cc-border-strong) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.cc-app .cc-button-primary,
+.cc-app .cc-ahna-button {
+  color: #fff !important;
+  background: #2f78b7 !important;
+  background-image: none !important;
+  border-color: #2f78b7 !important;
+  box-shadow: none !important;
+}
+.cc-app .cc-button-primary:hover,
+.cc-app .cc-ahna-button:hover {
+  color: #fff !important;
+  background: #245f93 !important;
+  border-color: #245f93 !important;
+}
+.cc-app .cc-ahna-button.is-active { background: #245f93 !important; }
+
+.cc-app .cc-avatar {
+  color: #fff !important;
+  background: #11130f !important;
+  box-shadow: none !important;
+}
+html[data-theme="dark"] .cc-app .cc-avatar { background: #ffea93 !important; color: #10120f !important; }
+
+.cc-app .cc-account summary {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+.cc-app .cc-account-panel,
+.cc-dialog.cc-search-modal,
+.cc-app .cc-notifications,
+.cc-app .cc-ahna-panel {
+  background: var(--cc-surface) !important;
+  background-image: none !important;
+  border-color: var(--cc-border) !important;
+  box-shadow: 0 18px 44px rgba(0,0,0,.12) !important;
+}
+
+/* Segmented controls and tabs use a filled-selected / text-unselected pattern. */
+.cc-app .cc-segmented {
+  background: var(--cc-surface-2) !important;
+  background-image: none !important;
+  border: 1px solid var(--cc-border) !important;
+  border-radius: 7px !important;
+  box-shadow: none !important;
+}
+.cc-app .cc-segmented button {
+  color: var(--cc-muted) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 5px !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.cc-app .cc-segmented button[aria-pressed="true"] {
+  color: var(--cc-ink) !important;
+  background: var(--cc-surface) !important;
+  border: 1px solid var(--cc-border) !important;
+  box-shadow: none !important;
+}
+
+/* Cards / data modules: opaque, 1px rules, almost no elevation. */
+.cc-app :is(
+  .cc-card,.cc-account-strip,.cc-market-table-card,.cc-pulse-card,.cc-capital-card,.cc-broker-card,
+  .cc-source-card,.cc-watch-card,.cc-order-ticket,.cc-paper-account,.cc-ahna-brief,.cc-analysis-result,
+  .cc-settings-notice,.cc-user-watchlist,.cc-paper-intro,.cc-market-feature,.cc-community-guidelines,
+  .cc-connection-notice,.cc-order-estimate,.cc-section-message
+) {
+  color: var(--cc-text) !important;
+  background: var(--cc-surface) !important;
+  background-image: none !important;
+  border-color: var(--cc-border) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+.cc-app :is(.cc-card-heading,.cc-panel-heading,.cc-settings-header,.cc-personal-heading) {
+  border-color: var(--cc-border) !important;
+}
+
+/* Inputs/selects: exchange-like fields. */
+.cc-app :is(input, select, textarea),
+.cc-dialog :is(input, select, textarea) {
+  color: var(--cc-ink) !important;
+  background: var(--cc-surface-2) !important;
+  background-image: none !important;
+  border-color: var(--cc-border) !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+}
+.cc-app :is(input, select, textarea):focus,
+.cc-dialog :is(input, select, textarea):focus {
+  border-color: var(--cc-accent) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--cc-accent) 22%, transparent) !important;
+}
+
+/* Tags/status: text-forward, not glass chips. */
+.cc-app :is(.cc-tag,.cc-status-tag,.cc-dark-tag,.cc-feed-status) {
+  color: var(--cc-muted) !important;
+  background: var(--cc-surface-2) !important;
+  background-image: none !important;
+  border: 1px solid var(--cc-border) !important;
+  border-radius: 5px !important;
+  box-shadow: none !important;
+}
+
+/* The many Tailwind-authored workspace pages share the same palette without changing markup. */
+.cc-app :is([class*="bg-[#FAFAF7]"],[class*="bg-[#FFFEFA]"],[class*="bg-[#F7F7F2]"],[class*="bg-white"]) {
+  background-color: var(--cc-surface) !important;
+}
+.cc-app :is([class*="bg-[#EEF4FA]"],[class*="bg-[#ECECE4]"],[class*="bg-[#F1F1E9]"],[class*="bg-[#F7F6E8]"]) {
+  background-color: var(--cc-surface-2) !important;
+}
+.cc-app :is([class*="text-[#07111F]"],[class*="text-[#34342F]"],[class*="text-[#292923]"],[class*="text-black"]) {
+  color: var(--cc-ink) !important;
+}
+.cc-app :is([class*="text-[#8A897F]"],[class*="text-[#9A998F]"],[class*="text-[#77776F]"],[class*="text-[#AAA99F]"],[class*="text-[#657080]"]) {
+  color: var(--cc-muted) !important;
+}
+.cc-app :is([class*="border-[#E3E2D9]"],[class*="border-[#E2E1D5]"],[class*="border-[#ECECE4]"],[class*="border-black"]) {
+  border-color: var(--cc-border) !important;
+}
+.cc-app [class*="shadow-["] { box-shadow: none !important; }
+.cc-app [class*="backdrop-blur"] { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+
+/* Data table row treatment. */
+.cc-app :is(table, .cc-market-table, .cc-records-table) { color: var(--cc-text) !important; }
+.cc-app :is(th, .cc-market-table th) {
+  color: var(--cc-muted) !important;
+  background: var(--cc-surface-2) !important;
+  border-color: var(--cc-border) !important;
+}
+.cc-app :is(td, .cc-market-table td) { border-color: var(--cc-border) !important; }
+.cc-app tr:hover td { background: var(--cc-surface-2) !important; }
+
+/* Positive / negative / warning semantics stay untouched and highly legible. */
+.cc-app .cc-positive,
+.cc-app [class*="text-[#18794E]"] { color: var(--cc-positive) !important; }
+.cc-app .cc-negative,
+.cc-app .cc-error { color: var(--cc-negative) !important; }
+.cc-app [class*="text-[#2F78B7]"] { color: var(--cc-accent) !important; }
+.cc-app [class*="bg-[#2F78B7]"] { background-color: #2f78b7 !important; }
+
+/* Dark chart/support colors for the Recharts overview surface. */
+html[data-theme="dark"] .cc-app .recharts-cartesian-grid line { stroke: #2b2e27 !important; }
+html[data-theme="dark"] .cc-app .recharts-text { fill: #9da096 !important; }
+
+@media (max-width: 767px) {
+  .cc-app .cc-sidebar-edge-toggle { display: none; }
+}

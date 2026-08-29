@@ -17,6 +17,7 @@ import {
 
 import { useAuth } from "../../context/AuthContext"
 import AuthShell from "../../components/auth/AuthShell"
+import { safeReturnPath } from "@/lib/workspace-navigation"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -36,9 +37,7 @@ export default function LoginPage() {
 
     setRegistered(params.get("registered") === "true")
 
-    if (requestedPath?.startsWith("/") && !requestedPath.startsWith("//")) {
-      setNextPath(requestedPath)
-    }
+    setNextPath(safeReturnPath(requestedPath))
   }, [])
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
