@@ -84,15 +84,15 @@ body :is(.cc-app, .cc-dialog, .cc-public-markets) * {
 }
 
 :is(.cc-app, .cc-dialog, .cc-public-markets) :is(.cc-button, .cc-search-trigger) {
-  border-radius: 7px !important;
+  border-radius: var(--radius-sm) !important;
 }
 
 :is(.cc-app, .cc-dialog, .cc-public-markets) .cc-icon-button {
-  border-radius: 7px !important;
+  border-radius: var(--radius-sm) !important;
 }
 
 :is(.cc-app, .cc-dialog, .cc-public-markets) .cc-theme-toggle {
-  border-radius: 8px !important;
+  border-radius: var(--radius-md) !important;
   background: var(--cc-surface-2) !important;
   border-color: var(--cc-border) !important;
 }
@@ -137,7 +137,7 @@ html[data-theme="dark"] body:not(:has(.cc-app)) header[class*="sticky"] {
 }
 
 body:not(:has(.cc-app)) :is(a, button)[class*="rounded-full"] {
-  border-radius: 9px !important;
+  border-radius: var(--radius-md) !important;
   box-shadow: none !important;
   transform: none !important;
 }
@@ -166,7 +166,7 @@ body:not(:has(.cc-app)) article[class*="rounded-["],
 body:not(:has(.cc-app)) div[class*="rounded-[22px]"],
 body:not(:has(.cc-app)) div[class*="rounded-[26px]"],
 body:not(:has(.cc-app)) div[class*="rounded-[28px]"] {
-  border-radius: 12px !important;
+  border-radius: var(--radius-lg) !important;
   box-shadow: none !important;
 }
 
@@ -214,7 +214,7 @@ html[data-theme="dark"] body:not(:has(.cc-app)) [class*="bg-white"] { background
   background: var(--cc-surface) !important;
   color: var(--cc-text) !important;
   border: 1px solid var(--cc-border) !important;
-  border-radius: 10px !important;
+  border-radius: var(--radius-md) !important;
   box-shadow: 0 22px 70px rgba(0,0,0,.18) !important;
 }
 
@@ -228,7 +228,7 @@ html[data-theme="dark"] body:not(:has(.cc-app)) [class*="bg-white"] { background
 .recharts-default-tooltip {
   background: var(--cc-surface) !important;
   border: 1px solid var(--cc-border) !important;
-  border-radius: 7px !important;
+  border-radius: var(--radius-sm) !important;
   color: var(--cc-text) !important;
   box-shadow: none !important;
 }
@@ -237,7 +237,7 @@ html[data-theme="dark"] body:not(:has(.cc-app)) [class*="bg-white"] { background
 
 /* Scrollbars: quiet, terminal-like. */
 * { scrollbar-color: var(--cc-border-strong, #bcb7a7) transparent; }
-*::-webkit-scrollbar-thumb { background: var(--cc-border-strong, #bcb7a7); border-radius: 5px; }
+*::-webkit-scrollbar-thumb { background: var(--cc-border-strong, #bcb7a7); border-radius: var(--radius-sm); }
 
 @media (prefers-reduced-motion: reduce) {
   :is(.cc-app, .cc-dialog, .cc-public-markets) *,

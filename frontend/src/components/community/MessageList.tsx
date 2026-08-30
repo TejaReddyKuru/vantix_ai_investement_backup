@@ -68,7 +68,7 @@ export default function MessageList({
     <div className="relative flex flex-1 flex-col overflow-y-auto bg-[#F7F6E8]/30 px-4 py-4 sm:px-6 sm:py-6">
       {/* Pinned Message Alert Banner */}
       {pinnedMessage && showPinnedBanner && (
-        <div className="sticky top-0 z-10 mb-4 rounded-2xl border border-[#D5E2D8] bg-white p-3 shadow-sm">
+        <div className="sticky top-0 z-10 mb-4 rounded-xl border border-[#D5E2D8] bg-white p-3 shadow-sm">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-2.5">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#E8F2EA] text-[#0F2D1F]">
@@ -112,7 +112,7 @@ export default function MessageList({
         <div key={groupIdx} className="space-y-3">
           {/* Date Separator Pill */}
           <div className="my-4 flex items-center justify-center">
-            <span className="rounded-full border border-[#DDDCD0] bg-white px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.14em] text-[#8A897F] shadow-sm">
+            <span className="rounded-md border border-[#DDDCD0] bg-white px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.14em] text-[#8A897F] shadow-sm">
               {group.date}
             </span>
           </div>
@@ -132,7 +132,7 @@ export default function MessageList({
       {/* Empty Search Result */}
       {filteredMessages.length === 0 && searchQuery && (
         <div className="my-auto flex flex-col items-center justify-center py-12 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8F2EA] text-[#0F2D1F]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E8F2EA] text-[#0F2D1F]">
             <Search size={20} />
           </div>
           <p className="mt-3 text-xs font-bold text-[#171717]">

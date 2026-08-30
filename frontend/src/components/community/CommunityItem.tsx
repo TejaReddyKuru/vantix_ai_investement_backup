@@ -107,7 +107,7 @@ export default function CommunityItem({
           </p>
 
           {community.unreadCount > 0 && !isActive && (
-            <span className="flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-[#18794E] px-1.5 text-[9px] font-extrabold text-white shadow-sm">
+            <span className="flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-md bg-[#18794E] px-1.5 text-[9px] font-extrabold text-white shadow-sm">
               {community.unreadCount}
             </span>
           )}

@@ -67,7 +67,7 @@ export async function fetchJournalEntries(
   symbol?: string,
   strategy?: string
 ): Promise<{ page: number; page_size: number; total: number; items: TradeJournalEntry[] }> {
-  const params: any = { page, page_size };
+  const params: any = { page, page_size: pageSize };
   if (status) params.status = status;
   if (symbol) params.symbol = symbol;
   if (strategy) params.strategy = strategy;
@@ -84,4 +84,13 @@ export async function fetchJournalAnalytics(): Promise<JournalAnalytics> {
 export async function addJournalObservation(entryId: string, text: string): Promise<JournalObservation> {
   const response = await api.post(`/api/v1/journal/${entryId}/observations`, { text });
   return response.data;
+}
+
+export async function createJournalEntry(payload: Partial<TradeJournalEntry>): Promise<TradeJournalEntry> {
+  const response = await api.post('/api/v1/journal', payload);
+  return response.data;
+}
+
+export async function deleteJournalEntry(entryId: string): Promise<void> {
+  await api.delete(`/api/v1/journal/${entryId}`);
 }

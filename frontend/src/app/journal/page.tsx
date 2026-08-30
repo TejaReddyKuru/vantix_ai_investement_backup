@@ -21,6 +21,7 @@ import {
 
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import JournalEntryModal from "@/components/journal/JournalEntryModal";
+import CreateJournalEntryModal from "@/components/journal/CreateJournalEntryModal";
 import { fetchJournalEntries, fetchJournalAnalytics, TradeJournalEntry, JournalAnalytics } from "@/lib/journal-api";
 
 export default function JournalPage() {
@@ -28,23 +29,25 @@ export default function JournalPage() {
   const [analytics, setAnalytics] = useState<JournalAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedTrade, setSelectedTrade] = useState<TradeJournalEntry | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [entriesData, analyticsData] = await Promise.all([
+        fetchJournalEntries(1, 25),
+        fetchJournalAnalytics(),
+      ]);
+      setEntries(entriesData.items || []);
+      setAnalytics(analyticsData);
+    } catch (error) {
+      console.error("Error loading journal data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        const [entriesData, analyticsData] = await Promise.all([
-          fetchJournalEntries(1, 25),
-          fetchJournalAnalytics(),
-        ]);
-        setEntries(entriesData.items || []);
-        setAnalytics(analyticsData);
-      } catch (error) {
-        console.error("Error loading journal data:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
     loadData();
   }, []);
 
@@ -144,6 +147,7 @@ export default function JournalPage() {
 
         <button
           type="button"
+          onClick={() => setIsCreateModalOpen(true)}
           className="flex items-center justify-center gap-2 rounded-xl bg-[#2F78B7] px-4 py-2.5 text-xs font-extrabold text-white shadow-[0_10px_24px_rgba(15,45,31,0.16)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#245F93]"
         >
           <Plus size={15} />
@@ -159,7 +163,7 @@ export default function JournalPage() {
           return (
             <article
               key={stat.label}
-              className="group relative overflow-hidden rounded-2xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)] transition-all duration-300 hover:-translate-y-1 hover:border-[#D1DCD3] hover:shadow-[0_18px_40px_rgba(23,23,23,0.07)]"
+              className="group relative overflow-hidden rounded-xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)] transition-all duration-300 hover:-translate-y-1 hover:border-[#D1DCD3] hover:shadow-[0_18px_40px_rgba(23,23,23,0.07)]"
             >
               <div className="absolute -right-8 -top-8 h-20 w-20 rounded-full bg-[#EEF4FA] opacity-60 blur-2xl" />
 
@@ -191,7 +195,7 @@ export default function JournalPage() {
       <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.8fr)]">
         <div className="space-y-5">
           {/* Filters */}
-          <section className="rounded-2xl border border-[#E3E2D9] bg-white p-4 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
+          <section className="rounded-xl border border-[#E3E2D9] bg-white p-4 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
               <div className="relative flex-1">
                 <Search
@@ -225,7 +229,7 @@ export default function JournalPage() {
           </section>
 
           {/* Entries */}
-          <section className="overflow-hidden rounded-2xl border border-[#E3E2D9] bg-white shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
+          <section className="overflow-hidden rounded-xl border border-[#E3E2D9] bg-white shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
             <div className="flex items-center justify-between border-b border-[#ECECE4] p-5 sm:p-6">
               <div>
                 <h2 className="text-sm font-extrabold text-[#07111F]">
@@ -237,7 +241,7 @@ export default function JournalPage() {
                 </p>
               </div>
 
-              <span className="rounded-full bg-[#F5F5EF] px-2.5 py-1 text-[12px] font-extrabold text-[#8A897F]">
+              <span className="rounded-md bg-[#F5F5EF] px-2.5 py-1 text-[12px] font-extrabold text-[#8A897F]">
                 {loading ? "-" : entries.length} total
               </span>
             </div>
@@ -369,7 +373,7 @@ export default function JournalPage() {
         {/* Right rail */}
         <div className="space-y-5">
           {/* Performance */}
-          <section className="rounded-2xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
+          <section className="rounded-xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
             <div>
               <h2 className="text-sm font-extrabold text-[#07111F]">
                 Journal performance
@@ -417,7 +421,7 @@ export default function JournalPage() {
           </section>
 
           {/* Strategy breakdown */}
-          <section className="rounded-2xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
+          <section className="rounded-xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
             <div>
               <h2 className="text-sm font-extrabold text-[#07111F]">
                 Strategy breakdown
@@ -465,7 +469,7 @@ export default function JournalPage() {
           </section>
 
           {/* Discipline */}
-          <section className="relative overflow-hidden rounded-2xl border border-[#D7E4EF] bg-[#EEF4FA] p-5">
+          <section className="relative overflow-hidden rounded-xl border border-[#D7E4EF] bg-[#EEF4FA] p-5">
             <div className="absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-white/60 blur-3xl" />
 
             <div className="relative flex items-center gap-3">
@@ -507,7 +511,7 @@ export default function JournalPage() {
           </section>
 
           {/* Notes */}
-          <section className="rounded-2xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
+          <section className="rounded-xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#F1F1E9] text-[#2F78B7]">
                 <FileText size={16} />
@@ -554,7 +558,16 @@ export default function JournalPage() {
         CoinCrest Trading Journal
       </div>
       
-      <JournalEntryModal entry={selectedTrade} onClose={() => setSelectedTrade(null)} />
+      <JournalEntryModal 
+        entry={selectedTrade} 
+        onClose={() => setSelectedTrade(null)} 
+        onDeleteSuccess={loadData}
+      />
+      <CreateJournalEntryModal 
+        open={isCreateModalOpen} 
+        onClose={() => setIsCreateModalOpen(false)} 
+        onSuccess={loadData} 
+      />
     </DashboardShell>
   );
 }

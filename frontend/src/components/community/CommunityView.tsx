@@ -378,7 +378,7 @@ export default function CommunityView() {
 
   if (loading || !activeCommunity) {
     return (
-      <div className="flex h-[calc(100vh-140px)] min-h-[580px] w-full items-center justify-center rounded-2xl border border-[#DDDCD0] bg-white">
+      <div className="flex h-[calc(100vh-140px)] min-h-[580px] w-full items-center justify-center rounded-xl border border-[#DDDCD0] bg-white">
         <div className="text-center">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#0F2D1F] border-t-transparent mx-auto"></div>
           <p className="mt-3 text-[10px] font-extrabold uppercase tracking-wider text-[#8A897F]">Loading channels</p>
@@ -388,7 +388,7 @@ export default function CommunityView() {
   }
 
   return (
-    <div className="relative flex h-[calc(100vh-140px)] min-h-[580px] w-full overflow-hidden rounded-2xl border border-[#DDDCD0] bg-white shadow-[0_8px_30px_rgba(23,23,23,0.03)]">
+    <div className="relative flex h-[calc(100vh-140px)] min-h-[580px] w-full overflow-hidden rounded-xl border border-[#DDDCD0] bg-white shadow-[0_8px_30px_rgba(23,23,23,0.03)]">
       {/* 1. LEFT PANE: Community / Channels List */}
       <div
         className={[

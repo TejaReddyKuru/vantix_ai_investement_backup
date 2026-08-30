@@ -11,4 +11,19 @@ export const apiClient = axios.create({
   },
 })
 
+apiClient.interceptors.request.use((config) => {
+  if (typeof window !== "undefined") {
+    try {
+      const auth = localStorage.getItem("vc_auth")
+      if (auth) {
+        const { token } = JSON.parse(auth)
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`
+        }
+      }
+    } catch (e) {}
+  }
+  return config
+})
+
 export const queryClient = new QueryClient()

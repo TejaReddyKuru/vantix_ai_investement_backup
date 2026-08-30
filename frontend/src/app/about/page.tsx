@@ -40,7 +40,7 @@ export default function AboutPage() {
           <Link href="/"><CoinCrestBrand /></Link>
           <div className="flex items-center gap-3">
             <Link href="/" className="hidden items-center gap-2 text-[13px] font-bold sm:flex"><ArrowLeft className="h-4 w-4" /> Home</Link>
-            <Link href="/register" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#2F78B7] px-5 text-[13px] font-black !text-white">Create account <ArrowRight className="h-4 w-4" /></Link>
+            <Link href="/register" className="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2F78B7] px-5 text-[13px] font-black !text-white">Create account <ArrowRight className="h-4 w-4" /></Link>
           </div>
         </div>
       </header>
@@ -92,7 +92,7 @@ export default function AboutPage() {
       <section className="bg-[#A9CFAF]">
         <div className="mx-auto flex max-w-[1240px] flex-col items-start justify-between gap-8 px-5 py-16 sm:px-8 lg:flex-row lg:items-center">
           <h2 className="max-w-[860px] font-serif text-[clamp(3.3rem,5.6vw,5.8rem)] leading-[0.88] tracking-[-0.055em]">Explore the product with simulated capital first.</h2>
-          <Link href="/register" className="inline-flex min-h-14 shrink-0 items-center gap-2 rounded-full bg-[#080908] px-7 text-[15px] font-black text-[#FFF4D0] shadow-[0_12px_28px_rgba(0,0,0,0.14)] transition hover:-translate-y-0.5 hover:bg-[#171A16]">
+          <Link href="/register" className="inline-flex min-h-14 shrink-0 items-center gap-2 rounded-md bg-[#080908] px-7 text-[15px] font-black text-[#FFF4D0] shadow-[0_12px_28px_rgba(0,0,0,0.14)] transition hover:-translate-y-0.5 hover:bg-[#171A16]">
             <span>Get started</span> <ArrowRight className="h-4 w-4 text-[#FFF4D0]" />
           </Link>
         </div>

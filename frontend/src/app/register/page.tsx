@@ -121,7 +121,7 @@ export default function RegisterPage() {
       {error && (
         <div
           role="alert"
-          className="mb-6 flex gap-3 rounded-2xl border border-[#D6A12A]/35 bg-[#FFEA93]/35 px-4 py-3.5 text-[14px] leading-6 text-[#60460B]"
+          className="mb-6 flex gap-3 rounded-xl border border-[#D6A12A]/35 bg-[#FFEA93]/35 px-4 py-3.5 text-[14px] leading-6 text-[#60460B]"
         >
           <CircleAlert className="mt-0.5 h-5 w-5 shrink-0" />
           <span>{error}</span>
@@ -145,7 +145,7 @@ export default function RegisterPage() {
               value={displayName}
               onChange={(event) => setDisplayName(event.target.value)}
               placeholder="Your name"
-              className="min-h-[54px] w-full rounded-2xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-4 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
+              className="min-h-[54px] w-full rounded-xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-4 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
             />
           </div>
         </div>
@@ -166,7 +166,7 @@ export default function RegisterPage() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
-              className="min-h-[54px] w-full rounded-2xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-4 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
+              className="min-h-[54px] w-full rounded-xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-4 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
             />
           </div>
         </div>
@@ -187,7 +187,7 @@ export default function RegisterPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="At least 8 characters"
-              className="min-h-[54px] w-full rounded-2xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-14 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
+              className="min-h-[54px] w-full rounded-xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-14 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
             />
             <button
               type="button"
@@ -231,7 +231,7 @@ export default function RegisterPage() {
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               placeholder="Repeat your password"
-              className="min-h-[54px] w-full rounded-2xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-14 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
+              className="min-h-[54px] w-full rounded-xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-14 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
             />
             <button
               type="button"
@@ -248,7 +248,7 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex min-h-[56px] w-full items-center justify-center gap-2 rounded-full bg-[#164F7D] px-6 text-[15px] font-black text-white shadow-[0_14px_34px_rgba(22,79,125,0.2)] transition hover:-translate-y-0.5 hover:bg-[#103F65] hover:shadow-[0_18px_42px_rgba(22,79,125,0.26)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+          className="inline-flex min-h-[56px] w-full items-center justify-center gap-2 rounded-md bg-[#164F7D] px-6 text-[15px] font-black text-white shadow-[0_14px_34px_rgba(22,79,125,0.2)] transition hover:-translate-y-0.5 hover:bg-[#103F65] hover:shadow-[0_18px_42px_rgba(22,79,125,0.26)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
         >
           {loading ? "Creating your workspace…" : "Create account"}
           {!loading && <ArrowRight className="h-4 w-4" />}

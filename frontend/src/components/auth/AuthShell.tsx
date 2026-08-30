@@ -75,7 +75,7 @@ export default function AuthShell({
                 <CoinCrestBrand inverted />
               </Link>
 
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/62">
+              <span className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/[0.045] px-3 py-2 text-[10px] font-black uppercase tracking-[0.14em] text-white/62">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#70C891] shadow-[0_0_12px_rgba(112,200,145,0.75)]" />
                 Secure access
               </span>
@@ -132,7 +132,7 @@ export default function AuthShell({
             <div className="mb-8 flex items-center justify-between gap-4">
               <Link
                 href="/"
-                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#07111F]/10 bg-white/55 px-4 text-[13px] font-bold text-[#07111F]/65 transition hover:border-[#2F78B7]/35 hover:bg-white hover:text-[#164F7D]"
+                className="inline-flex min-h-10 items-center gap-2 rounded-md border border-[#07111F]/10 bg-white/55 px-4 text-[13px] font-bold text-[#07111F]/65 transition hover:border-[#2F78B7]/35 hover:bg-white hover:text-[#164F7D]"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Back home

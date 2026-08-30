@@ -82,7 +82,7 @@ export default function MessageBubble({
             </span>
 
             {message.senderRole && (
-              <span className="rounded-full bg-[#E8F2EA] px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-wide text-[#18794E]">
+              <span className="rounded-md bg-[#E8F2EA] px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-wide text-[#18794E]">
                 {message.senderRole}
               </span>
             )}

@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { X, CheckCircle2, XCircle, Clock3 } from "lucide-react";
-import { TradeJournalEntry, addJournalObservation } from "@/lib/journal-api";
+import { X, CheckCircle2, XCircle, Clock3, Trash2 } from "lucide-react";
+import { TradeJournalEntry, addJournalObservation, deleteJournalEntry } from "@/lib/journal-api";
 
-export default function JournalEntryModal({ entry, onClose }: { entry: TradeJournalEntry | null; onClose: () => void }) {
+export default function JournalEntryModal({ entry, onClose, onDeleteSuccess }: { entry: TradeJournalEntry | null; onClose: () => void; onDeleteSuccess?: () => void }) {
   const [observation, setObservation] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [localObservations, setLocalObservations] = useState(entry?.observations || []);
 
   if (!entry) return null;
@@ -24,18 +25,62 @@ export default function JournalEntryModal({ entry, onClose }: { entry: TradeJour
     }
   };
 
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this journal entry? This cannot be undone.")) return;
+    setIsDeleting(true);
+    try {
+      await deleteJournalEntry(entry.id);
+      onClose();
+      if (onDeleteSuccess) {
+        onDeleteSuccess();
+      }
+    } catch (error) {
+      console.error("Failed to delete journal entry:", error);
+      alert("Failed to delete journal entry");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const isWin = (entry.realized_pnl || 0) >= 0;
 
   return (
     <Dialog.Root open={!!entry} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
         <Dialog.Overlay className="cc-modal-backdrop" />
-        <Dialog.Content className="cc-dialog" style={{ maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto' }}>
-          <div className="cc-panel-heading sticky top-0 bg-white z-10 pb-4 border-b border-gray-200">
-            <Dialog.Title>Trade Journal: {entry.symbol}</Dialog.Title>
-            <Dialog.Close className="cc-icon-button">
-              <X size={18} />
-            </Dialog.Close>
+        <Dialog.Content 
+          className="cc-dialog" 
+          style={{ 
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '100%',
+            maxWidth: '800px', 
+            maxHeight: '90vh', 
+            overflowY: 'auto',
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            padding: '24px',
+            boxShadow: '0 24px 70px rgba(7, 17, 31, 0.14)',
+            zIndex: 100
+          }}
+        >
+          <div className="cc-panel-heading sticky -top-6 bg-white z-10 pb-4 mb-2 border-b border-[#E3E2D9] flex items-center justify-between">
+            <Dialog.Title className="text-xl font-extrabold text-[#07111F]">Trade Journal: {entry.symbol}</Dialog.Title>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={handleDelete} 
+                disabled={isDeleting} 
+                className="p-1.5 text-[#D6A12A] hover:text-red-600 hover:bg-red-50 rounded-full transition-colors disabled:opacity-50" 
+                title="Delete Entry"
+              >
+                <Trash2 size={16} />
+              </button>
+              <Dialog.Close className="cc-icon-button p-1 hover:bg-[#F0F0EA] rounded-full transition-colors">
+                <X size={18} />
+              </Dialog.Close>
+            </div>
           </div>
 
           <div className="py-4 space-y-6">

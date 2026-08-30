@@ -304,7 +304,7 @@ function SettingsContent() {
 
         <div className="grid gap-5 lg:grid-cols-[260px_minmax(0,1fr)]">
           {/* Settings navigation */}
-          <aside className="h-fit rounded-2xl border border-[#E3E2D9] bg-white p-2 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
+          <aside className="h-fit rounded-xl border border-[#E3E2D9] bg-white p-2 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
             <div className="px-3 pb-2 pt-3 text-[12px] font-extrabold uppercase tracking-[0.18em] text-[#AAA99F]">
               Settings
             </div>
@@ -382,7 +382,7 @@ function SettingsContent() {
 
                 <Card>
                   <div className="flex flex-col gap-5 border-b border-[#ECECE4] pb-6 sm:flex-row sm:items-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#2F78B7] text-lg font-extrabold text-white shadow-[0_10px_25px_rgba(15,45,31,0.16)]">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-[#2F78B7] text-lg font-extrabold text-white shadow-[0_10px_25px_rgba(15,45,31,0.16)]">
                       {(user?.display_name || user?.email || "CC").slice(0, 2).toUpperCase()}
                     </div>
 
@@ -635,7 +635,7 @@ function SettingsContent() {
                   description="Configure how AHNA interacts with your workspace and trading intelligence."
                 />
 
-                <div className="relative overflow-hidden rounded-2xl bg-[#2F78B7] p-5 text-white shadow-[0_15px_40px_rgba(15,45,31,0.14)] sm:p-6">
+                <div className="relative overflow-hidden rounded-xl bg-[#2F78B7] p-5 text-white shadow-[0_15px_40px_rgba(15,45,31,0.14)] sm:p-6">
                   <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#79A98A]/10 blur-3xl" />
 
                   <div className="relative flex items-start gap-4">
@@ -649,7 +649,7 @@ function SettingsContent() {
                           AHNA Intelligence Layer
                         </span>
 
-                        <span className="rounded-full bg-white/15 px-2 py-1 text-[10px] font-extrabold text-white">
+                        <span className="rounded-md bg-white/15 px-2 py-1 text-[10px] font-extrabold text-white">
                           ANALYSIS ON DEMAND
                         </span>
                       </div>
@@ -863,7 +863,7 @@ function SettingsContent() {
                   </SettingRow>
                 </Card>
 
-                <div className="rounded-2xl border border-[#E7DDD3] bg-[#FBF6EF] p-5">
+                <div className="rounded-xl border border-[#E7DDD3] bg-[#FBF6EF] p-5">
                   <div className="flex items-start gap-3">
                     <Lock size={16} className="mt-0.5 text-[#8A6D4A]" />
 
@@ -908,7 +908,7 @@ function SettingsContent() {
                         </div>
                       </div>
 
-                      <span className="rounded-full bg-white px-3 py-1.5 text-[12px] font-extrabold text-[#18794E] shadow-sm">
+                      <span className="rounded-md bg-white px-3 py-1.5 text-[12px] font-extrabold text-[#18794E] shadow-sm">
                         UNAVAILABLE
                       </span>
                     </div>
@@ -943,7 +943,7 @@ function SettingsContent() {
                   </SettingRow>
                 </Card>
 
-                <div className="rounded-2xl border border-[#E5D2D2] bg-[#FBF4F4] p-5">
+                <div className="rounded-xl border border-[#E5D2D2] bg-[#FBF4F4] p-5">
                   <div className="text-xs font-extrabold text-[#6D3838]">
                     Danger zone
                   </div>
@@ -1001,7 +1001,7 @@ function SettingsContent() {
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)] sm:p-6">
+    <section className="rounded-xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)] sm:p-6">
       {children}
     </section>
   );
@@ -1043,7 +1043,7 @@ function InfoCard({
   description: string;
 }) {
   return (
-    <div className="rounded-2xl border border-[#E3E2D9] bg-[#FAFAF7] p-4">
+    <div className="rounded-xl border border-[#E3E2D9] bg-[#FAFAF7] p-4">
       <div className="flex gap-3">
         <Icon size={15} className="mt-0.5 shrink-0 text-[#8A897F]" />
 

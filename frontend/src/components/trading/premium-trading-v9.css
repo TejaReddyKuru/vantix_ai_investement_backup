@@ -22,7 +22,7 @@
   background: var(--cc-surface) !important;
   background-image: none !important;
   border-color: var(--cc-border) !important;
-  border-radius: 7px !important;
+  border-radius: var(--radius-sm) !important;
   box-shadow: none !important;
 }
 
@@ -30,7 +30,7 @@
   background: #11130f !important;
   color: #fff8e0 !important;
   border-color: #11130f !important;
-  border-radius: 7px !important;
+  border-radius: var(--radius-sm) !important;
 }
 html[data-theme="dark"] .ct-workstation-v7 .ct-instrument {
   background: #151713 !important;
@@ -45,7 +45,7 @@ html[data-theme="dark"] .ct-workstation-v7 .ct-instrument {
   background: #1a1c18 !important;
   background-image: none !important;
   border: 1px solid #34372f !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-sm) !important;
   box-shadow: none !important;
 }
 
@@ -87,14 +87,14 @@ html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg text[fill="white"]
 .ct-workstation-v7 .ct-drawing-tools {
   background: var(--cc-surface) !important;
   border-color: var(--cc-border) !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-sm) !important;
   box-shadow: none !important;
 }
 .ct-workstation-v7 .ct-drawing-tools button {
   color: var(--cc-muted) !important;
   background: transparent !important;
   border: 0 !important;
-  border-radius: 4px !important;
+  border-radius: var(--radius-sm) !important;
   box-shadow: none !important;
 }
 .ct-workstation-v7 .ct-drawing-tools button:hover,
@@ -113,7 +113,7 @@ html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg text[fill="white"]
   background: transparent !important;
   background-image: none !important;
   border: 1px solid transparent !important;
-  border-radius: 5px !important;
+  border-radius: var(--radius-sm) !important;
   box-shadow: none !important;
   transform: none !important;
 }
@@ -147,7 +147,7 @@ html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg text[fill="white"]
   background: var(--cc-surface-2) !important;
   background-image: none !important;
   border: 1px solid var(--cc-border) !important;
-  border-radius: 5px !important;
+  border-radius: var(--radius-sm) !important;
   box-shadow: none !important;
 }
 
@@ -155,14 +155,14 @@ html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg text[fill="white"]
 .ct-workstation-v7 .ct-order-sides {
   background: var(--cc-surface-2) !important;
   border: 1px solid var(--cc-border) !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-sm) !important;
 }
 .ct-workstation-v7 .ct-order-sides button {
   color: var(--cc-muted) !important;
   background: transparent !important;
   background-image: none !important;
   border: 1px solid transparent !important;
-  border-radius: 5px !important;
+  border-radius: var(--radius-sm) !important;
   box-shadow: none !important;
   transform: none !important;
   opacity: 1 !important;
@@ -183,7 +183,7 @@ html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg text[fill="white"]
   background: #ffea93 !important;
   background-image: none !important;
   border: 1px solid #e8ce68 !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-sm) !important;
   box-shadow: none !important;
   transform: none !important;
 }
@@ -210,7 +210,7 @@ html[data-theme="dark"] .ct-workstation-v7 .ct-chart-body svg text[fill="white"]
   background: #f0ede2 !important;
   background-image: none !important;
   border: 1px solid #d8d4c7 !important;
-  border-radius: 7px !important;
+  border-radius: var(--radius-sm) !important;
   box-shadow: none !important;
 }
 html[data-theme="dark"] .ct-workstation-v7 .ct-ai-dashboard {
@@ -221,7 +221,7 @@ html[data-theme="dark"] .ct-workstation-v7 .ct-ai-dashboard {
   background: var(--cc-surface) !important;
   background-image: none !important;
   border: 1px solid var(--cc-border) !important;
-  border-radius: 6px !important;
+  border-radius: var(--radius-sm) !important;
   box-shadow: none !important;
   transform: none !important;
 }

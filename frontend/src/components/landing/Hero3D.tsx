@@ -265,7 +265,7 @@ export default function Hero3D() {
         </Suspense>
       </Canvas>
 
-      <div className="pointer-events-none absolute right-5 top-5 hidden rounded-full border border-white/15 bg-black/35 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-white/80 backdrop-blur-xl sm:block">
+      <div className="pointer-events-none absolute right-5 top-5 hidden rounded-md border border-white/15 bg-black/35 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-white/80 backdrop-blur-xl sm:block">
         AHNA global market map
       </div>
       <p className="pointer-events-none absolute bottom-5 right-6 hidden whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.14em] text-white/50 sm:block">

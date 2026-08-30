@@ -38,7 +38,7 @@ export default function AIPanel() {
             <Bot size={15} />
           </div>
 
-          <div className="rounded-2xl rounded-tl-md bg-[var(--surface-mint)] px-4 py-3 text-sm leading-6">
+          <div className="rounded-xl rounded-tl-md bg-[var(--surface-mint)] px-4 py-3 text-sm leading-6">
             <div className="mb-1 font-bold">
               Good to see you.
             </div>
@@ -68,7 +68,7 @@ export default function AIPanel() {
       </div>
 
       <div className="border-t border-[var(--border)] p-4">
-        <div className="flex items-end gap-2 rounded-2xl border border-[var(--border)] bg-[#FAFAF7] p-2">
+        <div className="flex items-end gap-2 rounded-xl border border-[var(--border)] bg-[#FAFAF7] p-2">
           <textarea
             rows={2}
             placeholder="Ask Friday anything..."

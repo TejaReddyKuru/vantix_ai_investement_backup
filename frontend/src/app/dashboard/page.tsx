@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -27,18 +28,39 @@ function Overview() {
   const { openAhna, openNotifications } = useWorkspace();
   const name =
     hydrated && user?.display_name ? user.display_name.split(" ")[0] : "there";
+  
+  const [activeMode, setActiveMode] = useState<"live" | "paper">("live");
+
   return (
     <div className="cc-page cc-user-overview">
       <div className="cc-page-heading cc-personal-heading">
         <div>
           <span className="cc-eyebrow">Your daily overview</span>
-          <h1>
-            Welcome back, <em>{name}.</em>
-          </h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "5px" }}>
+            <h1 style={{ marginTop: 0 }}>
+              Welcome back, <em>{name}.</em>
+            </h1>
+            <div className="cc-segmented">
+              <button 
+                type="button" 
+                aria-pressed={activeMode === "live"}
+                onClick={() => setActiveMode("live")}
+              >
+                Live
+              </button>
+              <button 
+                type="button" 
+                aria-pressed={activeMode === "paper"}
+                onClick={() => setActiveMode("paper")}
+              >
+                Paper
+              </button>
+            </div>
+          </div>
           <p>Your capital, the markets, and what matters next.</p>
         </div>
         <Link
-          href={workstationHref("BTC", { mode: "live" })}
+          href={workstationHref("BTC", { mode: activeMode })}
           className="cc-button cc-button-primary"
         >
           <CandlestickChart size={16} /> Open workstation{" "}
@@ -46,7 +68,7 @@ function Overview() {
         </Link>
       </div>
       <div className="cc-overview-top">
-        <LiveAccountCard />
+        {activeMode === "live" ? <LiveAccountCard /> : <PaperAccountCard />}
         <aside className="cc-ahna-overview">
           <div className="cc-ahna-overview-top">
             <span className="cc-ahna-orbit">
@@ -106,7 +128,6 @@ function Overview() {
           <ArrowUpRight size={18} />
         </button>
       </div>
-      <PaperAccountCard />
       <footer className="cc-overview-footer">
         <span>CoinCrest · Clarity before every decision.</span>
         <span>Real and paper capital are always kept separate.</span>

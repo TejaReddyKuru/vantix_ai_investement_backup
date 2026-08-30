@@ -157,7 +157,7 @@ export default function Home() {
             <Link href="/login" className="hidden px-3 py-2 text-[15px] font-bold tracking-[-0.01em] sm:block">Sign in</Link>
             <Link
               href="/register"
-              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#2F78B7] px-5 text-[14px] font-black !text-white shadow-[0_10px_30px_rgba(47,120,183,0.2)] transition hover:-translate-y-0.5 hover:bg-[#245F93] sm:text-[15px]"
+              className="inline-flex min-h-11 items-center gap-2 rounded-md bg-[#2F78B7] px-5 text-[14px] font-black !text-white shadow-[0_10px_30px_rgba(47,120,183,0.2)] transition hover:-translate-y-0.5 hover:bg-[#245F93] sm:text-[15px]"
             >
               Create account <ArrowRight className="h-4 w-4" />
             </Link>
@@ -184,10 +184,10 @@ export default function Home() {
             </p>
 
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link href="/register" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#2F78B7] px-7 text-[15px] font-black !text-white transition hover:-translate-y-0.5 hover:bg-[#245F93]">
+              <Link href="/register" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md bg-[#2F78B7] px-7 text-[15px] font-black !text-white transition hover:-translate-y-0.5 hover:bg-[#245F93]">
                 Start with paper trading <ArrowRight className="h-4 w-4" />
               </Link>
-              <a href="#ahna" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full border border-white/30 bg-white/10 px-7 text-[15px] font-black text-white backdrop-blur-xl transition hover:bg-white hover:text-black">
+              <a href="#ahna" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-7 text-[15px] font-black text-white backdrop-blur-xl transition hover:bg-white hover:text-black">
                 See how AHNA thinks <Eye className="h-4 w-4" />
               </a>
             </div>
@@ -284,7 +284,7 @@ export default function Home() {
               <SectionLabel>From question to discipline</SectionLabel>
               <h2 className="font-serif text-[clamp(3.6rem,5.7vw,6.2rem)] leading-[0.88] tracking-[-0.058em]">A calmer way to build conviction.</h2>
             </div>
-            <Link href="/register" className="inline-flex min-h-13 shrink-0 items-center justify-center gap-2 rounded-full bg-[#080908] px-6 text-[14px] font-black text-[#FFF4D0] shadow-[0_12px_28px_rgba(0,0,0,0.14)] transition hover:-translate-y-0.5 hover:bg-[#171A16]">
+            <Link href="/register" className="inline-flex min-h-13 shrink-0 items-center justify-center gap-2 rounded-md bg-[#080908] px-6 text-[14px] font-black text-[#FFF4D0] shadow-[0_12px_28px_rgba(0,0,0,0.14)] transition hover:-translate-y-0.5 hover:bg-[#171A16]">
               <span>Create your workspace</span> <ArrowRight className="h-4 w-4 text-[#FFF4D0]" />
             </Link>
           </div>
@@ -326,7 +326,7 @@ export default function Home() {
             <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#FFEA93]">Start with simulated capital</p>
             <h2 className="mt-3 font-serif text-[clamp(3.3rem,5.6vw,5.8rem)] leading-[0.88] tracking-[-0.055em]">Build the process before the position.</h2>
           </div>
-          <Link href="/register" className="inline-flex min-h-14 shrink-0 items-center gap-2 rounded-full bg-[#FFEA93] px-7 text-[15px] font-black text-black transition hover:-translate-y-0.5">
+          <Link href="/register" className="inline-flex min-h-14 shrink-0 items-center gap-2 rounded-md bg-[#FFEA93] px-7 text-[15px] font-black text-black transition hover:-translate-y-0.5">
             Get started <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

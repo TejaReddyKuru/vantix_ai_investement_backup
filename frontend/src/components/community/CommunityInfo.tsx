@@ -58,7 +58,7 @@ export default function CommunityInfo({
 
       {/* Hero Banner & Community Identity */}
       <div className="border-b border-[#DDDCD0] bg-[#F7F6E8]/70 p-5 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0F2D1F] text-white shadow-[0_8px_20px_rgba(15,45,31,0.16)]">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-xl bg-[#0F2D1F] text-white shadow-[0_8px_20px_rgba(15,45,31,0.16)]">
           <CommunityIcon name={community.icon} size={28} strokeWidth={2.2} />
         </div>
 
@@ -67,7 +67,7 @@ export default function CommunityInfo({
         </h4>
 
         <div className="mt-1 flex items-center justify-center gap-2 text-[10px] font-bold text-[#8A897F]">
-          <span className="rounded-full bg-[#E8F2EA] px-2.5 py-0.5 text-[9px] uppercase tracking-wide text-[#18794E]">
+          <span className="rounded-md bg-[#E8F2EA] px-2.5 py-0.5 text-[9px] uppercase tracking-wide text-[#18794E]">
             {community.category}
           </span>
           <span>·</span>
@@ -152,7 +152,7 @@ export default function CommunityInfo({
             </div>
 
             {/* Notification Controls */}
-            <div className="rounded-2xl border border-[#DDDCD0] bg-[#FAFAF7] p-3.5">
+            <div className="rounded-xl border border-[#DDDCD0] bg-[#FAFAF7] p-3.5">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-xs font-extrabold text-[#171717]">
@@ -197,7 +197,7 @@ export default function CommunityInfo({
             </div>
 
             {/* Security Guarantee */}
-            <div className="flex items-start gap-2.5 rounded-2xl border border-[#D5E2D8] bg-[#E8F2EA]/60 p-3">
+            <div className="flex items-start gap-2.5 rounded-xl border border-[#D5E2D8] bg-[#E8F2EA]/60 p-3">
               <Shield size={16} className="shrink-0 text-[#18794E]" />
               <div className="text-[10px] leading-4 text-[#607367]">
                 <strong className="font-extrabold text-[#0F2D1F]">
@@ -263,7 +263,7 @@ export default function CommunityInfo({
             {community.rules.map((rule, idx) => (
               <div
                 key={rule.id}
-                className="rounded-2xl border border-[#DDDCD0] bg-white p-3.5"
+                className="rounded-xl border border-[#DDDCD0] bg-white p-3.5"
               >
                 <div className="flex items-center gap-2">
                   <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#0F2D1F] text-[9px] font-extrabold text-white">

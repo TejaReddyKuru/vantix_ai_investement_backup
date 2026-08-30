@@ -36,7 +36,7 @@ export default function TopNav() {
         <div className="hidden h-7 w-px bg-[var(--border)] sm:block" />
 
         <button className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition hover:bg-[#FAFAF7]">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--surface-mint-strong)] text-sm font-bold">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--surface-mint-strong)] text-sm font-bold">
             {(user?.email?.[0] || "V").toUpperCase()}
           </div>
 

@@ -20,6 +20,19 @@ class JournalObservationOut(BaseModel):
 class JournalEntryCreate(BaseModel):
     model_config = ConfigDict(extra='ignore')
 
+    # Optional execution fields for manually logged trades
+    symbol: Optional[str] = None
+    side: Optional[str] = None
+    status: Optional[str] = None
+    entry_price: Optional[float] = None
+    exit_price: Optional[float] = None
+    quantity: Optional[float] = None
+    realized_pnl: Optional[float] = None
+    return_percentage: Optional[float] = None
+    duration_seconds: Optional[int] = None
+    entry_timestamp: Optional[datetime] = None
+    exit_timestamp: Optional[datetime] = None
+
     title: Optional[str] = Field(default=None, max_length=255)
     notes: Optional[str] = None
     strategy: Optional[str] = None

@@ -80,7 +80,7 @@ export default function CommunityList({
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="flex items-center gap-1 rounded-full bg-[#E8F2EA] px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-wide text-[#18794E]">
+              <span className="flex items-center gap-1 rounded-md bg-[#E8F2EA] px-2.5 py-1 text-[9px] font-extrabold uppercase tracking-wide text-[#18794E]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#18794E]" />
                 Live
               </span>
@@ -185,7 +185,7 @@ export default function CommunityList({
 
           {filteredCommunities.length === 0 && (
             <div className="flex flex-col items-center justify-center p-8 text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8F2EA] text-[#0F2D1F]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#E8F2EA] text-[#0F2D1F]">
                 <Search size={20} />
               </div>
               <p className="mt-3 text-xs font-bold text-[#171717]">

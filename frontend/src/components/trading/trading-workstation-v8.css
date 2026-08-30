@@ -18,12 +18,12 @@
   background:
     radial-gradient(circle at 0 0, rgba(83,157,246,.095), transparent 30%),
     linear-gradient(145deg, rgba(255,255,255,.76), rgba(239,247,255,.58));
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 10px 28px rgba(38,78,128,.08), inset 0 1px 0 rgba(255,255,255,.9);
 }
 
 .ct-workstation-v7 .ct-pro-layout > * {
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 .ct-workstation-v7 .ct-pro-chart,
@@ -62,7 +62,7 @@
 .ct-workstation-v7 .ct-profile-list a,
 .ct-workstation-v7 .ct-records-footer button {
   border: 1px solid rgba(117,162,216,.22);
-  border-radius: 9px;
+  border-radius: var(--radius-md);
   background: linear-gradient(145deg, rgba(255,255,255,.68), rgba(235,245,255,.48));
   box-shadow: 0 4px 12px rgba(44,83,130,.055), inset 0 1px 0 rgba(255,255,255,.82);
   -webkit-backdrop-filter: blur(14px);
@@ -88,7 +88,7 @@
 
 .ct-workstation-v7 .cc-asset-picker-trigger {
   border-color: rgba(117,162,216,.25);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: linear-gradient(145deg, rgba(255,255,255,.78), rgba(232,244,255,.58));
   box-shadow: 0 6px 16px rgba(43,82,128,.07), inset 0 1px 0 rgba(255,255,255,.88);
 }
@@ -119,7 +119,7 @@
 
 .ct-workstation-v7 .ct-order-planner :is(input,select,output) {
   border: 1px solid rgba(116,161,215,.24);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: rgba(255,255,255,.56);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.88), 0 4px 12px rgba(43,82,128,.045);
 }
@@ -144,7 +144,7 @@
 }
 .ct-workstation-v7 .ct-ai-card {
   border: 1px solid rgba(105,155,215,.19);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: linear-gradient(145deg, rgba(255,255,255,.69), rgba(238,247,255,.47));
   box-shadow: 0 6px 16px rgba(40,81,131,.055), inset 0 1px 0 rgba(255,255,255,.82);
   -webkit-backdrop-filter: blur(16px);
@@ -158,7 +158,7 @@
 .ct-workstation-v7 .ct-ai-consensus-ring:after { background: rgba(249,252,255,.92); }
 
 .ct-workstation-v7 .ct-profile-list > a {
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   margin: 2px 4px;
   border-bottom-color: transparent;
 }
@@ -189,5 +189,5 @@
 }
 
 @media (max-width: 760px) {
-  .ct-workstation-v7 .ct-pro-layout > * { border-radius: 12px; }
+  .ct-workstation-v7 .ct-pro-layout > * { border-radius: var(--radius-lg); }
 }

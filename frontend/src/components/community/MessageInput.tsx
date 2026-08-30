@@ -158,7 +158,7 @@ export default function MessageInput({
       )}
 
       {/* Main Composer Box */}
-      <div className="flex items-end gap-2 rounded-2xl border border-[#DDDCD0] bg-[#FAFAF7] p-1.5 focus-within:border-[#0F2D1F] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#0F2D1F]/10">
+      <div className="flex items-end gap-2 rounded-xl border border-[#DDDCD0] bg-[#FAFAF7] p-1.5 focus-within:border-[#0F2D1F] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#0F2D1F]/10">
         {/* Attachment Toggle */}
         <button
           type="button"

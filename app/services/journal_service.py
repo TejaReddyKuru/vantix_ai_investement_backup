@@ -92,10 +92,14 @@ async def create_entry(user_id: UUID, payload: JournalEntryCreate) -> dict:
         entry = TradeJournalEntry(user_id=user_id, **payload.model_dump(exclude_none=True))
         db.add(entry)
         await db.commit()
-        await db.refresh(entry)
-        # Note: observations might not be loaded initially, but it's empty
-        entry.observations = []
-        return _entry_to_dict(entry)
+        
+        result = await db.execute(
+            select(TradeJournalEntry)
+            .where(TradeJournalEntry.id == entry.id)
+            .options(selectinload(TradeJournalEntry.observations))
+        )
+        entry_with_obs = result.scalar_one()
+        return _entry_to_dict(entry_with_obs)
 
 
 async def get_entry(user_id: UUID, entry_id: UUID) -> dict | None:
@@ -157,7 +161,7 @@ async def add_observation(user_id: UUID, entry_id: UUID, payload: JournalObserva
 async def get_analytics(user_id: UUID) -> dict:
     """Calculate dashboard analytics from real trades."""
     async with AsyncSessionLocal() as db:
-        stmt = select(TradeJournalEntry).where(TradeJournalEntry.user_id == user_id, TradeJournalEntry.status == "CLOSED")
+        stmt = select(TradeJournalEntry).where(TradeJournalEntry.user_id == user_id, TradeJournalEntry.status == "CLOSED").options(selectinload(TradeJournalEntry.observations))
         result = await db.execute(stmt)
         entries = result.scalars().all()
         

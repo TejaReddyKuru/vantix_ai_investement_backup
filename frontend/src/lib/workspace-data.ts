@@ -69,14 +69,15 @@ function string(value: unknown): string {
 }
 export function decimal(value: unknown): string | null {
   if (value === null || value === undefined) return null;
-  if (typeof value !== "string" || !/^[+-]?\d+(?:\.\d+)?$/.test(value))
+  const strValue = String(value);
+  if (!/^[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?$/.test(strValue))
     throw new Error("Invalid monetary amount.");
   if (
-    !Number.isFinite(Number(value)) ||
-    Math.abs(Number(value)) > Number.MAX_SAFE_INTEGER / 100
+    !Number.isFinite(Number(strValue)) ||
+    Math.abs(Number(strValue)) > Number.MAX_SAFE_INTEGER / 100
   )
     throw new Error("Amount is outside display precision.");
-  return value;
+  return strValue;
 }
 function owned(value: Record<string, unknown>, userId: string) {
   if (value.user_id !== userId)

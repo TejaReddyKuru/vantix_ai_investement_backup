@@ -76,7 +76,7 @@ export default function ChatHeader({
               <h2 className="truncate text-sm font-extrabold tracking-tight text-[#171717]">
                 {community.name}
               </h2>
-              <span className="hidden rounded-full bg-[#E8F2EA] px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-wide text-[#18794E] sm:inline-flex">
+              <span className="hidden rounded-md bg-[#E8F2EA] px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-wide text-[#18794E] sm:inline-flex">
                 {community.category}
               </span>
             </div>

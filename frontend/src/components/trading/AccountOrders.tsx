@@ -27,6 +27,11 @@ export default function AccountOrders() {
   const assets = useAssetRecords(ids);
   const identity = Object.fromEntries(ids.map((id, i) => [id, assets[i]?.data?.symbol ?? "Loading asset..."]));
   const val = (record: Record<string, unknown>, key: string) => typeof record[key] === "string" || typeof record[key] === "number" ? String(record[key]) : "—";
+  const fmt = (v: string) => {
+    if (v === "—") return v;
+    const n = Number(v);
+    return isNaN(n) ? v : new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 8 }).format(n);
+  };
   
   return (
     <section className="ct-panel ct-account-orders">
@@ -92,18 +97,18 @@ export default function AccountOrders() {
                     <>
                       <td>{val(r, "side")}</td>
                       <td>{val(r, "order_type")}</td>
-                      <td>{val(r, "quantity")}</td>
-                      <td>{val(r, "requested_price")}</td>
+                      <td>{fmt(val(r, "quantity"))}</td>
+                      <td>{fmt(val(r, "requested_price"))}</td>
                       <td>{val(r, "status")}</td>
                     </>
                   ) : kind === "trades" ? (
                     <>
                       <td>{val(r, "side")}</td>
-                      <td>{val(r, "quantity")}</td>
-                      <td>{val(r, "average_entry_price")}</td>
-                      <td>{val(r, "average_exit_price")}</td>
+                      <td>{fmt(val(r, "quantity"))}</td>
+                      <td>{fmt(val(r, "average_entry_price") !== "—" ? val(r, "average_entry_price") : val(r, "execution_price"))}</td>
+                      <td>{fmt(val(r, "average_exit_price"))}</td>
                       <td style={{ color: Number(val(r, "realized_pnl")) >= 0 ? 'var(--ct-positive)' : 'var(--ct-negative)' }}>
-                        {val(r, "realized_pnl")}
+                        {fmt(val(r, "realized_pnl"))}
                       </td>
                       <td>{r.exit_timestamp && r.entry_timestamp ? Math.floor((new Date(r.exit_timestamp as string).getTime() - new Date(r.entry_timestamp as string).getTime()) / 60000) : "—"}</td>
                       <td>
@@ -123,11 +128,11 @@ export default function AccountOrders() {
                     </>
                   ) : (
                     <>
-                      <td>{val(r, "side")}</td>
-                      <td>{val(r, "quantity")}</td>
-                      <td>{val(r, "average_entry_price")}</td>
+                      <td>{val(r, "side") === "—" ? "LONG" : val(r, "side")}</td>
+                      <td>{fmt(val(r, "quantity"))}</td>
+                      <td>{fmt(val(r, "average_entry_price"))}</td>
                       <td style={{ color: Number(val(r, "unrealized_pnl")) >= 0 ? 'var(--ct-positive)' : 'var(--ct-negative)' }}>
-                        {val(r, "unrealized_pnl")}
+                        {fmt(val(r, "unrealized_pnl"))}
                       </td>
                     </>
                   )}
