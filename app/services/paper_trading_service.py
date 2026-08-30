@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.asset import Asset
+from app.models.journal import TradeJournalEntry
 from app.models.paper_trading import PaperAccount, PaperOrder, PaperPosition, PaperTrade, PaperTransaction
 from app.schemas.paper_trading import PaperOrderCreate
 from app.services.binance_service import BinanceService
@@ -66,7 +67,7 @@ class PaperTradingService:
         self.db = db
         self.binance_service = binance_service or BinanceService()
 
-    async def update_account_equity(self, account: PaperAccount) -> None:
+    async def update_account_equity(self, account: PaperAccount, use_live_prices: bool = True) -> None:
         """Calculate and persist current balance and equity for the paper account."""
         # 1. Update balance to current cash
         account.balance = account.current_cash
@@ -79,7 +80,7 @@ class PaperTradingService:
         total_position_value = Decimal("0")
         for pos in positions:
             pos_price = pos.current_price or pos.average_entry_price
-            if pos.symbol:
+            if pos.symbol and use_live_prices:
                 try:
                     price_val = await self.binance_service.get_current_price(pos.symbol)
                     pos_price = Decimal(str(price_val))
@@ -91,14 +92,13 @@ class PaperTradingService:
 
         account.equity = account.current_cash + total_position_value
 
-    async def get_paper_account(self, user_id: UUID) -> PaperAccount | None:
+    async def get_paper_account(self, user_id: UUID, use_live_prices: bool = True) -> PaperAccount | None:
         """Fetch the paper trading account for a user."""
         stmt = select(PaperAccount).where(PaperAccount.user_id == user_id)
         result = await self.db.execute(stmt)
         account = result.scalar_one_or_none()
         if account:
-            await self.update_account_equity(account)
-            await self.db.commit()
+            await self.update_account_equity(account, use_live_prices=use_live_prices)
         return account
 
     async def create_order(self, user_id: UUID, payload: PaperOrderCreate) -> PaperOrder:
@@ -106,8 +106,8 @@ class PaperTradingService:
         Validate, retrieve prices, and execute a paper order atomically.
         """
         try:
-            # 1. Fetch and validate paper account
-            account = await self.get_paper_account(user_id)
+            # 1. Fetch and validate paper account without making live Binance requests yet
+            account = await self.get_paper_account(user_id, use_live_prices=False)
             if not account:
                 raise AccountNotFoundError("Paper account not found.")
             if account.status != "active":
@@ -125,7 +125,7 @@ class PaperTradingService:
                 raise InvalidOrderInputError(f"Unsupported order type: {order_type}")
             if quantity <= 0:
                 raise InvalidOrderInputError("Quantity must be greater than zero.")
-            if requested_price <= 0:
+            if requested_price is not None and requested_price <= 0:
                 raise InvalidOrderInputError("Requested price must be greater than zero.")
 
             # 3. Fetch and validate asset
@@ -172,18 +172,44 @@ class PaperTradingService:
                     is_triggered = True
                     execution_price = market_price
 
+            risk_entry_price = execution_price if execution_price is not None else requested_price
+
+            # Determine the price to use for validating user's stop-loss input
+            # We use requested_price (what they saw on the screen) to avoid rejecting orders 
+            # just because the market moved in their favor before execution.
+            validation_entry_price = requested_price if requested_price is not None else risk_entry_price
+
+            # Temporary debug logging
+            import logging
+            log = logging.getLogger(__name__)
+            log.info(f"PAPER_TRADE_VALIDATION side={side} requested_price={requested_price} execution_price={execution_price} validation_entry_price={validation_entry_price} stop_loss={payload.stop_loss} take_profit={payload.take_profit}")
+            print(f"PAPER_TRADE_VALIDATION side={side} requested_price={requested_price} execution_price={execution_price} validation_entry_price={validation_entry_price} stop_loss={payload.stop_loss} take_profit={payload.take_profit}")
+
+            # General stop-loss validations
+            if payload.stop_loss is not None:
+                if side == "BUY" and payload.stop_loss >= validation_entry_price:
+                    print(f"\n\n🚨 VALIDATION TRIGGERED: BUY STOP LOSS FAILED! 🚨")
+                    print(f"stop_loss: {payload.stop_loss} ({type(payload.stop_loss)})")
+                    print(f"validation_entry_price: {validation_entry_price} ({type(validation_entry_price)})")
+                    print(f"evaluation: {payload.stop_loss} >= {validation_entry_price} is True\n\n")
+                    raise InvalidOrderInputError("Stop-loss must be below the entry price.")
+                if side == "SELL" and payload.stop_loss <= validation_entry_price:
+                    print(f"\n\n🚨 VALIDATION TRIGGERED: SELL STOP LOSS FAILED! 🚨")
+                    print(f"stop_loss: {payload.stop_loss} ({type(payload.stop_loss)})")
+                    print(f"validation_entry_price: {validation_entry_price} ({type(validation_entry_price)})")
+                    print(f"evaluation: {payload.stop_loss} <= {validation_entry_price} is True\n\n")
+                    raise InvalidOrderInputError("Stop-loss must be above the entry price.")
+
             # Run RiskManagementService validation for BUY orders with stop-loss
             if side == "BUY" and payload.stop_loss is not None:
                 from app.services.risk_management_service import RiskManagementService
                 risk_service = RiskManagementService(self.db, self.binance_service)
-                risk_entry_price = execution_price if execution_price is not None else requested_price
-                
                 assessment = await risk_service.assess_trade(
                     user_id=user_id,
                     asset_id=asset.id,
                     side=side,
                     quantity=quantity,
-                    entry_price=risk_entry_price,
+                    entry_price=validation_entry_price,
                     stop_loss=payload.stop_loss,
                     take_profit=payload.take_profit,
                 )
@@ -243,6 +269,20 @@ class PaperTradingService:
                             unrealized_pnl=Decimal("0"),
                         )
                         self.db.add(position)
+                        
+                        journal_entry = TradeJournalEntry(
+                            user_id=user_id,
+                            paper_account_id=account.id,
+                            symbol=symbol,
+                            side="LONG",
+                            status="OPEN",
+                            entry_price=execution_price,
+                            quantity=quantity,
+                            entry_timestamp=datetime.utcnow(),
+                            title=f"LONG {symbol}"
+                        )
+                        self.db.add(journal_entry)
+                        await self.db.flush()
                     else:
                         old_qty = position.quantity
                         old_avg = position.average_entry_price
@@ -252,6 +292,21 @@ class PaperTradingService:
                         position.quantity = new_qty
                         position.average_entry_price = new_avg
                         position.current_price = execution_price
+                        
+                        # Update Journal Entry for add-on
+                        journal_stmt = select(TradeJournalEntry).where(
+                            TradeJournalEntry.paper_account_id == account.id,
+                            TradeJournalEntry.symbol == symbol,
+                            TradeJournalEntry.status.in_(["OPEN", "PARTIALLY_CLOSED"])
+                        ).order_by(TradeJournalEntry.created_at.desc())
+                        journal_res = await self.db.execute(journal_stmt)
+                        journal_entry = journal_res.scalar_one_or_none()
+                        if journal_entry:
+                            old_j_qty = journal_entry.quantity or Decimal("0")
+                            old_j_avg = journal_entry.entry_price or execution_price
+                            journal_entry.quantity = old_j_qty + quantity
+                            if old_j_qty + quantity > 0:
+                                journal_entry.entry_price = ((old_j_qty * old_j_avg) + (quantity * execution_price)) / (old_j_qty + quantity)
 
                     txn_amount = -total_cost
 
@@ -278,9 +333,41 @@ class PaperTradingService:
                     position.realized_pnl += realized_pnl
                     position.quantity -= quantity
                     position.current_price = execution_price
+                    
+                    journal_stmt = select(TradeJournalEntry).where(
+                        TradeJournalEntry.paper_account_id == account.id,
+                        TradeJournalEntry.symbol == symbol,
+                        TradeJournalEntry.status.in_(["OPEN", "PARTIALLY_CLOSED"])
+                    ).order_by(TradeJournalEntry.created_at.desc())
+                    journal_res = await self.db.execute(journal_stmt)
+                    journal_entry = journal_res.scalar_one_or_none()
+                    
+                    if journal_entry:
+                        journal_entry.realized_pnl = (journal_entry.realized_pnl or Decimal("0")) + realized_pnl
+                        
+                        if journal_entry.exit_price is None:
+                            journal_entry.exit_price = execution_price
+                        else:
+                            # approximate average exit price
+                            closed_qty = (journal_entry.quantity or Decimal("0")) - position.quantity - quantity
+                            if closed_qty < Decimal("0"): closed_qty = Decimal("0")
+                            if (closed_qty + quantity) > 0:
+                                journal_entry.exit_price = ((closed_qty * journal_entry.exit_price) + (quantity * execution_price)) / (closed_qty + quantity)
+                        
+                        if journal_entry.entry_price and journal_entry.entry_price > 0:
+                            journal_entry.return_percentage = ((journal_entry.exit_price - journal_entry.entry_price) / journal_entry.entry_price) * 100
 
-                    if position.quantity == Decimal("0"):
+                    if position.quantity <= Decimal("0"):
                         await self.db.delete(position)
+                        if journal_entry:
+                            journal_entry.status = "CLOSED"
+                            journal_entry.exit_timestamp = datetime.utcnow()
+                            if journal_entry.entry_timestamp:
+                                duration = (journal_entry.exit_timestamp - journal_entry.entry_timestamp).total_seconds()
+                                journal_entry.duration_seconds = int(duration)
+                    else:
+                        if journal_entry:
+                            journal_entry.status = "PARTIALLY_CLOSED"
 
                     txn_amount = net_proceeds
 
@@ -298,6 +385,7 @@ class PaperTradingService:
                     slippage=slippage_amount,
                     realized_pnl=realized_pnl,
                     executed_at=datetime.utcnow(),
+                    journal_id=journal_entry.id if 'journal_entry' in locals() and journal_entry else None
                 )
                 self.db.add(trade)
                 await self.db.flush()  # Generate trade.id
@@ -319,8 +407,8 @@ class PaperTradingService:
                 order.executed_price = execution_price
                 order.realized_pnl = realized_pnl
 
-            # Recalculate equity & balance
-            await self.update_account_equity(account)
+            # Recalculate equity & balance (do not fetch live prices for all positions during execution to avoid Binance spam)
+            await self.update_account_equity(account, use_live_prices=False)
 
             # Atomic Commit
             await self.db.commit()

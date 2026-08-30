@@ -28,9 +28,10 @@ class PaperOrderCreate(BaseModel):
     side: str = Field(..., pattern='^(BUY|SELL)$')
     order_type: str = Field(default='LIMIT', max_length=20)
     quantity: Decimal = Field(..., gt=0)
-    requested_price: Decimal = Field(..., gt=0)
+    requested_price: Optional[Decimal] = Field(None, gt=0)
     stop_loss: Optional[Decimal] = None
     take_profit: Optional[Decimal] = None
+    journal_data: Optional[dict] = None
 
 
 class PaperOrderOut(BaseModel):

@@ -11,21 +11,36 @@ logger = get_logger(__name__)
 
 
 class BinanceService:
+    _shared_client: httpx.AsyncClient | None = None
+    _client_loop_id: int | None = None
+
     def __init__(self, base_url: str | None = None, timeout: float | None = None) -> None:
         self.base_url = base_url or settings.binance_api_base_url
         self.timeout = timeout or settings.binance_timeout
         self.rate_limit_delay = settings.binance_rate_limit_delay
+
+    @classmethod
+    def get_client(cls, timeout: float) -> httpx.AsyncClient:
+        try:
+            loop_id = id(asyncio.get_running_loop())
+        except RuntimeError:
+            loop_id = None
+            
+        if cls._shared_client is None or cls._shared_client.is_closed or cls._client_loop_id != loop_id:
+            cls._shared_client = httpx.AsyncClient(timeout=timeout)
+            cls._client_loop_id = loop_id
+        return cls._shared_client
 
     async def _request(self, path: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         url = f"{self.base_url}{path}"
         last_error: Exception | None = None
         for attempt in range(3):
             try:
-                async with httpx.AsyncClient(timeout=self.timeout) as client:
-                    response = await client.get(url, params=params)
-                    response.raise_for_status()
-                    await asyncio.sleep(self.rate_limit_delay)
-                    return response.json()
+                client = self.get_client(self.timeout)
+                response = await client.get(url, params=params)
+                response.raise_for_status()
+                await asyncio.sleep(self.rate_limit_delay)
+                return response.json()
             except httpx.HTTPError as exc:
                 last_error = exc
                 logger.warning("Binance request failed (attempt {attempt}/{total}): {error}", attempt=attempt + 1, total=3, error=exc)

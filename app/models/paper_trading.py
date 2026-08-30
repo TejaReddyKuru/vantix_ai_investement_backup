@@ -96,6 +96,7 @@ class PaperTrade(Base):
     slippage = Column(Numeric(20, 8), default=0)
     realized_pnl = Column(Numeric(20, 8), default=0)
     executed_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    journal_id = Column(UUID(as_uuid=True), ForeignKey("trade_journal_entries.id", ondelete="SET NULL"), nullable=True, index=True)
 
     price = synonym("execution_price")
 

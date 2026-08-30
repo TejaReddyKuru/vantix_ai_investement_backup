@@ -1,5 +1,7 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
+import { apiClient } from "@/lib/client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -52,6 +54,28 @@ function Workstation() {
   const noticeAlert = useCallback((message: string) => setAlertNotice(message), []);
   const selectedAsset = SUGGESTED_ASSETS.find(asset => asset.symbol === symbol) ?? SUGGESTED_ASSETS[0];
 
+  const queryClient = useQueryClient();
+  const [isResetting, setIsResetting] = useState(false);
+
+  const handleReset = async () => {
+    if (!confirm("Are you sure you want to reset your paper trading account? This will close all positions and clear your history.")) return;
+    setIsResetting(true);
+    try {
+      await apiClient.post("/api/v1/paper-trading/reset");
+      queryClient.invalidateQueries({ queryKey: ["paper-account"] });
+      queryClient.invalidateQueries({ queryKey: ["paper-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["paper-positions"] });
+      queryClient.invalidateQueries({ queryKey: ["paper-orders"] });
+      queryClient.invalidateQueries({ queryKey: ["paper-trades"] });
+      queryClient.invalidateQueries({ queryKey: ["paper-transactions"] });
+      alert("Paper trading account has been reset.");
+    } catch (e: any) {
+      alert("Failed to reset account: " + (e.response?.data?.detail || e.message));
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   useEffect(() => {
     setActiveSymbol(symbol);
     const query = new URLSearchParams(searchKey);
@@ -78,6 +102,7 @@ function Workstation() {
       <div className="ct-terminal-title"><span>Workspace</span><b>/</b><h1>Trading Workstation</h1></div>
       <div className="ct-heading-actions">
         <div className="cc-segmented" role="group" aria-label="Trading account mode"><button aria-pressed={!isLive} onClick={() => { setMode("paper"); navigate("mode", "paper"); }}>Paper</button><button aria-pressed={isLive} onClick={() => { setMode("live"); navigate("mode", "live"); }}>Live</button></div>
+        {!isLive && <button className="cc-button" onClick={handleReset} disabled={isResetting}><RefreshCw size={14} className={isResetting ? "animate-spin" : ""}/><span>{isResetting ? "Resetting..." : "Reset Portfolio"}</span></button>}
         <button className="cc-button" aria-pressed={focused} onClick={() => setFocused(value => !value)}>{focused ? <Minimize2 size={14}/> : <Maximize2 size={14}/>}<span>{focused ? "Restore terminal" : "Focus chart"}</span></button>
         <button className="cc-button ct-alert-button" aria-pressed={alertsOpen} onClick={() => setAlertsOpen(true)}><Bell size={14}/><span>Alerts</span></button>
         <button className="cc-button cc-button-primary" onClick={openAhna}><Sparkles size={14}/><span>AHNA</span></button>

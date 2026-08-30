@@ -13,7 +13,7 @@ class Notification(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     user_id = Column(UUID(as_uuid=True), nullable=False, index=True)
-    type = Column(String(100), nullable=False)
+    type = Column("notification_type", String(100), nullable=False)
     notification_type = synonym("type")
     title = Column(String(255), nullable=False)
     message = Column(Text, nullable=False)

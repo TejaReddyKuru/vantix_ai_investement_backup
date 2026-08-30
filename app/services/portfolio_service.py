@@ -46,9 +46,10 @@ class PortfolioService:
         self.db = db
         self.binance_service = binance_service or BinanceService()
 
-    async def calculate_live_metrics(self, user_id: UUID) -> dict:
+    async def calculate_live_metrics(self, user_id: UUID, use_live_prices: bool = True) -> dict:
         """
         Calculate live portfolio metrics without modifying database state.
+        If use_live_prices is False, uses the cached current_price from the database.
         """
         # 1. Fetch paper account
         account_stmt = select(PaperAccount).where(PaperAccount.user_id == user_id)
@@ -78,13 +79,16 @@ class PortfolioService:
             if asset.exchange.lower() != "binance":
                 raise UnsupportedExchangeError(f"Asset {asset.symbol} exchange '{asset.exchange}' is not supported.")
 
-            # Retrieve current price (no fallback)
+            # Retrieve current price
             symbol = asset.symbol
-            try:
-                price_val = await self.binance_service.get_current_price(symbol)
-                current_price = Decimal(str(price_val))
-            except Exception as e:
-                raise PriceRetrievalError(f"Failed to fetch market price for {symbol}: {e}")
+            if use_live_prices:
+                try:
+                    price_val = await self.binance_service.get_current_price(symbol)
+                    current_price = Decimal(str(price_val))
+                except Exception as e:
+                    raise PriceRetrievalError(f"Failed to fetch market price for {symbol}: {e}")
+            else:
+                current_price = position.current_price or position.average_entry_price
 
             # Position math
             pos_qty = position.quantity

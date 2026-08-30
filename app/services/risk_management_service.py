@@ -66,7 +66,7 @@ class RiskManagementService:
             raise InvalidOrderInputError(f"Asset exchange '{asset.exchange}' is not supported.")
 
         # 3. Calculate portfolio live metrics (does not commit a snapshot to DB)
-        metrics = await self.portfolio_service.calculate_live_metrics(user_id)
+        metrics = await self.portfolio_service.calculate_live_metrics(user_id, use_live_prices=False)
         current_equity = metrics["total_equity"]
         available_cash = metrics["cash"]
         drawdown = metrics["drawdown"]
@@ -124,6 +124,13 @@ class RiskManagementService:
         new_position_value = new_qty * entry_price
         exposure_percentage = (new_position_value / current_equity) * Decimal("100.0") if current_equity > 0 else Decimal("0.0")
 
+        # DEBUG PRINTS
+        print(f"DEBUG ASSESS_TRADE: user_id={user_id}, asset={asset.symbol}")
+        print(f"DEBUG ASSESS_TRADE: existing_qty={existing_qty}, requested_qty={quantity}, new_qty={new_qty}")
+        print(f"DEBUG ASSESS_TRADE: entry_price={entry_price}, new_position_value={new_position_value}")
+        print(f"DEBUG ASSESS_TRADE: current_equity={current_equity}, available_cash={available_cash}")
+        print(f"DEBUG ASSESS_TRADE: exposure_percentage={exposure_percentage}% > max={max_position_exposure}%")
+
         if side_upper == "BUY":
             if exposure_percentage > max_position_exposure:
                 return RiskAssessmentOut(
@@ -157,32 +164,23 @@ class RiskManagementService:
 
         # 7. Risk Per Trade check (applies only to BUY)
         if side_upper == "BUY":
-            if stop_loss is None or stop_loss <= 0 or stop_loss >= entry_price:
-                return RiskAssessmentOut(
-                    approved=False,
-                    risk_amount=Decimal("0.0"),
-                    risk_percentage=Decimal("0.0"),
-                    position_value=position_value,
-                    exposure_percentage=exposure_percentage,
-                    available_cash=available_cash,
-                    current_equity=current_equity,
-                    warnings=[],
-                    rejection_reason="Invalid stop-loss price."
-                )
-            risk_amount = quantity * (entry_price - stop_loss)
-            risk_percentage = (risk_amount / current_equity) * Decimal("100.0") if current_equity > 0 else Decimal("0.0")
-            if risk_percentage > max_risk_per_trade:
-                return RiskAssessmentOut(
-                    approved=False,
-                    risk_amount=risk_amount,
-                    risk_percentage=risk_percentage,
-                    position_value=position_value,
-                    exposure_percentage=exposure_percentage,
-                    available_cash=available_cash,
-                    current_equity=current_equity,
-                    warnings=[],
-                    rejection_reason=f"Excessive risk per trade limit exceeded ({risk_percentage:.2f}% > {max_risk_per_trade:.2f}%)."
-                )
+            risk_amount = quantity * (entry_price - (stop_loss if stop_loss is not None else Decimal("0")))
+            if stop_loss is not None and stop_loss > 0:
+                risk_percentage = (risk_amount / current_equity) * Decimal("100.0") if current_equity > 0 else Decimal("0.0")
+                if risk_percentage > max_risk_per_trade:
+                    return RiskAssessmentOut(
+                        approved=False,
+                        risk_amount=risk_amount,
+                        risk_percentage=risk_percentage,
+                        position_value=position_value,
+                        exposure_percentage=exposure_percentage,
+                        available_cash=available_cash,
+                        current_equity=current_equity,
+                        warnings=[],
+                        rejection_reason=f"Excessive risk per trade limit exceeded ({risk_percentage:.2f}% > {max_risk_per_trade:.2f}%)."
+                    )
+            else:
+                risk_percentage = Decimal("0.0")
         else:  # SELL
             risk_amount = Decimal("0.0")
             risk_percentage = Decimal("0.0")
