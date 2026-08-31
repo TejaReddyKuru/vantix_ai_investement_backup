@@ -34,6 +34,7 @@ from app.models.tutor import (
 )
 from app.models.audit import AuditLog
 from app.models.market import Market
+from app.models.ahna_analysis import AHNAAnalysis
 
 __all__ = [
     # User Domain
@@ -95,4 +96,6 @@ __all__ = [
     "AuditLog",
     # Market Domain
     "Market",
+    # AHNA Domain
+    "AHNAAnalysis",
 ]

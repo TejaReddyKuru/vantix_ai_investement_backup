@@ -1,0 +1,210 @@
+.ahna-hologram {
+  background: rgba(13, 17, 23, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  padding: 16px;
+  color: #c9d1d9;
+  font-family: var(--font-sans, system-ui, sans-serif);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 16px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.ahna-hologram::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  opacity: 0.5;
+}
+
+.ahna-buy::before { background: linear-gradient(90deg, transparent, #2ea043, transparent); }
+.ahna-sell::before { background: linear-gradient(90deg, transparent, #f85149, transparent); }
+.ahna-wait::before { background: linear-gradient(90deg, transparent, #58a6ff, transparent); }
+
+.ahna-hologram-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 12px;
+}
+
+.ahna-hologram-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+.ahna-symbol {
+  font-size: 12px;
+  color: #8b949e;
+  font-weight: 500;
+}
+
+.ahna-decision-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ahna-decision-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ahna-decision-main h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #fff;
+}
+
+.ahna-buy .ahna-decision-main { color: #3fb950; }
+.ahna-sell .ahna-decision-main { color: #f85149; }
+.ahna-wait .ahna-decision-main { color: #58a6ff; }
+
+.ahna-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.ahna-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ahna-metric span {
+  font-size: 10px;
+  color: #8b949e;
+  letter-spacing: 0.5px;
+}
+
+.ahna-metric strong {
+  font-size: 13px;
+  color: #e6edf3;
+  font-weight: 600;
+}
+
+.ahna-section-label {
+  font-size: 10px;
+  color: #8b949e;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.ahna-instruction-block, .ahna-watch-conditions, .ahna-trade-plan {
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ahna-instruction-title {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  color: #fff;
+  font-weight: 500;
+}
+
+.ahna-instruction-msg {
+  margin: 0;
+  font-size: 13px;
+  color: #c9d1d9;
+  line-height: 1.5;
+}
+
+.ahna-condition-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ahna-condition-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #c9d1d9;
+}
+
+.ahna-check-icon {
+  color: #3fb950;
+}
+
+.ahna-trade-levels {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 12px;
+  border-radius: 6px;
+  border-left: 2px solid #58a6ff;
+}
+
+.ahna-buy .ahna-trade-levels { border-left-color: #3fb950; }
+.ahna-sell .ahna-trade-levels { border-left-color: #f85149; }
+
+.ahna-level {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.ahna-level span {
+  color: #8b949e;
+}
+
+.ahna-level strong {
+  color: #fff;
+  font-weight: 500;
+  font-family: var(--font-mono, monospace);
+}
+
+.tp-level strong { color: #3fb950; }
+.sl-level strong { color: #f85149; }
+
+.ahna-footer {
+  text-align: center;
+  font-size: 10px;
+  color: #8b949e;
+  letter-spacing: 1px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@keyframes ahnaPulse {
+  0% { box-shadow: 0 0 0 0 rgba(88, 166, 255, 0.2); }
+  70% { box-shadow: 0 0 0 6px rgba(88, 166, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(88, 166, 255, 0); }
+}
+
+.ahna-animated {
+  animation: ahnaPulse 2s infinite;
+}

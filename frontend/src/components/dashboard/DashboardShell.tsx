@@ -58,9 +58,13 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
   }, [hydrated, user, token, router]);
   const openAhna = useCallback(() => setAhnaOpen(true), []);
   const openNotifications = useCallback(() => setNotificationsOpen(true), []);
+  const [latestAhnaAnalysis, setLatestAhnaAnalysisState] = useState<Record<string, import("@/lib/ahna-types").AHNAAnalysisResponse>>({});
+  const setLatestAhnaAnalysis = useCallback((symbol: string, analysis: import("@/lib/ahna-types").AHNAAnalysisResponse) => {
+    setLatestAhnaAnalysisState(prev => ({ ...prev, [symbol]: analysis }));
+  }, []);
   const controls = useMemo(
-    () => ({ openAhna, openNotifications, activeSymbol, activeCoinId, setActiveSymbol, selectAsset }),
-    [openAhna, openNotifications, activeSymbol, activeCoinId, setActiveSymbol, selectAsset],
+    () => ({ openAhna, openNotifications, activeSymbol, activeCoinId, setActiveSymbol, selectAsset, latestAhnaAnalysis, setLatestAhnaAnalysis }),
+    [openAhna, openNotifications, activeSymbol, activeCoinId, setActiveSymbol, selectAsset, latestAhnaAnalysis, setLatestAhnaAnalysis],
   );
   useEffect(() => {
     // Preserve existing page actions while moving the visible product name to AHNA.

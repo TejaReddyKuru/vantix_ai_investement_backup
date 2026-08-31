@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useId, useMemo, useReducer, useRef, useState } from "react";
+import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ArrowUpRight, Bell, CandlestickChart, ChevronDown, Crosshair, Expand, Eye, EyeOff, LockKeyhole, Magnet, Minus, MoveUpRight, Plus, RectangleHorizontal, Redo2, RotateCcw, Ruler, Search, SlidersHorizontal, Trash2, Type, Undo2, UnlockKeyhole, X } from "lucide-react";
+import { ArrowUpRight, Bell, CandlestickChart, ChevronDown, Crosshair, Expand, Eye, EyeOff, LockKeyhole, Magnet, Minus, MoveUpRight, Plus, RectangleHorizontal, Redo2, RotateCcw, Ruler, Search, SlidersHorizontal, Trash2, Type, Undo2, UnlockKeyhole, X, Sparkles } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { WorkspaceContext } from "@/components/dashboard/WorkspaceContext";
 import { continuousCandles, heikinAshi, indicators, INDICATORS, type IndicatorId, type Series } from "@/lib/terminal-indicators";
 import { study, STUDY_PRESETS } from "@/lib/indicator-studies";
 import { CHART_KINDS, drawingHistory, parseDrawings, type ChartKind, type ChartPoint, type ChartTool, type Drawing } from "@/lib/chart-tools";
@@ -28,6 +29,9 @@ export default function TerminalChart({ candles, pair, interval, onInterval, isF
   candles: Candle[]; pair: string; interval: Interval; onInterval: (value: Interval) => void; isFresh: boolean; onAlert?: () => void;
 }) {
   const { user } = useAuth();
+  const workspace = useContext(WorkspaceContext);
+  const ahnaAnalysis = workspace?.latestAhnaAnalysis?.[pair.replace('USDT', '')] || workspace?.latestAhnaAnalysis?.[pair];
+  
   const root = useRef<HTMLDivElement>(null);
   const chartBody = useRef<HTMLDivElement>(null);
   const [bodyHeight, setBodyHeight] = useState(360), [panePage, setPanePage] = useState(0);
@@ -181,6 +185,19 @@ export default function TerminalChart({ candles, pair, interval, onInterval, isF
       <g clipPath={`url(#${clip})`}>{kind === "line" || kind === "area" ? <>{kind === "area" && <path d={`${linePath} L${x(end - 1)},${top + chartHeight} L${x(start)},${top + chartHeight} Z`} fill={`url(#${gradient})`}/>}<path d={linePath} fill="none" stroke="var(--cc-accent)" strokeWidth="1.8"/></> : visible.map((c, i) => <g key={c.time} fill={c.close >= c.open ? "var(--ct-up)" : "var(--ct-down)"} stroke={c.close >= c.open ? "var(--ct-up)" : "var(--ct-down)"}><line x1={x(i + start)} x2={x(i + start)} y1={y(c.high)} y2={y(c.low)}/>{kind === "bars" ? <><line x1={x(i + start) - bar * .32} x2={x(i + start)} y1={y(c.open)} y2={y(c.open)}/><line x1={x(i + start)} x2={x(i + start) + bar * .32} y1={y(c.close)} y2={y(c.close)}/></> : <rect x={x(i + start) - bar * .32} y={Math.min(y(c.open), y(c.close))} width={Math.max(1, bar * .64)} height={Math.max(1, Math.abs(y(c.open) - y(c.close)))}/>}</g>)}
       {overlays.flatMap(id => study(id).series.map((series, i) => <path key={series} d={path(values[series] ?? [])} stroke={id === "supertrend" ? i === 0 ? "var(--ct-up)" : "var(--ct-down)" : INDICATORS.find(v => v.id === id)!.color} fill="none" strokeWidth={id === "supertrend" ? 2 : 1.4} strokeDasharray={study(id).series.length === 3 && i === 1 ? "4 3" : undefined}/>))}
       {latest && <line x1={left} x2={left + plotWidth} y1={y(latest.close)} y2={y(latest.close)} stroke={latest.close >= latest.open ? "var(--ct-up)" : "var(--ct-down)"} strokeDasharray="2 4" opacity=".75"/>}
+      {ahnaAnalysis?.trade_plan && (
+        <g className="ahna-ai-geometry">
+          {ahnaAnalysis.ui_effect?.show_entry_zone && ahnaAnalysis.trade_plan.entry_min != null && ahnaAnalysis.trade_plan.entry_max != null && !isNaN(y(ahnaAnalysis.trade_plan.entry_min)) && (
+            <rect x={left} y={Math.min(y(ahnaAnalysis.trade_plan.entry_max), y(ahnaAnalysis.trade_plan.entry_min))} width={plotWidth} height={Math.abs(y(ahnaAnalysis.trade_plan.entry_max) - y(ahnaAnalysis.trade_plan.entry_min))} fill={ahnaAnalysis.decision === 'BUY' ? "rgba(63, 185, 80, 0.15)" : ahnaAnalysis.decision === 'SELL' ? "rgba(248, 81, 73, 0.15)" : "rgba(88, 166, 255, 0.15)"} />
+          )}
+          {ahnaAnalysis.trade_plan.stop_loss != null && !isNaN(y(ahnaAnalysis.trade_plan.stop_loss)) && (
+            <line x1={left} x2={left + plotWidth} y1={y(ahnaAnalysis.trade_plan.stop_loss)} y2={y(ahnaAnalysis.trade_plan.stop_loss)} stroke="var(--ct-down)" strokeDasharray="4 4" strokeWidth={1.5} />
+          )}
+          {ahnaAnalysis.trade_plan.take_profit != null && !isNaN(y(ahnaAnalysis.trade_plan.take_profit)) && (
+            <line x1={left} x2={left + plotWidth} y1={y(ahnaAnalysis.trade_plan.take_profit)} y2={y(ahnaAnalysis.trade_plan.take_profit)} stroke="var(--ct-up)" strokeDasharray="4 4" strokeWidth={1.5} />
+          )}
+        </g>
+      )}
       {!hidden && history.present.map(drawingNodes)}{anchor && hover && tool !== "crosshair" && <g opacity=".55">{drawingNodes({ type: tool, a: anchor, b: hover.point }, -1)}</g>}{anchor && <circle cx={pointX(anchor.time)} cy={y(anchor.price)} r="4" fill="var(--cc-accent)"/>}
       </g>
       {latest && y(latest.close) >= top && y(latest.close) <= top + chartHeight && <g><rect x={width - right} y={y(latest.close) - 11} width={right} height="22" rx="3" fill={latest.close >= latest.open ? "var(--ct-price-up)" : "var(--ct-price-down)"}/><text x={width - right + 5} y={y(latest.close) + 4} className="ct-price-label">{quote(latest.close)}</text></g>}
@@ -198,6 +215,23 @@ export default function TerminalChart({ candles, pair, interval, onInterval, isF
       {(width < 450 ? [0, .5, 1] : [0, .25, .5, .75, 1]).map(ratio => { const i = start + Math.min(visible.length - 1, Math.floor(ratio * visible.length)); return <text key={ratio} x={x(i)} y={height - 8} className="ct-axis-label" textAnchor={ratio === 0 ? "start" : ratio === 1 ? "end" : "middle"}>{new Date(candles[i].time).toLocaleString("en-GB", { timeZone: "UTC", day: "2-digit", month: "short", ...(interval === "1d" || width < 600 ? {} : { hour: "2-digit", minute: "2-digit" }) })}</text>; })}
       {hover && <g><line x1={x(hover.index)} x2={x(hover.index)} y1={top} y2={height - 25} stroke="var(--cc-muted)" strokeDasharray="3 4"/><line x1={left} x2={left + plotWidth} y1={hover.y} y2={hover.y} stroke="var(--cc-muted)" strokeDasharray="3 4"/><rect x={width - right} y={hover.y - 11} width={right} height={22} rx={3} fill="var(--ct-crosshair-bg)"/><text x={width - right + 5} y={hover.y + 4} className="ct-price-label">{quote(priceAt(hover.y))}</text></g>}
     </svg> : <div className="ct-chart-empty"><Crosshair size={35}/><h3>Waiting for market candles</h3><p>The chart only plots OHLC data received from the provider. No sample candles are substituted.</p></div>}
+    
+    {ahnaAnalysis && (
+      <div className="ahna-chart-overlay" style={{ position: 'absolute', top: '56px', left: '16px', zIndex: 10, background: 'rgba(13, 17, 23, 0.85)', border: '1px solid rgba(255,255,255,0.1)', padding: '12px', borderRadius: '8px', color: '#fff', fontSize: '12px', backdropFilter: 'blur(8px)', minWidth: '180px', pointerEvents: 'none' }}>
+        <div style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}><Sparkles size={14} color="#58a6ff"/> AHNA AI</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+          <span style={{ color: ahnaAnalysis.decision === 'BUY' ? '#3fb950' : ahnaAnalysis.decision === 'SELL' ? '#f85149' : '#58a6ff', fontWeight: 'bold' }}>{ahnaAnalysis.decision}</span>
+          <span style={{ color: '#8b949e' }}>Conf {Math.round(ahnaAnalysis.confidence)}%</span>
+        </div>
+        <div style={{ color: '#8b949e', marginBottom: '8px' }}>Regime: {ahnaAnalysis.market_state?.market_regime || ahnaAnalysis.market_regime || "UNKNOWN"}</div>
+        {ahnaAnalysis.instruction?.watch_conditions && ahnaAnalysis.instruction.watch_conditions.length > 0 && (
+          <div>
+            <div style={{ fontSize: '10px', textTransform: 'uppercase', color: '#8b949e', marginBottom: '4px' }}>WAIT FOR</div>
+            {ahnaAnalysis.instruction.watch_conditions.slice(0, 3).map((c: string, idx: number) => <div key={idx} style={{ paddingLeft: '8px', borderLeft: '1px solid #3fb950', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c}</div>)}
+          </div>
+        )}
+      </div>
+    )}
     </div>
     <div className="ct-chart-footer"><div className="ct-bar-ranges" role="group" aria-label="Visible loaded candles">{[50, 100, 250, 500].map(n => <button key={n} aria-pressed={count === n} onClick={() => { setCount(n); setOffset(0); }}>{n === 500 ? "All" : n}</button>)}<small>bars</small></div><div><button aria-label="Use logarithmic price scale" aria-pressed={logScale} onClick={() => setLogScale(v => !v)}>log</button><button aria-label="Pan to older candles" disabled={end <= 20} onClick={() => setOffset(o => Math.min(maxOffset, o + 20))}>←</button><button aria-label="Pan to newer candles" disabled={!offset} onClick={() => setOffset(o => Math.max(0, o - 20))}>→</button><button aria-label="Zoom in" onClick={() => zoom(.75)}><Plus size={14}/></button><button aria-label="Zoom out" onClick={() => zoom(1.25)}><Minus size={14}/></button><button title="Reset to latest candles" aria-label="Reset chart view" onClick={() => { setOffset(0); setCount(100); setLogScale(false); }}><RotateCcw size={14}/></button></div></div>
     <div className="ct-chart-status"><span><i className={isFresh ? "ct-live-dot" : "ct-stale-dot"}/>{isFresh ? "Updating" : "Snapshot / waiting"} · USDT · UTC</span><span>{anchor ? "Choose the second point · Esc cancels" : locked ? "Drawings locked" : `${history.present.length}/30 drawings · saved on this device`}</span></div>

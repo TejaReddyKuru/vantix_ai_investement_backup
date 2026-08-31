@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext } from "react";
+import type { AHNAAnalysisResponse } from "@/lib/ahna-types";
 
 export type WorkspaceActions = {
   openAhna: () => void;
@@ -9,6 +10,8 @@ export type WorkspaceActions = {
   activeCoinId: string | null;
   selectAsset: (symbol: string, coinId: string) => void;
   setActiveSymbol: (symbol: string) => void;
+  latestAhnaAnalysis: Record<string, AHNAAnalysisResponse>;
+  setLatestAhnaAnalysis: (symbol: string, analysis: AHNAAnalysisResponse) => void;
 };
 export const WorkspaceContext = createContext<WorkspaceActions | null>(null);
 export function useWorkspace() {

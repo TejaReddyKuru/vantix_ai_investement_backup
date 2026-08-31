@@ -23,6 +23,7 @@ class Settings(BaseModel):
     llm_api_key: Optional[SecretStr] = None
     llm_base_url: Optional[str] = None
     openai_api_key: Optional[SecretStr] = None
+    alpha_vantage_api_key: Optional[SecretStr] = None
 
     database_url: Optional[str] = None
     redis_url: Optional[str] = None
@@ -72,6 +73,7 @@ class Settings(BaseModel):
         values.setdefault('llm_api_key', os.getenv('LLM_API_KEY') or None)
         values.setdefault('llm_base_url', os.getenv('LLM_BASE_URL') or None)
         values.setdefault('openai_api_key', os.getenv('OPENAI_API_KEY') or None)
+        values.setdefault('alpha_vantage_api_key', os.getenv('ALPHA_VANTAGE_API_KEY') or None)
         values.setdefault('jwt_secret', os.getenv('JWT_SECRET') or None)
         values.setdefault('jwt_algorithm', os.getenv('JWT_ALGORITHM') or 'HS256')
         values.setdefault('access_token_expire_minutes', int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES', '15')))
