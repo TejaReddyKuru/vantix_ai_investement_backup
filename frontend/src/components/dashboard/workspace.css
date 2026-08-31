@@ -2400,16 +2400,21 @@
 .cc-market-table th:first-child,
 .cc-market-table td:first-child {
   text-align: left;
+  min-width: 260px !important;
+  white-space: nowrap !important;
 }
 .cc-market-table td strong {
   display: block;
-  font-weight: 600;
+  font-weight: 700;
+  white-space: nowrap !important;
 }
 .cc-market-table td small {
   color: var(--cc-muted);
   display: block;
   margin-top: 4px;
-  font-size: 10px;
+  font-size: 11px;
+  white-space: nowrap !important;
+  word-break: normal !important;
 }
 .cc-market-table tr:hover td {
   background: #f9fbfd;

@@ -20,7 +20,7 @@ export default function OrderPlanner({ pair, price, fresh, limitPrice, onLimitPr
   const [stop, setStop] = useState(""), [target, setTarget] = useState(""), [review, setReview] = useState(false);
   const [strategy, setStrategy] = useState(""), [entryReason, setEntryReason] = useState(""), [confidence, setConfidence] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const ahnaAnalysis = useUnifiedAnalysis(pair, "1D", false, true);
+  const ahnaAnalysis = useUnifiedAnalysis(pair, "1d", false, true);
   
   const queryClient = useQueryClient();
   const reference = kind === "MARKET" ? price : Number(limitPrice), size = Number(amount);

@@ -20,6 +20,7 @@ import { ThemeControl } from "@/context/ThemeContext"
 import MarketTicker from "@/components/market/MarketTicker"
 import Hero3D from "../components/landing/Hero3D"
 import SiteFooter from "../components/landing/SiteFooter"
+import AhnaAISection from "../components/landing/AhnaAISection"
 
 const capabilities = [
   {
@@ -45,51 +46,6 @@ const capabilities = [
     icon: BarChart3,
     title: "Paper execution",
     description: "Rehearse ideas with simulated capital, then learn from every decision in your trading journal.",
-  },
-]
-
-const agents = [
-  {
-    icon: TrendingUp,
-    name: "Market agent",
-    input: "Price · volume · structure",
-    output: "Finds trend, momentum, volatility shifts, and important levels across supported markets.",
-    color: "#FFEA93",
-  },
-  {
-    icon: Newspaper,
-    name: "News agent",
-    input: "Events · sources · relevance",
-    output: "Filters market-moving information, removes noise, and connects events to affected assets.",
-    color: "#70C891",
-  },
-  {
-    icon: Radar,
-    name: "Sentiment agent",
-    input: "Narratives · attention · tone",
-    output: "Reads shifts in market psychology without treating popularity as proof of a trade.",
-    color: "#FFEA93",
-  },
-  {
-    icon: ShieldCheck,
-    name: "Risk agent",
-    input: "Exposure · limits · drawdown",
-    output: "Challenges every idea against account constraints, invalidation, and portfolio-level risk.",
-    color: "#2D8C68",
-  },
-  {
-    icon: Target,
-    name: "Trade-alert agent",
-    input: "Setups · confirmation · timing",
-    output: "Turns confirmed conditions into reviewable alerts with context, risk, and invalidation attached.",
-    color: "#70C891",
-  },
-  {
-    icon: Sparkles,
-    name: "AHNA orchestrator",
-    input: "Evidence · conflict · confidence",
-    output: "Combines specialist findings, detects disagreement, and produces one explainable market brief.",
-    color: "#2F78B7",
   },
 ]
 
@@ -230,52 +186,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="ahna" className="bg-black text-white">
-        <div className="mx-auto max-w-[1380px] px-5 py-24 sm:px-8 lg:px-12 lg:py-32">
-          <div className="grid gap-12 lg:grid-cols-[0.82fr_1.18fr]">
-            <div className="lg:sticky lg:top-32 lg:self-start">
-              <SectionLabel dark>AHNA multi-agent intelligence</SectionLabel>
-              <h2 className="font-serif text-[clamp(3.9rem,6.6vw,7.2rem)] leading-[0.86] tracking-[-0.062em]">
-                Five specialists.<br /><span className="text-[#FFEA93]">One clear brief.</span>
-              </h2>
-              <p className="mt-8 max-w-[560px] text-[18px] leading-8 text-white/62">
-                AHNA is not a single chatbot guessing at the market. It is an orchestrated system of specialist agents that investigate different evidence, challenge one another, and show their reasoning.
-              </p>
-
-              <div className="mt-9 rounded-[26px] border border-white/12 bg-white/[0.045] p-6">
-                <div className="flex items-center gap-3 text-[12px] font-black uppercase tracking-[0.14em] text-[#70C891]">
-                  <Layers3 className="h-5 w-5" /> How a response is formed
-                </div>
-                <div className="mt-5 flex flex-wrap items-center gap-2 text-[12px] font-bold">
-                  {['Question', 'Specialist evidence', 'Conflict check', 'Risk review', 'AHNA brief'].map((stage, index, all) => (
-                    <span key={stage} className="contents">
-                      <span className={`rounded-full border px-3 py-2 ${index === all.length - 1 ? 'border-[#2F78B7] bg-[#2F78B7] text-white' : 'border-white/15 bg-white/5 text-white/70'}`}>{stage}</span>
-                      {index < all.length - 1 && <ArrowRight className="h-3 w-3 text-white/30" />}
-                    </span>
-                  ))}
-                </div>
-                <p className="mt-5 text-[13px] leading-6 text-white/45">
-                  If agents disagree or evidence is weak, AHNA lowers confidence and explains the conflict instead of hiding uncertainty.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              {agents.map(({ icon: Icon, name, input, output, color }, index) => (
-                <article key={name} className={`rounded-[28px] border border-white/12 p-7 ${index === agents.length - 1 ? 'bg-[#164F7D] sm:col-span-2' : 'bg-white/[0.045]'}`}>
-                  <div className="flex items-center justify-between">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10"><Icon className="h-5 w-5" style={{ color }} /></span>
-                    <span className="text-[10px] font-black uppercase tracking-[0.16em] text-white/38">Agent {String(index + 1).padStart(2, '0')}</span>
-                  </div>
-                  <h3 className="mt-7 text-[25px] font-black tracking-[-0.035em]">{name}</h3>
-                  <p className={`mt-2 text-[11px] font-black uppercase tracking-[0.13em] ${index === agents.length - 1 ? 'text-[#FFEA93]' : 'text-[#70C891]'}`}>{input}</p>
-                  <p className={`mt-4 text-[15px] leading-7 ${index === agents.length - 1 ? 'text-white/85' : 'text-white/58'}`}>{output}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      <AhnaAISection />
 
       <section className="bg-[#A9CFAF]">
         <div className="mx-auto max-w-[1380px] px-5 py-24 sm:px-8 lg:px-12">

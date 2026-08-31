@@ -1,32 +1,100 @@
+"use client";
+
 import React, { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { X, CheckCircle2, XCircle, Clock3, Trash2 } from "lucide-react";
-import { TradeJournalEntry, addJournalObservation, deleteJournalEntry } from "@/lib/journal-api";
+import {
+  BarChart2,
+  Calendar,
+  CheckCircle2,
+  Clock,
+  DollarSign,
+  Edit2,
+  FileText,
+  Layers,
+  MessageSquare,
+  Sparkles,
+  Tag,
+  Trash2,
+  TrendingDown,
+  TrendingUp,
+  X,
+  XCircle,
+} from "lucide-react";
+import { TradeJournalEntry, addJournalObservation, deleteJournalEntry, updateJournalEntry } from "@/lib/journal-api";
 
-export default function JournalEntryModal({ entry, onClose, onDeleteSuccess }: { entry: TradeJournalEntry | null; onClose: () => void; onDeleteSuccess?: () => void }) {
+interface JournalEntryModalProps {
+  entry: TradeJournalEntry | null;
+  onClose: () => void;
+  onDeleteSuccess?: () => void;
+  onUpdateSuccess?: () => void;
+}
+
+export default function JournalEntryModal({
+  entry,
+  onClose,
+  onDeleteSuccess,
+  onUpdateSuccess,
+}: JournalEntryModalProps) {
   const [observation, setObservation] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [submittingObs, setSubmittingObs] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [localObservations, setLocalObservations] = useState(entry?.observations || []);
 
+  // Inline edit mode state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editNotes, setEditNotes] = useState(entry?.notes || "");
+  const [editLessons, setEditLessons] = useState(entry?.lessons || "");
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
   if (!entry) return null;
+
+  const isWin = (entry.realized_pnl || 0) >= 0;
+  const isLong = entry.side === "LONG" || entry.side === "BUY";
+
+  // Format date and time clearly: e.g. "Aug 31, 2026 • 10:42 PM"
+  const formattedDateTime = entry.created_at
+    ? new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      }).format(new Date(entry.created_at))
+    : "Recent Entry";
 
   const handleAddObservation = async () => {
     if (!observation.trim()) return;
-    setSubmitting(true);
+    setSubmittingObs(true);
     try {
       const newObs = await addJournalObservation(entry.id, observation);
       setLocalObservations([...localObservations, newObs]);
       setObservation("");
     } catch (error) {
-      alert("Failed to add observation");
+      alert("Failed to add observation.");
     } finally {
-      setSubmitting(false);
+      setSubmittingObs(false);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    setIsSavingEdit(true);
+    try {
+      await updateJournalEntry(entry.id, {
+        notes: editNotes,
+        lessons: editLessons,
+      });
+      setIsEditing(false);
+      if (onUpdateSuccess) onUpdateSuccess();
+    } catch (e) {
+      alert("Failed to update journal entry.");
+    } finally {
+      setIsSavingEdit(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this journal entry? This cannot be undone.")) return;
+    if (!confirm("Are you sure you want to delete this journal entry? This action cannot be undone.")) return;
     setIsDeleting(true);
     try {
       await deleteJournalEntry(entry.id);
@@ -36,215 +104,272 @@ export default function JournalEntryModal({ entry, onClose, onDeleteSuccess }: {
       }
     } catch (error) {
       console.error("Failed to delete journal entry:", error);
-      alert("Failed to delete journal entry");
+      alert("Failed to delete journal entry.");
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const isWin = (entry.realized_pnl || 0) >= 0;
-
   return (
     <Dialog.Root open={!!entry} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="cc-modal-backdrop" />
-        <Dialog.Content 
-          className="cc-dialog" 
-          style={{ 
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '100%',
-            maxWidth: '800px', 
-            maxHeight: '90vh', 
-            overflowY: 'auto',
-            backgroundColor: '#ffffff',
-            borderRadius: '16px',
-            padding: '24px',
-            boxShadow: '0 24px 70px rgba(7, 17, 31, 0.14)',
-            zIndex: 100
-          }}
-        >
-          <div className="cc-panel-heading sticky -top-6 bg-white z-10 pb-4 mb-2 border-b border-[#E3E2D9] flex items-center justify-between">
-            <Dialog.Title className="text-xl font-extrabold text-[#07111F]">Trade Journal: {entry.symbol}</Dialog.Title>
-            <div className="flex items-center gap-1">
-              <button 
-                onClick={handleDelete} 
-                disabled={isDeleting} 
-                className="p-1.5 text-[#D6A12A] hover:text-red-600 hover:bg-red-50 rounded-full transition-colors disabled:opacity-50" 
+        <Dialog.Overlay className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 animate-in fade-in" />
+        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl max-h-[92vh] overflow-hidden rounded-2xl bg-[#0B1524] border border-white/15 p-0 text-white shadow-2xl z-50 flex flex-col">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-white/10 px-6 py-4 bg-[#07111F]">
+            <div className="flex items-center gap-3">
+              <div
+                className={`flex h-11 w-11 items-center justify-center rounded-xl font-black text-sm border shadow-md ${
+                  isLong
+                    ? "bg-[#70C891]/20 text-[#70C891] border-[#70C891]/30"
+                    : "bg-red-500/20 text-red-400 border-red-500/30"
+                }`}
+              >
+                {isLong ? <TrendingUp className="h-6 w-6" /> : <TrendingDown className="h-6 w-6" />}
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <Dialog.Title className="text-[18px] font-black text-white">
+                    {entry.symbol || "Trade Detail"}
+                  </Dialog.Title>
+                  <span
+                    className={`rounded-md px-2 py-0.5 text-[10px] font-black uppercase ${
+                      isLong ? "bg-[#70C891]/20 text-[#70C891]" : "bg-red-500/20 text-red-400"
+                    }`}
+                  >
+                    {entry.side || "LONG"}
+                  </span>
+                </div>
+                <p className="flex items-center gap-1.5 text-[11.5px] font-bold text-white/50 mt-0.5">
+                  <Calendar className="h-3.5 w-3.5 text-[#38BDF8]" />
+                  <span>{formattedDateTime}</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsEditing(!isEditing)}
+                className="rounded-xl border border-white/10 p-2 text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+                title="Edit Entry"
+              >
+                <Edit2 className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="rounded-xl border border-red-500/30 p-2 text-red-400 hover:bg-red-500/20 transition-colors disabled:opacity-50"
                 title="Delete Entry"
               >
-                <Trash2 size={16} />
+                <Trash2 className="h-4 w-4" />
               </button>
-              <Dialog.Close className="cc-icon-button p-1 hover:bg-[#F0F0EA] rounded-full transition-colors">
-                <X size={18} />
+
+              <Dialog.Close className="rounded-xl border border-white/10 p-2 text-white/60 hover:bg-white/10 hover:text-white transition-colors">
+                <X className="h-4 w-4" />
               </Dialog.Close>
             </div>
           </div>
 
-          <div className="py-4 space-y-6">
-            {/* TRADE SUMMARY */}
-            <section>
-              <h3 className="text-sm font-extrabold text-[#07111F] mb-3 uppercase tracking-wider">Trade Summary</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">Side</div>
-                  <div className={`font-bold ${entry.side === 'LONG' ? 'text-green-600' : 'text-red-500'}`}>{entry.side}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">Quantity</div>
-                  <div className="font-bold">{entry.quantity}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">Entry Price</div>
-                  <div className="font-bold">${entry.entry_price}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">Exit Price</div>
-                  <div className="font-bold">{entry.exit_price ? `$${entry.exit_price}` : '-'}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">Realized P&L</div>
-                  <div className={`font-bold ${isWin ? 'text-green-600' : 'text-red-500'}`}>
-                    ${entry.realized_pnl || 0}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">Return %</div>
-                  <div className={`font-bold ${isWin ? 'text-green-600' : 'text-red-500'}`}>
-                    {entry.return_percentage ? `${entry.return_percentage}%` : '-'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">Duration</div>
-                  <div className="font-bold flex items-center gap-1">
-                    <Clock3 size={14} />
-                    {entry.duration_seconds ? `${Math.floor(entry.duration_seconds / 60)}m` : '-'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">Status</div>
-                  <div className="font-bold flex items-center gap-1">
-                    {isWin ? <CheckCircle2 size={14} className="text-green-600" /> : <XCircle size={14} className="text-red-500" />}
-                    {entry.status}
-                  </div>
-                </div>
+          {/* Body Content */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            {/* Top Metric Strip */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 rounded-2xl bg-[#07111F] p-4 border border-white/10">
+              <div>
+                <span className="block text-[10px] font-bold uppercase text-white/40">
+                  Realized P&amp;L
+                </span>
+                <strong
+                  className={`text-[16px] font-black ${
+                    isWin ? "text-[#70C891]" : "text-red-400"
+                  }`}
+                >
+                  {(entry.realized_pnl || 0) >= 0
+                    ? `+$${(entry.realized_pnl || 0).toFixed(2)}`
+                    : `-$${Math.abs(entry.realized_pnl || 0).toFixed(2)}`}
+                </strong>
+                <span
+                  className={`block text-[11px] font-bold ${
+                    isWin ? "text-[#70C891]" : "text-red-400"
+                  }`}
+                >
+                  {(entry.return_percentage || 0) >= 0
+                    ? `+${(entry.return_percentage || 0).toFixed(2)}%`
+                    : `${(entry.return_percentage || 0).toFixed(2)}%`}
+                </span>
               </div>
-            </section>
 
-            {/* TRADE PLAN */}
-            <section className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-              <h3 className="text-sm font-extrabold text-[#07111F] mb-3 uppercase tracking-wider">Trade Plan</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">Strategy</div>
-                  <div className="font-bold">{entry.strategy || 'None'}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">Entry Reason</div>
-                  <div>{entry.entry_reason || 'None'}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">Risk Profile</div>
-                  <div>{entry.trade_plan_snapshot?.risk_level ? `${entry.trade_plan_snapshot.risk_level}% risk` : '-'}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">Confidence</div>
-                  <div>{entry.confidence ? `${entry.confidence}%` : '-'}</div>
-                </div>
+              <div>
+                <span className="block text-[10px] font-bold uppercase text-white/40">
+                  Entry Price
+                </span>
+                <strong className="text-[15px] font-black text-white">
+                  ${entry.entry_price?.toLocaleString() || "—"}
+                </strong>
+                <span className="block text-[10.5px] text-white/40">Execution rate</span>
               </div>
-            </section>
 
-            {/* AHNA SNAPSHOT */}
-            {entry.ahna_snapshot && (
-              <section className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                <h3 className="text-sm font-extrabold text-[#07111F] mb-3 uppercase tracking-wider text-blue-800">AHNA Snapshot</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <div className="text-xs text-blue-500 font-bold mb-1">Consensus</div>
-                    <div className="font-bold text-blue-900">{entry.ahna_snapshot.consensus || 'Neutral'}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-blue-500 font-bold mb-1">Momentum</div>
-                    <div className="font-bold text-blue-900">{entry.ahna_snapshot.momentum || '-'}</div>
-                  </div>
-                  <div className="col-span-2">
-                    <div className="text-xs text-blue-500 font-bold mb-1">Agent Insights</div>
-                    <div className="text-xs text-blue-800 whitespace-pre-wrap">
-                      {JSON.stringify(entry.ahna_snapshot.agent_insights || {}, null, 2)}
-                    </div>
-                  </div>
-                </div>
-              </section>
+              <div>
+                <span className="block text-[10px] font-bold uppercase text-white/40">
+                  Exit Price
+                </span>
+                <strong className="text-[15px] font-black text-white">
+                  ${entry.exit_price?.toLocaleString() || "—"}
+                </strong>
+                <span className="block text-[10.5px] text-white/40">Close rate</span>
+              </div>
+
+              <div>
+                <span className="block text-[10px] font-bold uppercase text-white/40">
+                  Quantity
+                </span>
+                <strong className="text-[15px] font-black text-white">
+                  {entry.quantity || "—"}
+                </strong>
+                <span className="block text-[10.5px] text-white/40">Contracts/Units</span>
+              </div>
+            </div>
+
+            {/* Strategy & Market Context */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl bg-white/[0.03] p-3.5 border border-white/10">
+                <span className="block text-[10px] font-bold uppercase text-white/40">
+                  Strategy
+                </span>
+                <strong className="text-[13px] font-black text-[#38BDF8]">
+                  {entry.strategy || "Standard Execution"}
+                </strong>
+              </div>
+
+              <div className="rounded-xl bg-white/[0.03] p-3.5 border border-white/10">
+                <span className="block text-[10px] font-bold uppercase text-white/40">
+                  Market Condition
+                </span>
+                <strong className="text-[13px] font-black text-white">
+                  {entry.market_condition || "Normal Range"}
+                </strong>
+              </div>
+            </div>
+
+            {/* Trade Thesis / Entry Reason */}
+            {entry.entry_reason && (
+              <div className="rounded-xl bg-white/[0.03] p-4 border border-white/10">
+                <span className="block text-[10.5px] font-bold uppercase tracking-wider text-white/50 mb-1">
+                  Reason for Entering (Thesis)
+                </span>
+                <p className="text-[13px] leading-relaxed text-white/90">{entry.entry_reason}</p>
+              </div>
             )}
 
-            {/* OBSERVATIONS */}
-            <section>
-              <h3 className="text-sm font-extrabold text-[#07111F] mb-3 uppercase tracking-wider">Observations</h3>
-              {localObservations.length > 0 ? (
-                <ul className="space-y-3 mb-4">
-                  {localObservations.map((obs, i) => (
-                    <li key={i} className="text-sm border-l-2 border-blue-400 pl-3 py-1 text-gray-600 bg-gray-50">
-                      <span className="text-xs text-gray-400 block mb-1">{new Date(obs.created_at).toLocaleString()}</span>
-                      {obs.text}
-                    </li>
-                  ))}
-                </ul>
+            {/* Lessons & Reflection */}
+            <div className="rounded-xl bg-white/[0.03] p-4 border border-white/10 space-y-3">
+              <span className="block text-[10.5px] font-bold uppercase tracking-wider text-[#FFEA93]">
+                Reflection &amp; Lessons Learned
+              </span>
+
+              {isEditing ? (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-[11px] font-bold text-white/60 mb-1">
+                      Lessons &amp; Reflections
+                    </label>
+                    <textarea
+                      value={editLessons}
+                      onChange={(e) => setEditLessons(e.target.value)}
+                      rows={2}
+                      className="w-full rounded-xl border border-[#38BDF8] bg-[#111E30] p-3 text-[13px] text-white outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-white/60 mb-1">
+                      Notes
+                    </label>
+                    <textarea
+                      value={editNotes}
+                      onChange={(e) => setEditNotes(e.target.value)}
+                      rows={2}
+                      className="w-full rounded-xl border border-[#38BDF8] bg-[#111E30] p-3 text-[13px] text-white outline-none"
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(false)}
+                      className="rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/70"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveEdit}
+                      disabled={isSavingEdit}
+                      className="rounded-lg bg-[#2F78B7] px-4 py-1.5 text-xs font-bold text-white"
+                    >
+                      {isSavingEdit ? "Saving..." : "Save Changes"}
+                    </button>
+                  </div>
+                </div>
               ) : (
-                <p className="text-sm text-gray-400 italic mb-4">No observations recorded during this trade.</p>
+                <>
+                  <p className="text-[13px] leading-relaxed text-white/90">
+                    {entry.lessons || "No key lessons recorded for this execution."}
+                  </p>
+                  {entry.notes && (
+                    <div className="pt-2 border-t border-white/10 text-[12px] text-white/70">
+                      <strong>Notes:</strong> {entry.notes}
+                    </div>
+                  )}
+                </>
               )}
-              
+            </div>
+
+            {/* Observations / Follow-up Notes List */}
+            <div className="space-y-3">
+              <span className="block text-[10.5px] font-bold uppercase tracking-wider text-white/50">
+                Post-Trade Observations &amp; Follow-ups
+              </span>
+
+              <div className="space-y-2">
+                {localObservations.map((obs, i) => (
+                  <div
+                    key={obs.id || i}
+                    className="rounded-xl bg-black/40 p-3 border border-white/10 text-[12.5px] text-white/80 flex items-start gap-2"
+                  >
+                    <MessageSquare className="h-4 w-4 text-[#38BDF8] shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <div>{obs.text}</div>
+                      <div className="text-[10px] text-white/40 mt-1">
+                        {obs.created_at ? new Date(obs.created_at).toLocaleTimeString() : "Added"}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add observation form */}
               <div className="flex gap-2">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={observation}
                   onChange={(e) => setObservation(e.target.value)}
-                  placeholder="Add an observation..." 
-                  className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500"
+                  placeholder="Add a new observation or review note..."
+                  className="h-10 flex-1 rounded-xl border border-white/15 bg-[#111E30] px-3.5 text-[12.5px] font-medium text-white outline-none focus:border-[#38BDF8]"
                 />
-                <button 
-                  onClick={handleAddObservation} 
-                  disabled={submitting || !observation.trim()}
-                  className="bg-[#2F78B7] text-white font-bold px-4 py-2 rounded-lg text-sm disabled:opacity-50"
+                <button
+                  type="button"
+                  onClick={handleAddObservation}
+                  disabled={!observation.trim() || submittingObs}
+                  className="rounded-xl bg-[#2F78B7] px-4 py-2 text-[12px] font-black text-white hover:bg-[#245F93] transition-all disabled:opacity-50"
                 >
                   Add
                 </button>
               </div>
-            </section>
-
-            {/* POST-TRADE REVIEW */}
-            <section className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-              <h3 className="text-sm font-extrabold text-[#07111F] mb-3 uppercase tracking-wider">Post-Trade Review</h3>
-              <div className="space-y-3 text-sm">
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">What went well?</div>
-                  <div>{entry.what_went_well || '-'}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">What went wrong?</div>
-                  <div>{entry.what_went_wrong || '-'}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-500 font-bold mb-1">Notes / Lessons Learned</div>
-                  <div>{entry.notes || '-'}</div>
-                </div>
-              </div>
-            </section>
-
-            {/* DISCIPLINE */}
-            <section>
-              <h3 className="text-sm font-extrabold text-[#07111F] mb-3 uppercase tracking-wider">Discipline</h3>
-              <div className="flex items-center justify-between bg-white border border-gray-200 p-4 rounded-xl">
-                <div>
-                  <div className="text-sm font-bold text-gray-700">Discipline Score</div>
-                  <div className="text-xs text-gray-500">Based on risk and strategy compliance</div>
-                </div>
-                <div className="text-2xl font-extrabold text-[#2F78B7]">
-                  {entry.discipline_score ? `${entry.discipline_score}/100` : '-/100'}
-                </div>
-              </div>
-            </section>
+            </div>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

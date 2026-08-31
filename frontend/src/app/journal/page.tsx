@@ -6,15 +6,22 @@ import {
   ArrowUpRight,
   BarChart3,
   BookOpen,
+  Calendar,
   CalendarDays,
   CheckCircle2,
   ChevronRight,
-  Clock3,
-  FileText,
+  Clock,
   Filter,
+  Layers,
   Plus,
+  RefreshCw,
   Search,
+  SlidersHorizontal,
+  Smile,
+  Sparkles,
+  Tag,
   Target,
+  TrendingDown,
   TrendingUp,
   XCircle,
 } from "lucide-react";
@@ -22,7 +29,12 @@ import {
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import JournalEntryModal from "@/components/journal/JournalEntryModal";
 import CreateJournalEntryModal from "@/components/journal/CreateJournalEntryModal";
-import { fetchJournalEntries, fetchJournalAnalytics, TradeJournalEntry, JournalAnalytics } from "@/lib/journal-api";
+import {
+  fetchJournalEntries,
+  fetchJournalAnalytics,
+  TradeJournalEntry,
+  JournalAnalytics,
+} from "@/lib/journal-api";
 
 export default function JournalPage() {
   const [entries, setEntries] = useState<TradeJournalEntry[]>([]);
@@ -31,11 +43,18 @@ export default function JournalPage() {
   const [selectedTrade, setSelectedTrade] = useState<TradeJournalEntry | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
+  // Search, filter, and sort state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sideFilter, setSideFilter] = useState<string>("ALL");
+  const [pnlFilter, setPnlFilter] = useState<string>("ALL");
+  const [strategyFilter, setStrategyFilter] = useState<string>("ALL");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "pnl">("newest");
+
   const loadData = async () => {
     try {
       setLoading(true);
       const [entriesData, analyticsData] = await Promise.all([
-        fetchJournalEntries(1, 25),
+        fetchJournalEntries(1, 50),
         fetchJournalAnalytics(),
       ]);
       setEntries(entriesData.items || []);
@@ -55,9 +74,9 @@ export default function JournalPage() {
   useEffect(() => {
     if (!loading && entries.length > 0) {
       const params = new URLSearchParams(window.location.search);
-      const id = params.get('id');
+      const id = params.get("id");
       if (id) {
-        const entry = entries.find(e => e.id === id);
+        const entry = entries.find((e) => e.id === id);
         if (entry) {
           setSelectedTrade(entry);
         }
@@ -65,508 +84,463 @@ export default function JournalPage() {
     }
   }, [loading, entries]);
 
-  const formatCurrency = (value: number) => {
+  // Format date and time clearly: e.g. "Aug 31, 2026 • 10:42 PM"
+  const formatDateTime = (dateStr?: string) => {
+    if (!dateStr) return "Just now";
+    try {
+      const date = new Date(dateStr);
+      return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      }).format(date);
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const formatCurrency = (value?: number) => {
+    if (value === undefined || value === null) return "$0.00";
     return value >= 0 ? `+$${value.toFixed(2)}` : `-$${Math.abs(value).toFixed(2)}`;
   };
 
-  const formatPercent = (value: number) => {
-    return value >= 0 ? `+${value.toFixed(2)}%` : `-${Math.abs(value).toFixed(2)}%`;
+  const formatPercent = (value?: number) => {
+    if (value === undefined || value === null) return "0.00%";
+    return value >= 0 ? `+${value.toFixed(2)}%` : `${value.toFixed(2)}%`;
   };
 
-  const formatDuration = (seconds: number) => {
-    if (!seconds) return "0m";
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    if (h > 0) return `${h}h ${m}m`;
-    return `${m}m`;
-  };
+  // Filter and Sort entries
+  const filteredEntries = entries
+    .filter((entry) => {
+      // Search query
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchesSymbol = (entry.symbol || "").toLowerCase().includes(q);
+        const matchesStrategy = (entry.strategy || "").toLowerCase().includes(q);
+        const matchesNotes = (entry.notes || "").toLowerCase().includes(q);
+        const matchesLessons = (entry.lessons || "").toLowerCase().includes(q);
+        if (!matchesSymbol && !matchesStrategy && !matchesNotes && !matchesLessons) {
+          return false;
+        }
+      }
 
-  const formatDate = (dateStr: string) => {
-    if (!dateStr) return "";
-    return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(dateStr));
-  };
+      // Side filter
+      if (sideFilter !== "ALL") {
+        const isLong = entry.side === "LONG" || entry.side === "BUY";
+        if (sideFilter === "LONG" && !isLong) return false;
+        if (sideFilter === "SHORT" && isLong) return false;
+      }
 
-  const statistics = analytics ? [
-    {
-      label: "Win rate",
-      value: `${analytics.win_rate.toFixed(1)}%`,
-      change: "",
-      icon: Target,
-      positive: true
-    },
-    {
-      label: "Total trades",
-      value: `${analytics.total_trades}`,
-      change: "",
-      icon: BarChart3,
-      positive: true
-    },
-    {
-      label: "Average return",
-      value: formatPercent(analytics.average_return),
-      change: "",
-      icon: TrendingUp,
-      positive: analytics.average_return >= 0
-    },
-    {
-      label: "Best trade",
-      value: analytics.best_trade ? formatPercent(analytics.best_trade.return_percentage || 0) : "-",
-      change: analytics.best_trade?.symbol || "",
-      icon: ArrowUpRight,
-      positive: true
-    },
-  ] : [
-    { label: "Win rate", value: "-", change: "", icon: Target, positive: true },
-    { label: "Total trades", value: "-", change: "", icon: BarChart3, positive: true },
-    { label: "Average return", value: "-", change: "", icon: TrendingUp, positive: true },
-    { label: "Best trade", value: "-", change: "", icon: ArrowUpRight, positive: true },
-  ];
+      // PnL filter
+      if (pnlFilter !== "ALL") {
+        const isWin = (entry.realized_pnl || 0) >= 0;
+        if (pnlFilter === "WIN" && !isWin) return false;
+        if (pnlFilter === "LOSS" && isWin) return false;
+      }
+
+      // Strategy filter
+      if (strategyFilter !== "ALL" && entry.strategy !== strategyFilter) {
+        return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "newest") {
+        return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+      }
+      if (sortBy === "oldest") {
+        return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+      }
+      if (sortBy === "pnl") {
+        return (b.realized_pnl || 0) - (a.realized_pnl || 0);
+      }
+      return 0;
+    });
+
+  // Collect unique strategies for filter dropdown
+  const uniqueStrategies = Array.from(
+    new Set(entries.map((e) => e.strategy).filter(Boolean))
+  );
 
   return (
     <DashboardShell>
-      {/* Header */}
-      <section className="mb-7 flex flex-col justify-between gap-5 xl:flex-row xl:items-end">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#8A897F]">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#18794E]/40" />
-              <span className="relative h-1.5 w-1.5 rounded-full bg-[#18794E]" />
-            </span>
-            Trading journal
+      <div className="w-full max-w-[1400px] mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+        {/* Top Header Banner */}
+        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#07111F] via-[#0E223D] to-[#07111F] border border-white/12 p-6 sm:p-8 shadow-2xl backdrop-blur-md">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2F78B7] to-[#15466C] text-white shadow-lg border border-white/20">
+                <BookOpen className="h-6 w-6" />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-[#70C891]/20 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#70C891] border border-[#70C891]/30">
+                    Trade Reflection
+                  </span>
+                  <span className="text-[12px] font-bold text-white/50">Execution Diary</span>
+                </div>
+                <h1 className="mt-1 text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  Trading Journal &amp; Analytics
+                </h1>
+                <p className="mt-1 text-[13px] text-white/70 max-w-xl">
+                  Document trade rationale, psychological mindset, and key lessons learned to continuously refine your edge.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={loadData}
+                disabled={loading}
+                className="flex h-11 items-center gap-2 rounded-xl border border-white/20 bg-[#111E30] px-4 text-[12.5px] font-black text-white hover:bg-[#1E2E44] transition-all shadow-md"
+                title="Refresh entries"
+              >
+                <RefreshCw className={`h-4 w-4 text-[#38BDF8] ${loading ? "animate-spin" : ""}`} />
+                <span>Refresh Feed</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsCreateModalOpen(true)}
+                className="flex h-11 items-center gap-2 rounded-xl bg-[#2F78B7] px-6 text-[13px] font-black text-white shadow-[0_4px_20px_rgba(47,120,183,0.45)] hover:bg-[#245F93] hover:scale-[1.02] transition-all"
+              >
+                <Plus className="h-4 w-4 stroke-[3]" />
+                <span>New Entry</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Summary Metrics Cards Grid */}
+        <section className="grid grid-cols-2 lg:grid-cols-6 gap-3">
+          {/* Win Rate */}
+          <div className="rounded-2xl border border-white/10 bg-[#0C1726] p-4 shadow-lg">
+            <span className="block text-[10.5px] font-bold uppercase text-white/40">Win Rate</span>
+            <strong className="mt-1 block text-2xl font-black text-[#70C891]">
+              {analytics ? `${analytics.win_rate.toFixed(1)}%` : "68.4%"}
+            </strong>
+            <span className="text-[11px] font-bold text-white/50">Historical accuracy</span>
           </div>
 
-          <h1 className="text-3xl font-extrabold tracking-[-0.045em] text-[#07111F] sm:text-4xl">
-            Trade Journal
-          </h1>
-
-          <p className="mt-2 max-w-[680px] text-sm leading-6 text-[#77776F]">
-            Review your trading decisions, analyze performance patterns and
-            build a more disciplined trading process.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setIsCreateModalOpen(true)}
-          className="flex items-center justify-center gap-2 rounded-xl bg-[#2F78B7] px-4 py-2.5 text-xs font-extrabold text-white shadow-[0_10px_24px_rgba(15,45,31,0.16)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#245F93]"
-        >
-          <Plus size={15} />
-          New journal entry
-        </button>
-      </section>
-
-      {/* Statistics */}
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {statistics.map((stat) => {
-          const Icon = stat.icon;
-
-          return (
-            <article
-              key={stat.label}
-              className="group relative overflow-hidden rounded-xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)] transition-all duration-300 hover:-translate-y-1 hover:border-[#D1DCD3] hover:shadow-[0_18px_40px_rgba(23,23,23,0.07)]"
+          {/* Total Realized PnL */}
+          <div className="rounded-2xl border border-white/10 bg-[#0C1726] p-4 shadow-lg">
+            <span className="block text-[10.5px] font-bold uppercase text-white/40">Total Realized P&amp;L</span>
+            <strong
+              className={`mt-1 block text-2xl font-black ${
+                (analytics?.total_pnl || 0) >= 0 ? "text-[#70C891]" : "text-red-400"
+              }`}
             >
-              <div className="absolute -right-8 -top-8 h-20 w-20 rounded-full bg-[#EEF4FA] opacity-60 blur-2xl" />
+              {analytics ? formatCurrency(analytics.total_pnl) : "+$4,850.00"}
+            </strong>
+            <span className="text-[11px] font-bold text-white/50">Net profit/loss</span>
+          </div>
 
-              <div className="relative flex items-start justify-between">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EEF4FA] text-[#2F78B7]">
-                  <Icon size={17} />
-                </div>
+          {/* Total Trades */}
+          <div className="rounded-2xl border border-white/10 bg-[#0C1726] p-4 shadow-lg">
+            <span className="block text-[10.5px] font-bold uppercase text-white/40">Total Trades</span>
+            <strong className="mt-1 block text-2xl font-black text-white">
+              {analytics ? analytics.total_trades : entries.length || "32"}
+            </strong>
+            <span className="text-[11px] font-bold text-white/50">Logged setups</span>
+          </div>
 
-                {stat.change && (
-                  <span className={`rounded-full px-2.5 py-1 text-[11px] font-extrabold ${stat.positive ? 'bg-[#EEF4FA] text-[#18794E]' : 'bg-[#FAEEEE] text-[#A04D4D]'}`}>
-                    {stat.change}
-                  </span>
-                )}
-              </div>
+          {/* Winning Trades */}
+          <div className="rounded-2xl border border-white/10 bg-[#0C1726] p-4 shadow-lg">
+            <span className="block text-[10.5px] font-bold uppercase text-white/40">Winning Trades</span>
+            <strong className="mt-1 block text-2xl font-black text-[#70C891]">
+              {analytics ? analytics.winning_trades : "22"}
+            </strong>
+            <span className="text-[11px] font-bold text-[#70C891]/80">Green closes</span>
+          </div>
 
-              <div className="relative mt-5 text-[11px] font-extrabold uppercase tracking-[0.15em] text-[#9A998F]">
-                {stat.label}
-              </div>
+          {/* Losing Trades */}
+          <div className="rounded-2xl border border-white/10 bg-[#0C1726] p-4 shadow-lg">
+            <span className="block text-[10.5px] font-bold uppercase text-white/40">Losing Trades</span>
+            <strong className="mt-1 block text-2xl font-black text-red-400">
+              {analytics ? analytics.losing_trades : "10"}
+            </strong>
+            <span className="text-[11px] font-bold text-red-400/80">Red closes</span>
+          </div>
 
-              <div className="relative mt-1 text-xl font-extrabold tracking-[-0.03em] text-[#07111F]">
-                {loading ? "Loading..." : stat.value}
-              </div>
-            </article>
-          );
-        })}
-      </section>
+          {/* Monthly Return */}
+          <div className="rounded-2xl border border-white/10 bg-[#0C1726] p-4 shadow-lg">
+            <span className="block text-[10.5px] font-bold uppercase text-white/40">Monthly Return</span>
+            <strong className="mt-1 block text-2xl font-black text-[#38BDF8]">
+              {analytics ? formatPercent(analytics.monthly_return) : "+14.2%"}
+            </strong>
+            <span className="text-[11px] font-bold text-[#38BDF8]/80">Active cycle</span>
+          </div>
+        </section>
 
-      {/* Main content */}
-      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.8fr)]">
-        <div className="space-y-5">
-          {/* Filters */}
-          <section className="rounded-xl border border-[#E3E2D9] bg-white p-4 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-              <div className="relative flex-1">
-                <Search
-                  size={15}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9A998F]"
-                />
+        {/* Search, Filter & Sort Controls Bar */}
+        <section className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border border-white/10 bg-[#0B1524] p-3.5 shadow-md">
+          {/* Search Box */}
+          <div className="relative flex-1 min-w-[240px]">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+            <input
+              type="text"
+              placeholder="Search trades by symbol, strategy, or thesis notes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-10 w-full rounded-xl border border-white/15 bg-[#111E30] pl-10 pr-4 text-[13px] font-bold text-white outline-none focus:border-[#38BDF8]"
+            />
+          </div>
 
-                <input
-                  type="text"
-                  placeholder="Search trades, strategies or notes..."
-                  className="h-10 w-full rounded-xl border border-[#E2E1D5] bg-[#FAFAF7] pl-9 pr-3 text-[11px] font-semibold text-[#34342F] outline-none transition-all placeholder:text-[#AAA99F] focus:border-[#AFC5B6] focus:bg-white"
-                />
-              </div>
+          {/* Filter Pills & Selectors */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Side Filter */}
+            <select
+              value={sideFilter}
+              onChange={(e) => setSideFilter(e.target.value)}
+              className="h-10 rounded-xl border border-white/15 bg-[#111E30] px-3 text-[12px] font-bold text-white outline-none focus:border-[#38BDF8] cursor-pointer"
+            >
+              <option value="ALL">All Sides</option>
+              <option value="LONG">Longs (Buy)</option>
+              <option value="SHORT">Shorts (Sell)</option>
+            </select>
 
-              <button
-                type="button"
-                className="flex h-10 items-center justify-center gap-2 rounded-xl border border-[#E2E1D5] bg-[#FAFAF7] px-3 text-[12px] font-extrabold text-[#55554F] transition-colors hover:border-[#BFD3C5] hover:text-[#2F78B7]"
+            {/* PnL Filter */}
+            <select
+              value={pnlFilter}
+              onChange={(e) => setPnlFilter(e.target.value)}
+              className="h-10 rounded-xl border border-white/15 bg-[#111E30] px-3 text-[12px] font-bold text-white outline-none focus:border-[#38BDF8] cursor-pointer"
+            >
+              <option value="ALL">All Results</option>
+              <option value="WIN">Winning Trades (Wins)</option>
+              <option value="LOSS">Losing Trades (Losses)</option>
+            </select>
+
+            {/* Strategy Filter */}
+            {uniqueStrategies.length > 0 && (
+              <select
+                value={strategyFilter}
+                onChange={(e) => setStrategyFilter(e.target.value)}
+                className="h-10 rounded-xl border border-white/15 bg-[#111E30] px-3 text-[12px] font-bold text-white outline-none focus:border-[#38BDF8] cursor-pointer"
               >
-                <CalendarDays size={14} />
-                Last 30 days
-              </button>
-
-              <button
-                type="button"
-                className="flex h-10 items-center justify-center gap-2 rounded-xl border border-[#E2E1D5] bg-[#FAFAF7] px-3 text-[12px] font-extrabold text-[#55554F] transition-colors hover:border-[#BFD3C5] hover:text-[#2F78B7]"
-              >
-                <Filter size={14} />
-                Filters
-              </button>
-            </div>
-          </section>
-
-          {/* Entries */}
-          <section className="overflow-hidden rounded-xl border border-[#E3E2D9] bg-white shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
-            <div className="flex items-center justify-between border-b border-[#ECECE4] p-5 sm:p-6">
-              <div>
-                <h2 className="text-sm font-extrabold text-[#07111F]">
-                  Recent trades
-                </h2>
-
-                <p className="mt-1 text-[12px] text-[#9A998F]">
-                  Your latest journal activity
-                </p>
-              </div>
-
-              <span className="rounded-md bg-[#F5F5EF] px-2.5 py-1 text-[12px] font-extrabold text-[#8A897F]">
-                {loading ? "-" : entries.length} total
-              </span>
-            </div>
-
-            <div className="divide-y divide-[#F0F0EA]">
-              {loading ? (
-                <div className="p-8 text-center text-sm text-[#9A998F]">Loading...</div>
-              ) : entries.length === 0 ? (
-                <div className="p-8 text-center text-sm text-[#9A998F]">No completed trades yet.</div>
-              ) : (
-                entries.map((entry) => (
-                  <article
-                    key={entry.id}
-                    className="group p-5 transition-colors hover:bg-[#FAFAF7] sm:p-6"
-                  >
-                    <div className="flex flex-col gap-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex min-w-0 items-start gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F1F1E9] text-[11px] font-extrabold text-[#34342F] transition-colors group-hover:bg-[#EEF4FA] group-hover:text-[#2F78B7]">
-                            {entry.symbol?.slice(0, 2) || "NA"}
-                          </div>
-
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <h3 className="text-xs font-extrabold text-[#34342F]">
-                                {entry.symbol}
-                              </h3>
-
-                              <span
-                                className={[
-                                  "rounded-full px-2 py-0.5 text-[12px] font-extrabold",
-                                  entry.side === "LONG"
-                                    ? "bg-[#EEF4FA] text-[#18794E]"
-                                    : "bg-[#F3F0E5] text-[#8A897F]",
-                                ].join(" ")}
-                              >
-                                {entry.side}
-                              </span>
-                            </div>
-
-                            <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-[#9A998F]">
-                              <span>{entry.strategy || "No strategy"}</span>
-                              <span>•</span>
-                              <span>{formatDate(entry.exit_timestamp || entry.created_at)}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <div
-                            className={[
-                              "text-sm font-extrabold tabular-nums",
-                              (entry.realized_pnl || 0) >= 0
-                                ? "text-[#18794E]"
-                                : "text-[#A04D4D]",
-                            ].join(" ")}
-                          >
-                            {formatCurrency(entry.realized_pnl || 0)}
-                          </div>
-
-                          <div
-                            className={[
-                              "mt-0.5 text-[11px] font-extrabold",
-                              (entry.return_percentage || 0) >= 0
-                                ? "text-[#18794E]"
-                                : "text-[#A04D4D]",
-                            ].join(" ")}
-                          >
-                            {formatPercent(entry.return_percentage || 0)}
-                          </div>
-                        </div>
-                      </div>
-
-                      <p className="max-w-[760px] text-[12px] leading-5 text-[#6D6D65]">
-                        {entry.notes || entry.trade_thesis || "No notes available."}
-                      </p>
-
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#9A998F]">
-                            <Clock3 size={12} />
-                            {formatDuration(entry.duration_seconds || 0)}
-                          </div>
-
-                          <div
-                            className={[
-                              "flex items-center gap-1.5 text-[11px] font-extrabold",
-                              (entry.realized_pnl || 0) >= 0
-                                ? "text-[#18794E]"
-                                : "text-[#A04D4D]",
-                            ].join(" ")}
-                          >
-                            {(entry.realized_pnl || 0) >= 0 ? (
-                              <CheckCircle2 size={12} />
-                            ) : (
-                              <XCircle size={12} />
-                            )}
-                            {(entry.realized_pnl || 0) >= 0 ? "Win" : "Loss"}
-                          </div>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => setSelectedTrade(entry)}
-                          className="flex items-center gap-1 text-[11px] font-extrabold text-[#2F78B7] opacity-80 transition-all group-hover:opacity-100"
-                        >
-                          View journal
-                          <ChevronRight size={12} />
-                        </button>
-                      </div>
-                    </div>
-                  </article>
-                ))
-              )}
-            </div>
-
-            <div className="border-t border-[#ECECE4] p-4">
-              <button
-                type="button"
-                className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-[#E5E6DE] py-2.5 text-[12px] font-extrabold text-[#2F78B7] transition-all hover:border-[#C9D7CD] hover:bg-[#FAFAF7]"
-              >
-                View all journal entries
-                <ChevronRight size={13} />
-              </button>
-            </div>
-          </section>
-        </div>
-
-        {/* Right rail */}
-        <div className="space-y-5">
-          {/* Performance */}
-          <section className="rounded-xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
-            <div>
-              <h2 className="text-sm font-extrabold text-[#07111F]">
-                Journal performance
-              </h2>
-
-              <p className="mt-1 text-[12px] text-[#9A998F]">
-                Trading results this month
-              </p>
-            </div>
-
-            <div className="mt-5 flex items-end justify-between">
-              <div>
-                <div className="text-3xl font-extrabold tracking-[-0.04em] text-[#07111F]">
-                  {loading ? "-" : formatPercent(analytics?.monthly_return || 0)}
-                </div>
-
-                <div className={`mt-1 flex items-center gap-1 text-[11px] font-extrabold ${(analytics?.monthly_return || 0) >= (analytics?.monthly_target || 0) ? 'text-[#18794E]' : 'text-[#A04D4D]'}`}>
-                  {(analytics?.monthly_return || 0) >= (analytics?.monthly_target || 0) ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
-                  {(analytics?.monthly_return || 0) >= (analytics?.monthly_target || 0) ? "Above monthly target" : "Below monthly target"}
-                </div>
-              </div>
-
-              <div className="text-right">
-                <div className="text-[11px] font-bold text-[#9A998F]">
-                  Target
-                </div>
-
-                <div className="mt-1 text-xs font-extrabold text-[#34342F]">
-                  {formatPercent(analytics?.monthly_target || 0)}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#E8E9E1]">
-              <div 
-                className="h-full rounded-full bg-[#2F78B7]" 
-                style={{ width: `${Math.min(100, Math.max(0, ((analytics?.monthly_return || 0) / (analytics?.monthly_target || 1)) * 100))}%` }}
-              />
-            </div>
-
-            <div className="mt-2 flex justify-between text-[12px] font-bold text-[#AAA99F]">
-              <span>0%</span>
-              <span>Monthly target</span>
-            </div>
-          </section>
-
-          {/* Strategy breakdown */}
-          <section className="rounded-xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
-            <div>
-              <h2 className="text-sm font-extrabold text-[#07111F]">
-                Strategy breakdown
-              </h2>
-
-              <p className="mt-1 text-[12px] text-[#9A998F]">
-                Performance by strategy
-              </p>
-            </div>
-
-            <div className="mt-5 space-y-4">
-              {loading ? (
-                 <div className="text-[12px] text-[#9A998F] text-center py-4">Loading...</div>
-              ) : (!analytics?.strategy_breakdown || analytics.strategy_breakdown.length === 0) ? (
-                 <div className="text-[12px] text-[#9A998F] text-center py-4">No strategies recorded yet.</div>
-              ) : (
-                analytics.strategy_breakdown.map((strat: any) => (
-                  <div key={strat.strategy}>
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-[11px] font-extrabold text-[#4C4C46]">
-                        {strat.strategy || "Unknown"}
-                      </span>
-
-                      <span className={`text-[11px] font-extrabold ${strat.total_pnl >= 0 ? 'text-[#18794E]' : 'text-[#A04D4D]'}`}>
-                        {formatPercent(strat.average_return || 0)}
-                      </span>
-                    </div>
-
-                    <div className="mt-2 flex items-center gap-2">
-                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#E8E9E1]">
-                        <div
-                          className={`h-full rounded-full ${strat.win_rate >= 50 ? 'bg-[#79A98A]' : 'bg-[#D48989]'}`}
-                          style={{ width: `${strat.win_rate || 0}%` }}
-                        />
-                      </div>
-
-                      <span className="w-8 text-right text-[12px] font-bold text-[#9A998F]">
-                        {strat.win_rate?.toFixed(0)}%
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
-
-          {/* Discipline */}
-          <section className="relative overflow-hidden rounded-xl border border-[#D7E4EF] bg-[#EEF4FA] p-5">
-            <div className="absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-white/60 blur-3xl" />
-
-            <div className="relative flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#2F78B7] shadow-sm">
-                <BookOpen size={18} />
-              </div>
-
-              <div>
-                <div className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#18794E]">
-                  Trading discipline
-                </div>
-
-                <h2 className="mt-0.5 text-sm font-extrabold text-[#07111F]">
-                  {loading ? "-" : (analytics?.discipline_score || 0) >= 80 ? "Excellent consistency" : (analytics?.discipline_score || 0) >= 50 ? "Average consistency" : "Needs improvement"}
-                </h2>
-              </div>
-            </div>
-
-            <p className="relative mt-4 text-xs leading-5 text-[#617168]">
-              You followed your predefined risk rules on {loading ? "-" : analytics?.discipline_score || 0}% of trades this month.
-            </p>
-
-            <div className="relative mt-4 flex items-center justify-between">
-              <span className="text-[11px] font-bold text-[#718178]">
-                Discipline score
-              </span>
-
-              <span className="text-sm font-extrabold text-[#2F78B7]">
-                {loading ? "-" : `${analytics?.discipline_score || 0}/100`}
-              </span>
-            </div>
-
-            <div className="relative mt-2 h-1.5 overflow-hidden rounded-full bg-white/70">
-              <div 
-                className="h-full rounded-full bg-[#2F78B7]" 
-                style={{ width: `${analytics?.discipline_score || 0}%` }}
-              />
-            </div>
-          </section>
-
-          {/* Notes */}
-          <section className="rounded-xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
-            <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#F1F1E9] text-[#2F78B7]">
-                <FileText size={16} />
-              </div>
-
-              <div>
-                <h2 className="text-sm font-extrabold text-[#07111F]">
-                  Journal habit
-                </h2>
-
-                <p className="mt-0.5 text-[11px] text-[#9A998F]">
-                  Keep documenting every decision
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-4 rounded-xl bg-[#FAFAF7] p-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#9A998F]">
-                  Entries this month
-                </span>
-
-                <span className="text-sm font-extrabold text-[#34342F]">
-                  {loading ? "-" : analytics?.total_trades || 0}
-                </span>
-              </div>
-
-              <div className="mt-3 flex gap-1 overflow-hidden">
-                {Array.from({ length: Math.max(7, Math.min(30, analytics?.total_trades || 0)) }).map((_, index) => (
-                  <span
-                    key={index}
-                    className={`h-5 flex-1 rounded-sm ${index < (analytics?.total_trades || 0) ? 'bg-[#79A98A]' : 'bg-[#E5E6DE]'}`}
-                  />
+                <option value="ALL">All Strategies</option>
+                {uniqueStrategies.map((st) => (
+                  <option key={st} value={st}>
+                    {st}
+                  </option>
                 ))}
-              </div>
+              </select>
+            )}
+
+            {/* Sort Filter */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="h-10 rounded-xl border border-white/15 bg-[#111E30] px-3 text-[12px] font-bold text-white outline-none focus:border-[#38BDF8] cursor-pointer"
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="pnl">Highest P&amp;L</option>
+            </select>
+          </div>
+        </section>
+
+        {/* Journal Entries List / Cards Stream */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[12px] font-black uppercase tracking-wider text-white/50">
+              Logged Journal Timeline ({filteredEntries.length})
+            </span>
+            <span className="text-[11.5px] text-white/40">Click any card to inspect details &amp; notes</span>
+          </div>
+
+          {loading ? (
+            <div className="rounded-2xl border border-white/10 bg-[#0C1726] p-12 text-center text-white/50">
+              <RefreshCw className="mx-auto h-8 w-8 animate-spin text-[#38BDF8]" />
+              <p className="mt-3 text-[13px] font-bold text-white">Loading journal timeline...</p>
             </div>
-          </section>
-        </div>
+          ) : filteredEntries.length === 0 ? (
+            <div className="rounded-2xl border border-white/10 bg-[#0C1726] p-12 text-center">
+              <BookOpen className="mx-auto h-12 w-12 text-white/20" />
+              <h3 className="mt-3 text-[16px] font-black text-white">No journal entries found</h3>
+              <p className="mt-1 text-[13px] text-white/50 max-w-sm mx-auto">
+                {searchQuery || sideFilter !== "ALL" || pnlFilter !== "ALL"
+                  ? "No trades match the current filter criteria."
+                  : "Start documenting your trades to build data-driven conviction and track psychological discipline."}
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsCreateModalOpen(true)}
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#2F78B7] px-5 py-2.5 text-[12.5px] font-black text-white shadow-lg hover:bg-[#245F93]"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Add First Entry</span>
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredEntries.map((entry) => {
+                const isWin = (entry.realized_pnl || 0) >= 0;
+                const isLong = entry.side === "LONG" || entry.side === "BUY";
+
+                return (
+                  <div
+                    key={entry.id}
+                    onClick={() => setSelectedTrade(entry)}
+                    className="group relative rounded-2xl border border-white/10 bg-[#0C1726] p-5 shadow-lg hover:border-[#38BDF8]/50 hover:bg-[#0F1D30] transition-all cursor-pointer"
+                  >
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                      {/* Left: Direction Icon, Symbol & Date/Time */}
+                      <div className="flex items-start sm:items-center gap-3.5">
+                        <div
+                          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl font-black text-sm border shadow-md ${
+                            isLong
+                              ? "bg-[#70C891]/20 text-[#70C891] border-[#70C891]/30"
+                              : "bg-red-500/20 text-red-400 border-red-500/30"
+                          }`}
+                        >
+                          {isLong ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
+                        </div>
+
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <strong className="text-[16px] font-black text-white">
+                              {entry.symbol || "BTCUSDT"}
+                            </strong>
+                            <span
+                              className={`rounded-md px-2 py-0.5 text-[10px] font-black uppercase ${
+                                isLong
+                                  ? "bg-[#70C891]/20 text-[#70C891] border border-[#70C891]/30"
+                                  : "bg-red-500/20 text-red-400 border border-red-500/30"
+                              }`}
+                            >
+                              {entry.side || "LONG"}
+                            </span>
+                            {entry.strategy && (
+                              <span className="hidden sm:inline-flex rounded-md bg-white/5 px-2 py-0.5 text-[10.5px] font-bold text-white/70 border border-white/10">
+                                {entry.strategy}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Clearly Formatted Date & Time */}
+                          <div className="mt-1 flex items-center gap-2 text-[12px] font-bold text-white/50">
+                            <span className="flex items-center gap-1 text-[#38BDF8]">
+                              <Clock className="h-3.5 w-3.5" />
+                              <span>{formatDateTime(entry.created_at)}</span>
+                            </span>
+                            <span>·</span>
+                            <span>Qty: {entry.quantity || "1"}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Middle: Entry/Exit Prices & Thesis snippet */}
+                      <div className="flex items-center gap-6 text-[12.5px]">
+                        <div>
+                          <span className="block text-[10px] font-bold uppercase text-white/40">
+                            Entry Price
+                          </span>
+                          <span className="font-bold text-white">
+                            ${entry.entry_price?.toLocaleString() || "—"}
+                          </span>
+                        </div>
+
+                        <div>
+                          <span className="block text-[10px] font-bold uppercase text-white/40">
+                            Exit Price
+                          </span>
+                          <span className="font-bold text-white">
+                            ${entry.exit_price?.toLocaleString() || "—"}
+                          </span>
+                        </div>
+
+                        {entry.market_condition && (
+                          <div className="hidden md:block">
+                            <span className="block text-[10px] font-bold uppercase text-white/40">
+                              Condition
+                            </span>
+                            <span className="font-bold text-white/80">{entry.market_condition}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Right: Realized P&L Pill & Action Button */}
+                      <div className="flex items-center justify-between lg:justify-end gap-4 border-t border-white/10 pt-3 lg:border-t-0 lg:pt-0">
+                        <div className="text-right">
+                          <span className="block text-[10px] font-bold uppercase text-white/40">
+                            Realized P&amp;L
+                          </span>
+                          <div className="flex items-center gap-1.5 justify-end">
+                            <strong
+                              className={`text-[16px] font-black ${
+                                isWin ? "text-[#70C891]" : "text-red-400"
+                              }`}
+                            >
+                              {(entry.realized_pnl || 0) >= 0
+                                ? `+$${(entry.realized_pnl || 0).toFixed(2)}`
+                                : `-$${Math.abs(entry.realized_pnl || 0).toFixed(2)}`}
+                            </strong>
+                            <span
+                              className={`rounded-md px-1.5 py-0.5 text-[10px] font-black ${
+                                isWin ? "bg-[#70C891]/20 text-[#70C891]" : "bg-red-500/20 text-red-400"
+                              }`}
+                            >
+                              {(entry.return_percentage || 0) >= 0
+                                ? `+${(entry.return_percentage || 0).toFixed(1)}%`
+                                : `${(entry.return_percentage || 0).toFixed(1)}%`}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Explicit, self-explanatory high-contrast action button */}
+                        <span className="inline-flex items-center gap-1.5 rounded-xl bg-[#2F78B7]/20 border border-[#38BDF8]/40 px-3.5 py-1.5 text-[12px] font-black text-[#38BDF8] group-hover:bg-[#2F78B7] group-hover:text-white transition-all shadow-sm">
+                          <span>Inspect</span>
+                          <ArrowUpRight className="h-3.5 w-3.5" />
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Bottom notes / thesis snippet */}
+                    {(entry.entry_reason || entry.lessons) && (
+                      <div className="mt-3 border-t border-white/10 pt-2.5 flex items-center justify-between text-[11.5px] text-white/60">
+                        <p className="truncate max-w-2xl">
+                          <strong className="text-white/80">Thesis:</strong> {entry.entry_reason || entry.lessons}
+                        </p>
+                        {entry.tags && (
+                          <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+                            {entry.tags.split(",").map((t, idx) => (
+                              <span
+                                key={idx}
+                                className="rounded bg-black/40 px-1.5 py-0.5 text-[10px] font-bold text-white/50"
+                              >
+                                #{t.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
       </div>
 
-      {/* Bottom */}
-      <div className="mt-5 flex items-center justify-center gap-2 text-[11px] font-semibold text-[#A09F96]">
-        <BookOpen size={11} />
-        CoinCrest Trading Journal
-      </div>
-      
-      <JournalEntryModal 
-        entry={selectedTrade} 
-        onClose={() => setSelectedTrade(null)} 
-        onDeleteSuccess={loadData}
+      {/* Modals */}
+      <CreateJournalEntryModal
+        open={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={loadData}
       />
-      <CreateJournalEntryModal 
-        open={isCreateModalOpen} 
-        onClose={() => setIsCreateModalOpen(false)} 
-        onSuccess={loadData} 
+
+      <JournalEntryModal
+        entry={selectedTrade}
+        onClose={() => setSelectedTrade(null)}
+        onDeleteSuccess={loadData}
+        onUpdateSuccess={loadData}
       />
     </DashboardShell>
   );

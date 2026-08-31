@@ -1139,3 +1139,33 @@ html[data-theme="dark"] .hover\:bg-\[\#E8F5E9\]:hover {
 html[data-theme="dark"] .hover\:text-\[\#171717\]:hover {
     color: var(--cc-ink)
 }
+
+/* Scoped High-Contrast Input, Textarea & Search Field Rules for Dark Components */
+.cc-asset-search-field input,
+.cc-dialog input,
+.cc-dialog textarea,
+.cc-composer textarea,
+.cc-composer-textarea,
+.cc-intelligence-v2-container input,
+.cc-market-terminal-v2 input,
+.cc-ahna-chat-modal input,
+.cc-ahna-chat-modal textarea,
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  color: #FFFFFF !important;
+  caret-color: #38BDF8 !important;
+}
+
+.cc-asset-search-field input::placeholder,
+.cc-dialog input::placeholder,
+.cc-dialog textarea::placeholder,
+.cc-composer-textarea::placeholder,
+.cc-intelligence-v2-container input::placeholder,
+.cc-market-terminal-v2 input::placeholder,
+.cc-ahna-chat-modal textarea::placeholder,
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+

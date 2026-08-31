@@ -134,7 +134,7 @@ export default function RegisterPage() {
             Full name
           </label>
           <div className="relative">
-            <UserRound className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/30" />
+            <UserRound className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/40" />
             <input
               id="displayName"
               name="displayName"
@@ -145,7 +145,8 @@ export default function RegisterPage() {
               value={displayName}
               onChange={(event) => setDisplayName(event.target.value)}
               placeholder="Your name"
-              className="min-h-[54px] w-full rounded-xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-4 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
+              className="min-h-[54px] w-full rounded-xl border border-[#07111F]/15 bg-[#FFFEFA] py-3 pl-12 pr-4 text-[15px] font-bold !text-[#07111F] outline-none transition placeholder:text-[#07111F]/40 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12 shadow-sm"
+              style={{ color: "#07111F", caretColor: "#164F7D" }}
             />
           </div>
         </div>
@@ -155,7 +156,7 @@ export default function RegisterPage() {
             Email address
           </label>
           <div className="relative">
-            <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/30" />
+            <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/40" />
             <input
               id="email"
               name="email"
@@ -166,7 +167,8 @@ export default function RegisterPage() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
-              className="min-h-[54px] w-full rounded-xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-4 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
+              className="min-h-[54px] w-full rounded-xl border border-[#07111F]/15 bg-[#FFFEFA] py-3 pl-12 pr-4 text-[15px] font-bold !text-[#07111F] outline-none transition placeholder:text-[#07111F]/40 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12 shadow-sm"
+              style={{ color: "#07111F", caretColor: "#164F7D" }}
             />
           </div>
         </div>
@@ -176,7 +178,7 @@ export default function RegisterPage() {
             Password
           </label>
           <div className="relative">
-            <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/30" />
+            <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/40" />
             <input
               id="password"
               name="password"
@@ -187,7 +189,8 @@ export default function RegisterPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="At least 8 characters"
-              className="min-h-[54px] w-full rounded-xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-14 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
+              className="min-h-[54px] w-full rounded-xl border border-[#07111F]/15 bg-[#FFFEFA] py-3 pl-12 pr-14 text-[15px] font-bold !text-[#07111F] outline-none transition placeholder:text-[#07111F]/40 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12 shadow-sm"
+              style={{ color: "#07111F", caretColor: "#164F7D" }}
             />
             <button
               type="button"
@@ -220,7 +223,7 @@ export default function RegisterPage() {
             Confirm password
           </label>
           <div className="relative">
-            <ShieldCheck className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/30" />
+            <ShieldCheck className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/40" />
             <input
               id="confirmPassword"
               name="confirmPassword"
@@ -231,7 +234,8 @@ export default function RegisterPage() {
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               placeholder="Repeat your password"
-              className="min-h-[54px] w-full rounded-xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-14 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
+              className="min-h-[54px] w-full rounded-xl border border-[#07111F]/15 bg-[#FFFEFA] py-3 pl-12 pr-14 text-[15px] font-bold !text-[#07111F] outline-none transition placeholder:text-[#07111F]/40 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12 shadow-sm"
+              style={{ color: "#07111F", caretColor: "#164F7D" }}
             />
             <button
               type="button"
