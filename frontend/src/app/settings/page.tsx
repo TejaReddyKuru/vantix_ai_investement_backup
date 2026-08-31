@@ -8,18 +8,35 @@ import { ThemeSettings, useTheme } from "@/context/ThemeContext";
 import {
   Bell,
   Check,
+  CheckCircle2,
   ChevronRight,
   CircleHelp,
+  Cpu,
+  DollarSign,
+  Eye,
+  Key,
+  Laptop,
+  Layers,
+  Layout,
+  LineChart,
   Lock,
+  Mail,
+  Moon,
   Palette,
+  PieChart,
+  RotateCcw,
   Save,
+  Shield,
+  ShieldAlert,
   ShieldCheck,
-  Sparkles,
   SlidersHorizontal,
+  Smartphone,
+  Sparkles,
+  Sun,
+  TrendingUp,
   User,
   Wallet,
   X,
-  RotateCcw,
 } from "lucide-react";
 
 type Section =
@@ -34,99 +51,133 @@ type Section =
 const sections: {
   id: Section;
   label: string;
+  shortLabel: string;
   description: string;
   icon: typeof User;
 }[] = [
   {
     id: "profile",
-    label: "Profile",
-    description: "Personal information",
+    label: "Trader Profile",
+    shortLabel: "Profile",
+    description: "Personal details & timezone",
     icon: User,
   },
   {
     id: "trading",
-    label: "Trading",
-    description: "Order preferences",
-    icon: Wallet,
+    label: "Trading Engine",
+    shortLabel: "Trading",
+    description: "Orders, sizing & slippage",
+    icon: LineChart,
   },
   {
     id: "notifications",
-    label: "Notifications",
-    description: "Alerts & updates",
+    label: "Alert Triggers",
+    shortLabel: "Alerts",
+    description: "Price, risk & digest alerts",
     icon: Bell,
   },
   {
     id: "friday",
-    label: "AHNA AI",
-    description: "AI assistant",
+    label: "AHNA AI Matrix",
+    shortLabel: "AHNA AI",
+    description: "Autonomous agent deliberation",
     icon: Sparkles,
   },
   {
     id: "appearance",
-    label: "Appearance",
-    description: "Interface preferences",
+    label: "Interface & Theme",
+    shortLabel: "Interface",
+    description: "Theme & workspace density",
     icon: Palette,
   },
   {
     id: "security",
-    label: "Security",
-    description: "Password & sessions",
-    icon: Lock,
+    label: "Security & 2FA",
+    shortLabel: "Security",
+    description: "Credentials & active sessions",
+    icon: ShieldCheck,
   },
   {
     id: "account",
-    label: "Account",
-    description: "Subscription & account",
+    label: "Membership & Tier",
+    shortLabel: "Account",
+    description: "Plan details & billing",
     icon: SlidersHorizontal,
   },
 ];
 
+// Modern, high-contrast fintech switch with clear ON/OFF state
 function Toggle({
   enabled,
   onChange,
+  label,
 }: {
   enabled: boolean;
   onChange: () => void;
+  label?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onChange}
-      aria-pressed={enabled}
+      role="switch"
+      aria-checked={enabled}
+      aria-label={label || "Toggle switch"}
       className={[
-        "relative h-6 w-11 rounded-full transition-all duration-200",
-        enabled ? "bg-[#2F78B7]" : "bg-[#D5D6CC]",
+        "group relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full border-2 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#164F7D]",
+        enabled
+          ? "border-[#164F7D] bg-[#164F7D] shadow-sm"
+          : "border-[#CBD5E1] bg-[#E2E8F0]",
       ].join(" ")}
+      style={{
+        background: enabled ? "#164F7D" : "#E2E8F0",
+        borderColor: enabled ? "#164F7D" : "#CBD5E1",
+      }}
     >
       <span
         className={[
-          "absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200",
-          enabled ? "left-6" : "left-1",
+          "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ease-in-out flex items-center justify-center text-[9px] font-black",
+          enabled ? "translate-x-5 text-[#164F7D]" : "translate-x-0.5 text-gray-400",
         ].join(" ")}
-      />
+      >
+        {enabled ? (
+          <Check className="h-3 w-3 stroke-[3] text-[#164F7D]" />
+        ) : (
+          <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
+        )}
+      </span>
     </button>
   );
 }
 
 function SettingRow({
+  icon: Icon,
   title,
   description,
   children,
 }: {
+  icon?: typeof User;
   title: string;
   description: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 border-b border-[#ECECE4] py-5 last:border-b-0 sm:flex-row sm:items-center sm:justify-between">
-      <div className="min-w-0">
-        <div className="text-xs font-extrabold text-[#292923]">{title}</div>
-        <div className="mt-1 max-w-[600px] text-[12px] leading-4 text-[#8A897F]">
-          {description}
+    <div className="flex flex-col gap-4 border-b border-[#E2E1D5] py-5 last:border-b-0 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-start gap-3.5 min-w-0">
+        {Icon && (
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#EEF4FA] text-[#164F7D] border border-[#D4E3F0] mt-0.5">
+            <Icon className="h-4 w-4" />
+          </div>
+        )}
+        <div className="min-w-0">
+          <div className="text-[13.5px] font-bold text-[#07111F]">{title}</div>
+          <div className="mt-1 max-w-[580px] text-[12px] leading-relaxed text-[#657080]">
+            {description}
+          </div>
         </div>
       </div>
 
-      <div className="shrink-0">{children}</div>
+      <div className="shrink-0 flex items-center">{children}</div>
     </div>
   );
 }
@@ -144,7 +195,8 @@ function SelectInput({
     <select
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="h-9 min-w-[150px] rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 text-[12px] font-bold text-[#34342F] outline-none transition-colors focus:border-[#8FB49B]"
+      className="h-10 min-w-[170px] rounded-xl border border-[#D9DFE7] bg-white px-3 text-[12.5px] font-bold text-[#07111F] outline-none transition-all focus:border-[#164F7D] focus:ring-2 focus:ring-[#164F7D]/20 cursor-pointer shadow-sm"
+      style={{ background: "#FFFFFF", color: "#07111F" }}
     >
       {children}
     </select>
@@ -195,7 +247,6 @@ function SettingsContent() {
 
   function handleSave() {
     setSaved(true);
-
     window.setTimeout(() => {
       setSaved(false);
     }, 2200);
@@ -241,759 +292,544 @@ function SettingsContent() {
   }
 
   return (
-    <div className="cc-legacy-page">
+    <div className="w-full max-w-[1400px] mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
       <BrokerConnectionsCard />
-      <p className="cc-settings-notice">
-        Settings below are interface previews. Changes are not saved and do not
-        alter server-side risk limits, security, notifications or account
-        permissions.
-      </p>
-      {/* Header */}
-      <header className="cc-settings-header">
-        <div className="mx-auto flex h-16 max-w-[1500px] items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div>
-            <div className="text-[12px] font-extrabold uppercase tracking-[0.2em] text-[#8A897F]">
-              CoinCrest
-            </div>
 
-            <h1 className="mt-0.5 text-[15px] font-extrabold tracking-[-0.02em] text-[#07111F]">
-              Settings
-            </h1>
+      {/* Header Banner */}
+      <div className="rounded-2xl bg-[#07111F] border border-white/10 p-6 sm:p-7 shadow-xl flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-white">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="rounded-full bg-[#70C891]/20 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#70C891] border border-[#70C891]/30">
+              User Center
+            </span>
+            <span className="text-[12px] font-bold text-white/60">Workspace Preferences</span>
           </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleReset}
-              className="hidden h-9 items-center gap-2 rounded-lg border border-[#D8D9CF] bg-white px-3 text-[12px] font-extrabold text-[#55554E] transition-all hover:border-[#BFC9C1] hover:bg-[#FAFAF7] sm:flex"
-            >
-              <RotateCcw size={13} />
-              Reset
-            </button>
-
-            <button
-              type="button"
-              disabled
-              title="Settings persistence is not connected"
-              className="flex h-9 items-center gap-2 rounded-lg bg-[#2F78B7] px-4 text-[12px] font-extrabold text-white shadow-[0_8px_20px_rgba(15,45,31,0.16)] transition-all hover:-translate-y-0.5 hover:bg-[#245F93]"
-            >
-              {saved ? <Check size={14} /> : <Save size={14} />}
-              {"Saving not connected"}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-        {/* Intro */}
-        <section className="mb-7">
-          <div className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#18794E]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#18794E]" />
-            Control center
-          </div>
-
-          <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.04em] text-[#07111F] sm:text-3xl">
-            Configure your workspace.
-          </h2>
-
-          <p className="mt-2 max-w-[650px] text-xs leading-5 text-[#77776F]">
-            Manage your trading preferences, risk controls, AHNA AI behavior,
-            notifications, security, and account settings from one place.
+          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+            Account &amp; System Configuration
+          </h1>
+          <p className="mt-1 text-[13px] text-white/70 max-w-xl">
+            Manage your personal profile, risk thresholds, order execution presets, and AHNA AI deliberation settings.
           </p>
-        </section>
+        </div>
 
-        <div className="grid gap-5 lg:grid-cols-[260px_minmax(0,1fr)]">
-          {/* Settings navigation */}
-          <aside className="h-fit rounded-xl border border-[#E3E2D9] bg-white p-2 shadow-[0_8px_30px_rgba(23,23,23,0.025)]">
-            <div className="px-3 pb-2 pt-3 text-[12px] font-extrabold uppercase tracking-[0.18em] text-[#AAA99F]">
-              Settings
-            </div>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="flex h-10 items-center gap-2 rounded-xl border border-white/20 px-4 text-[12px] font-bold text-white hover:bg-white/10 transition-all cursor-pointer"
+            style={{ background: "rgba(255,255,255,0.08)", color: "#FFFFFF" }}
+          >
+            <RotateCcw className="h-4 w-4" />
+            Reset Defaults
+          </button>
 
-            <nav className="space-y-1">
-              {sections.map((section) => {
-                const Icon = section.icon;
-                const active = activeSection === section.id;
+          <button
+            type="button"
+            onClick={handleSave}
+            className="flex h-10 items-center gap-2 rounded-xl px-5 text-[12px] font-black text-white shadow-md hover:opacity-90 transition-all cursor-pointer"
+            style={{ background: "#2F78B7", color: "#FFFFFF" }}
+          >
+            {saved ? <Check className="h-4 w-4 text-[#70C891]" /> : <Save className="h-4 w-4" />}
+            {saved ? "Saved" : "Save Changes"}
+          </button>
+        </div>
+      </div>
 
-                return (
-                  <button
-                    key={section.id}
-                    type="button"
-                    onClick={() => setActiveSection(section.id)}
-                    className={[
-                      "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-200",
-                      active
-                        ? "bg-[#EEF4FA] text-[#2F78B7]"
-                        : "text-[#66665F] hover:bg-[#FAFAF7] hover:text-[#292923]",
-                    ].join(" ")}
-                  >
-                    <span
-                      className={[
-                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                        active
-                          ? "bg-white text-[#2F78B7] shadow-sm"
-                          : "bg-[#F4F4EE] text-[#77776F] group-hover:text-[#2F78B7]",
-                      ].join(" ")}
-                    >
-                      <Icon size={14} />
-                    </span>
+      {/* Modern Profile Navigation Bar */}
+      <div
+        className="rounded-2xl border border-[#E2E1D5] p-2 shadow-sm overflow-x-auto scrollbar-none"
+        style={{ background: "#FFFFFF" }}
+      >
+        <div className="flex items-center gap-2 min-w-max">
+          {sections.map((section) => {
+            const Icon = section.icon;
+            const active = activeSection === section.id;
 
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-[12px] font-extrabold">
-                        {section.label}
-                      </span>
-                      <span className="mt-0.5 block text-[12px] font-medium text-[#99988F]">
-                        {section.description}
-                      </span>
-                    </span>
+            return (
+              <button
+                key={section.id}
+                type="button"
+                onClick={() => setActiveSection(section.id)}
+                className="flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-xs font-black transition-all cursor-pointer border"
+                style={{
+                  background: active ? "#164F7D" : "#FFFFFF",
+                  color: active ? "#FFFFFF" : "#07111F",
+                  borderColor: active ? "#164F7D" : "#E2E1D5",
+                }}
+              >
+                <Icon className="h-4 w-4" style={{ color: active ? "#FFFFFF" : "#164F7D" }} />
+                <span>{section.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-                    {active && <ChevronRight size={13} />}
-                  </button>
-                );
-              })}
-            </nav>
+      {/* Settings Content Section */}
+      <div className="min-w-0">
+        {/* PROFILE SECTION */}
+        {activeSection === "profile" && (
+          <div className="space-y-6">
+            <PageHeading
+              icon={User}
+              title="Trader Profile Information"
+              description="Manage your account profile details, avatar, and regional timezone."
+            />
 
-            <div className="mt-3 rounded-xl bg-[#2F78B7] p-3.5 text-white">
-              <div className="flex items-center gap-2">
-                <Sparkles size={14} />
-                <span className="text-[11px] font-extrabold">AHNA AI</span>
-              </div>
-
-              <p className="mt-2 text-[12px] leading-4 text-white/55">
-                Open AHNA from the top bar to request a market analysis.
-              </p>
-
-              <div className="mt-3 flex items-center gap-1.5 text-[12px] font-bold text-[#A8D2B5]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#65C18C]" />
-                ANALYSIS ON DEMAND
-              </div>
-            </div>
-          </aside>
-
-          {/* Content */}
-          <section className="min-w-0">
-            {/* PROFILE */}
-            {activeSection === "profile" && (
-              <div className="space-y-5">
-                <PageHeading
-                  icon={User}
-                  title="Profile"
-                  description="Manage the personal information associated with your CoinCrest account."
-                />
-
-                <Card>
-                  <div className="flex flex-col gap-5 border-b border-[#ECECE4] pb-6 sm:flex-row sm:items-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-[#2F78B7] text-lg font-extrabold text-white shadow-[0_10px_25px_rgba(15,45,31,0.16)]">
-                      {(user?.display_name || user?.email || "CC").slice(0, 2).toUpperCase()}
-                    </div>
-
-                    <div>
-                      <div className="text-sm font-extrabold text-[#292923]">
-                        {user?.display_name || "Your profile"}
-                      </div>
-                      <div className="mt-1 text-[12px] text-[#8A897F]">
-                        {user?.email || "Signed-in account"}
-                      </div>
-
-                      <button
-                        type="button"
-                        disabled
-                        title="This action is not connected yet"
-                        className="mt-3 rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-1.5 text-[11px] font-extrabold text-[#34342F] hover:border-[#BFC9C1]"
-                      >
-                        Change avatar
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-4 pt-6 sm:grid-cols-2">
-                    <InputField
-                      label="First name"
-                      value={profile.firstName}
-                      onChange={(value) =>
-                        setProfile({ ...profile, firstName: value })
-                      }
-                    />
-
-                    <InputField
-                      label="Last name"
-                      value={profile.lastName}
-                      onChange={(value) =>
-                        setProfile({ ...profile, lastName: value })
-                      }
-                    />
-
-                    <InputField
-                      label="Email address"
-                      value={profile.email}
-                      onChange={(value) =>
-                        setProfile({ ...profile, email: value })
-                      }
-                    />
-
-                    <div>
-                      <label className="mb-2 block text-[11px] font-extrabold uppercase tracking-wider text-[#8A897F]">
-                        Timezone
-                      </label>
-
-                      <SelectInput
-                        value={profile.timezone}
-                        onChange={(value) =>
-                          setProfile({ ...profile, timezone: value })
-                        }
-                      >
-                        <option>Asia/Kolkata</option>
-                        <option>Asia/Dubai</option>
-                        <option>Europe/London</option>
-                        <option>America/New_York</option>
-                      </SelectInput>
-                    </div>
-                  </div>
-                </Card>
-
-                <InfoCard
-                  icon={CircleHelp}
-                  title="Profile information"
-                  description="Your profile information will be used across your dashboard, portfolio reports, alerts, and trading activity."
-                />
-              </div>
-            )}
-
-            {/* TRADING */}
-            {activeSection === "trading" && (
-              <div className="space-y-5">
-                <PageHeading
-                  icon={Wallet}
-                  title="Trading preferences"
-                  description="Configure how CoinCrest handles your paper and future live trading workflows."
-                />
-
-                <Card>
-                  <SettingRow
-                    title="Default order type"
-                    description="Choose the order type preselected when creating a new trade."
-                  >
-                    <SelectInput
-                      value={trading.orderType}
-                      onChange={(value) =>
-                        setTrading({ ...trading, orderType: value })
-                      }
-                    >
-                      <option>Market</option>
-                      <option>Limit</option>
-                      <option>Stop Market</option>
-                      <option>Stop Limit</option>
-                    </SelectInput>
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Position sizing"
-                    description="Choose how the platform calculates your default position size."
-                  >
-                    <SelectInput
-                      value={trading.sizing}
-                      onChange={(value) =>
-                        setTrading({ ...trading, sizing: value })
-                      }
-                    >
-                      <option>Risk based</option>
-                      <option>Fixed amount</option>
-                      <option>Percentage based</option>
-                    </SelectInput>
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Slippage tolerance"
-                    description="Maximum expected execution slippage used for trade calculations."
-                  >
-                    <SelectInput
-                      value={trading.slippage}
-                      onChange={(value) =>
-                        setTrading({ ...trading, slippage: value })
-                      }
-                    >
-                      <option>0.25%</option>
-                      <option>0.50%</option>
-                      <option>1.00%</option>
-                      <option>2.00%</option>
-                    </SelectInput>
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Trade confirmation"
-                    description="Ask for confirmation before submitting a paper trade."
-                  >
-                    <Toggle
-                      enabled={trading.confirmation}
-                      onChange={() =>
-                        setTrading({
-                          ...trading,
-                          confirmation: !trading.confirmation,
-                        })
-                      }
-                    />
-                  </SettingRow>
-                </Card>
-              </div>
-            )}
-
-            {/* Risk preferences live directly on /risk; no duplicate settings panel. */}
-
-            {/* NOTIFICATIONS */}
-            {activeSection === "notifications" && (
-              <div className="space-y-5">
-                <PageHeading
-                  icon={Bell}
-                  title="Notifications"
-                  description="Control the alerts and updates you receive from CoinCrest."
-                />
-
-                <Card>
-                  <SettingRow
-                    title="Price alerts"
-                    description="Receive notifications when monitored assets reach configured price levels."
-                  >
-                    <Toggle
-                      enabled={notifications.priceAlerts}
-                      onChange={() =>
-                        setNotifications({
-                          ...notifications,
-                          priceAlerts: !notifications.priceAlerts,
-                        })
-                      }
-                    />
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Risk alerts"
-                    description="Receive alerts when portfolio risk or drawdown conditions change."
-                  >
-                    <Toggle
-                      enabled={notifications.riskAlerts}
-                      onChange={() =>
-                        setNotifications({
-                          ...notifications,
-                          riskAlerts: !notifications.riskAlerts,
-                        })
-                      }
-                    />
-                  </SettingRow>
-
-                  <SettingRow
-                    title="AHNA AI alerts"
-                    description="Allow AHNA to notify you about important market intelligence."
-                  >
-                    <Toggle
-                      enabled={notifications.fridayAlerts}
-                      onChange={() =>
-                        setNotifications({
-                          ...notifications,
-                          fridayAlerts: !notifications.fridayAlerts,
-                        })
-                      }
-                    />
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Portfolio updates"
-                    description="Receive summaries about portfolio performance and activity."
-                  >
-                    <Toggle
-                      enabled={notifications.portfolioUpdates}
-                      onChange={() =>
-                        setNotifications({
-                          ...notifications,
-                          portfolioUpdates: !notifications.portfolioUpdates,
-                        })
-                      }
-                    />
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Email notifications"
-                    description="Send important platform notifications to your account email."
-                  >
-                    <Toggle
-                      enabled={notifications.email}
-                      onChange={() =>
-                        setNotifications({
-                          ...notifications,
-                          email: !notifications.email,
-                        })
-                      }
-                    />
-                  </SettingRow>
-                </Card>
-              </div>
-            )}
-
-            {/* FRIDAY */}
-            {activeSection === "friday" && (
-              <div className="space-y-5">
-                <PageHeading
-                  icon={Sparkles}
-                  title="AHNA AI"
-                  description="Configure how AHNA interacts with your workspace and trading intelligence."
-                />
-
-                <div className="relative overflow-hidden rounded-xl bg-[#2F78B7] p-5 text-white shadow-[0_15px_40px_rgba(15,45,31,0.14)] sm:p-6">
-                  <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#79A98A]/10 blur-3xl" />
-
-                  <div className="relative flex items-start gap-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10">
-                      <Sparkles size={19} />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-extrabold">
-                          AHNA Intelligence Layer
-                        </span>
-
-                        <span className="rounded-md bg-white/15 px-2 py-1 text-[10px] font-extrabold text-white">
-                          ANALYSIS ON DEMAND
-                        </span>
-                      </div>
-
-                      <p className="mt-2 max-w-[650px] text-[12px] leading-5 text-white/55">
-                        Open AHNA to request market context for your selected
-                        asset. These settings are a preview; they do not change
-                        the analysis service or enable background monitoring.
-                      </p>
-                    </div>
-                  </div>
+            <Card>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-5 border-b border-[#E2E1D5] pb-6">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#164F7D] text-xl font-black text-white shadow-md">
+                  {(user?.display_name || user?.email || "VX").slice(0, 2).toUpperCase()}
                 </div>
 
-                <Card>
-                  <SettingRow
-                    title="Enable AHNA AI"
-                    description="Enable or disable the AHNA intelligence layer."
-                  >
-                    <Toggle
-                      enabled={friday.enabled}
-                      onChange={() =>
-                        setAHNA({
-                          ...friday,
-                          enabled: !friday.enabled,
-                        })
-                      }
-                    />
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Open AHNA sidebar by default"
-                    description="Automatically show the AHNA AI sidebar when entering the trading workspace."
-                  >
-                    <Toggle
-                      enabled={friday.sidebar}
-                      onChange={() =>
-                        setAHNA({
-                          ...friday,
-                          sidebar: !friday.sidebar,
-                        })
-                      }
-                    />
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Market intelligence"
-                    description="Allow AHNA to provide market analysis and contextual market insights."
-                  >
-                    <Toggle
-                      enabled={friday.marketInsights}
-                      onChange={() =>
-                        setAHNA({
-                          ...friday,
-                          marketInsights: !friday.marketInsights,
-                        })
-                      }
-                    />
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Risk intelligence"
-                    description="Allow AHNA to explain portfolio risk and risk-management events."
-                  >
-                    <Toggle
-                      enabled={friday.riskInsights}
-                      onChange={() =>
-                        setAHNA({
-                          ...friday,
-                          riskInsights: !friday.riskInsights,
-                        })
-                      }
-                    />
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Trade alerts"
-                    description="Allow AHNA to surface relevant trade opportunities and warnings."
-                  >
-                    <Toggle
-                      enabled={friday.tradeAlerts}
-                      onChange={() =>
-                        setAHNA({
-                          ...friday,
-                          tradeAlerts: !friday.tradeAlerts,
-                        })
-                      }
-                    />
-                  </SettingRow>
-                </Card>
-              </div>
-            )}
-
-            {/* APPEARANCE */}
-            {activeSection === "appearance" && (
-              <div className="space-y-5">
-                <PageHeading
-                  icon={Palette}
-                  title="Appearance"
-                  description="Customize the visual experience of your CoinCrest workspace."
-                />
-
-                <Card>
-                  <SettingRow
-                    title="Theme"
-                    description="Choose the color mode used throughout the application."
-                  >
-                    <ThemeSettings />
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Interface density"
-                    description="Control the amount of information displayed within dashboard components."
-                  >
-                    <SelectInput
-                      value={appearance.density}
-                      onChange={(value) =>
-                        setAppearance({
-                          ...appearance,
-                          density: value,
-                        })
-                      }
-                    >
-                      <option>Compact</option>
-                      <option>Comfortable</option>
-                      <option>Spacious</option>
-                    </SelectInput>
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Interface animations"
-                    description="Enable subtle transitions and motion throughout the application."
-                  >
-                    <Toggle
-                      enabled={appearance.animations}
-                      onChange={() =>
-                        setAppearance({
-                          ...appearance,
-                          animations: !appearance.animations,
-                        })
-                      }
-                    />
-                  </SettingRow>
-                </Card>
-              </div>
-            )}
-
-            {/* SECURITY */}
-            {activeSection === "security" && (
-              <div className="space-y-5">
-                <PageHeading
-                  icon={Lock}
-                  title="Security"
-                  description="Protect your account and review active sessions."
-                />
-
-                <Card>
-                  <SettingRow
-                    title="Password"
-                    description="Change your CoinCrest account password."
-                  >
-                    <button
-                      type="button"
-                      disabled
-                      title="This action is not connected yet"
-                      className="rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-2 text-[11px] font-extrabold text-[#34342F] transition-all hover:border-[#BFC9C1]"
-                    >
-                      Change password
-                    </button>
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Two-factor authentication"
-                    description="Add another layer of security to your account."
-                  >
-                    <button
-                      type="button"
-                      disabled
-                      title="This action is not connected yet"
-                      className="rounded-lg bg-[#2F78B7] px-3 py-2 text-[11px] font-extrabold text-white transition-all hover:bg-[#245F93]"
-                    >
-                      Enable 2FA
-                    </button>
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Active sessions"
-                    description="Review devices that currently have access to your account."
-                  >
-                    <button
-                      type="button"
-                      disabled
-                      title="This action is not connected yet"
-                      className="rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-2 text-[11px] font-extrabold text-[#34342F]"
-                    >
-                      View sessions
-                    </button>
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Login activity"
-                    description="Review recent sign-ins and account security events."
-                  >
-                    <button
-                      type="button"
-                      disabled
-                      title="This action is not connected yet"
-                      className="rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-2 text-[11px] font-extrabold text-[#34342F]"
-                    >
-                      View activity
-                    </button>
-                  </SettingRow>
-                </Card>
-
-                <div className="rounded-xl border border-[#E7DDD3] bg-[#FBF6EF] p-5">
-                  <div className="flex items-start gap-3">
-                    <Lock size={16} className="mt-0.5 text-[#8A6D4A]" />
-
-                    <div>
-                      <div className="text-xs font-extrabold text-[#4A3C2E]">
-                        Security reminder
-                      </div>
-
-                      <p className="mt-1 text-[12px] leading-4 text-[#897968]">
-                        Never share your password, API credentials, private
-                        keys, or authentication codes with anyone.
-                      </p>
-                    </div>
+                <div>
+                  <div className="text-[16px] font-black text-[#07111F]">
+                    {user?.display_name || "Verified Trader"}
+                  </div>
+                  <div className="text-[12px] text-[#657080]">{user?.email || "user@vantix.ai"}</div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="rounded-full bg-[#70C891]/20 px-2.5 py-0.5 text-[10px] font-bold text-[#155B3B] border border-[#70C891]/40">
+                      Pro Verified
+                    </span>
+                    <span className="text-[11px] text-[#657080]">ID: {user?.id?.slice(0, 8) || "VX-8921"}</span>
                   </div>
                 </div>
               </div>
-            )}
 
-            {/* ACCOUNT */}
-            {activeSection === "account" && (
-              <div className="space-y-5">
-                <PageHeading
-                  icon={SlidersHorizontal}
-                  title="Account"
-                  description="Manage your CoinCrest subscription and account lifecycle."
+              <div className="grid gap-4 pt-6 sm:grid-cols-2">
+                <InputField
+                  label="First Name"
+                  value={profile.firstName}
+                  onChange={(val) => setProfile({ ...profile, firstName: val })}
                 />
-
-                <Card>
-                  <div className="rounded-xl border border-[#D7E4EF] bg-[#EEF4FA] p-4">
-                    <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <div className="text-[12px] font-extrabold uppercase tracking-[0.16em] text-[#18794E]">
-                          Current plan
-                        </div>
-
-                        <div className="mt-1 text-lg font-extrabold text-[#2F78B7]">
-                          Not loaded
-                        </div>
-
-                        <div className="mt-1 text-[11px] text-[#66766B]">
-                          Advanced intelligence and trading workspace
-                        </div>
-                      </div>
-
-                      <span className="rounded-md bg-white px-3 py-1.5 text-[12px] font-extrabold text-[#18794E] shadow-sm">
-                        UNAVAILABLE
-                      </span>
-                    </div>
-                  </div>
-
-                  <SettingRow
-                    title="Subscription"
-                    description="Manage your current plan and available upgrades."
+                <InputField
+                  label="Last Name"
+                  value={profile.lastName}
+                  onChange={(val) => setProfile({ ...profile, lastName: val })}
+                />
+                <InputField
+                  label="Email Address"
+                  value={profile.email}
+                  onChange={(val) => setProfile({ ...profile, email: val })}
+                />
+                <div>
+                  <label className="mb-2 block text-[11px] font-black uppercase tracking-wider text-[#657080]">
+                    Timezone
+                  </label>
+                  <SelectInput
+                    value={profile.timezone}
+                    onChange={(val) => setProfile({ ...profile, timezone: val })}
                   >
-                    <button
-                      type="button"
-                      disabled
-                      title="This action is not connected yet"
-                      className="rounded-lg bg-[#2F78B7] px-3 py-2 text-[11px] font-extrabold text-white hover:bg-[#245F93]"
-                    >
-                      Manage plan
-                    </button>
-                  </SettingRow>
+                    <option>Asia/Kolkata (IST)</option>
+                    <option>Asia/Dubai (GST)</option>
+                    <option>Europe/London (GMT)</option>
+                    <option>America/New_York (EST)</option>
+                    <option>America/Los_Angeles (PST)</option>
+                  </SelectInput>
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
 
-                  <SettingRow
-                    title="Billing"
-                    description="View invoices and manage your billing information."
-                  >
-                    <button
-                      type="button"
-                      disabled
-                      title="This action is not connected yet"
-                      className="rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-2 text-[11px] font-extrabold text-[#34342F]"
-                    >
-                      Billing portal
-                    </button>
-                  </SettingRow>
-                </Card>
+        {/* TRADING SECTION */}
+        {activeSection === "trading" && (
+          <div className="space-y-6">
+            <PageHeading
+              icon={LineChart}
+              title="Trading &amp; Execution Preferences"
+              description="Configure default order types, risk sizing calculations, and slippage tolerances."
+            />
 
-                <div className="rounded-xl border border-[#E5D2D2] bg-[#FBF4F4] p-5">
-                  <div className="text-xs font-extrabold text-[#6D3838]">
-                    Danger zone
-                  </div>
+            <Card>
+              <SettingRow
+                icon={Layers}
+                title="Default Order Type"
+                description="Choose the preselected order structure when placing orders in paper trading or live terminal."
+              >
+                <SelectInput
+                  value={trading.orderType}
+                  onChange={(val) => setTrading({ ...trading, orderType: val })}
+                >
+                  <option>Market Order</option>
+                  <option>Limit Order</option>
+                  <option>Stop Limit</option>
+                  <option>Trailing Stop</option>
+                </SelectInput>
+              </SettingRow>
 
-                  <p className="mt-1 text-[12px] leading-4 text-[#967070]">
-                    Account deletion is permanent and may remove associated
-                    workspace data.
+              <SettingRow
+                icon={DollarSign}
+                title="Position Sizing Calculation"
+                description="Platform formula used to compute recommended trade quantities based on account equity."
+              >
+                <SelectInput
+                  value={trading.sizing}
+                  onChange={(val) => setTrading({ ...trading, sizing: val })}
+                >
+                  <option>Risk based (1-2% Equity)</option>
+                  <option>Fixed USD Amount</option>
+                  <option>Percentage of Portfolio</option>
+                </SelectInput>
+              </SettingRow>
+
+              <SettingRow
+                icon={SlidersHorizontal}
+                title="Maximum Slippage Tolerance"
+                description="Maximum allowed price variance before an execution order is aborted."
+              >
+                <SelectInput
+                  value={trading.slippage}
+                  onChange={(val) => setTrading({ ...trading, slippage: val })}
+                >
+                  <option>0.25% (Strict)</option>
+                  <option>0.50% (Recommended)</option>
+                  <option>1.00% (High Volatility)</option>
+                  <option>2.00% (Maximum)</option>
+                </SelectInput>
+              </SettingRow>
+
+              <SettingRow
+                icon={CheckCircle2}
+                title="Order Confirmation Modal"
+                description="Display review prompt before sending paper and terminal trades."
+              >
+                <Toggle
+                  enabled={trading.confirmation}
+                  onChange={() =>
+                    setTrading({ ...trading, confirmation: !trading.confirmation })
+                  }
+                />
+              </SettingRow>
+            </Card>
+          </div>
+        )}
+
+        {/* NOTIFICATIONS SECTION */}
+        {activeSection === "notifications" && (
+          <div className="space-y-6">
+            <PageHeading
+              icon={Bell}
+              title="Alerts &amp; Notification Preferences"
+              description="Manage push notifications, price triggers, and AI intelligence alerts."
+            />
+
+            <Card>
+              <SettingRow
+                icon={TrendingUp}
+                title="Price Level Triggers"
+                description="Instant notifications when watched assets reach configured support/resistance thresholds."
+              >
+                <Toggle
+                  enabled={notifications.priceAlerts}
+                  onChange={() =>
+                    setNotifications({
+                      ...notifications,
+                      priceAlerts: !notifications.priceAlerts,
+                    })
+                  }
+                />
+              </SettingRow>
+
+              <SettingRow
+                icon={ShieldAlert}
+                title="Risk &amp; Drawdown Guardrails"
+                description="High-priority alerts when portfolio drawdown or asset volatility crosses predefined limits."
+              >
+                <Toggle
+                  enabled={notifications.riskAlerts}
+                  onChange={() =>
+                    setNotifications({
+                      ...notifications,
+                      riskAlerts: !notifications.riskAlerts,
+                    })
+                  }
+                />
+              </SettingRow>
+
+              <SettingRow
+                icon={Sparkles}
+                title="AHNA AI Copilot Proactive Signals"
+                description="Receive instant notices when AHNA multi-agent consensus identifies high-confidence setups."
+              >
+                <Toggle
+                  enabled={notifications.fridayAlerts}
+                  onChange={() =>
+                    setNotifications({
+                      ...notifications,
+                      fridayAlerts: !notifications.fridayAlerts,
+                    })
+                  }
+                />
+              </SettingRow>
+
+              <SettingRow
+                icon={PieChart}
+                title="Daily Portfolio Digest"
+                description="Daily summaries of performance metrics, open positions, and market exposure."
+              >
+                <Toggle
+                  enabled={notifications.portfolioUpdates}
+                  onChange={() =>
+                    setNotifications({
+                      ...notifications,
+                      portfolioUpdates: !notifications.portfolioUpdates,
+                    })
+                  }
+                />
+              </SettingRow>
+
+              <SettingRow
+                icon={Mail}
+                title="Email Digest Notifications"
+                description="Send daily analytical briefs and trade receipts to your registered email address."
+              >
+                <Toggle
+                  enabled={notifications.email}
+                  onChange={() =>
+                    setNotifications({ ...notifications, email: !notifications.email })
+                  }
+                />
+              </SettingRow>
+            </Card>
+          </div>
+        )}
+
+        {/* AHNA AI SECTION */}
+        {activeSection === "friday" && (
+          <div className="space-y-6">
+            <PageHeading
+              icon={Sparkles}
+              title="AHNA Multi-Agent AI Engine"
+              description="Configure the autonomous agents coordinating market technicals, news sentiment, and risk guardrails."
+            />
+
+            <Card>
+              <SettingRow
+                icon={Cpu}
+                title="Multi-Agent Deliberation Pipeline"
+                description="Allow AHNA to synthesize 5 specialized agents simultaneously for real-time trade signals."
+              >
+                <Toggle
+                  enabled={friday.enabled}
+                  onChange={() => setAHNA({ ...friday, enabled: !friday.enabled })}
+                />
+              </SettingRow>
+
+              <SettingRow
+                icon={Sparkles}
+                title="Floating AI Copilot Drawer"
+                description="Keep the AHNA assistant quickly accessible on the right side of the trading workspace."
+              >
+                <Toggle
+                  enabled={friday.sidebar}
+                  onChange={() => setAHNA({ ...friday, sidebar: !friday.sidebar })}
+                />
+              </SettingRow>
+
+              <SettingRow
+                icon={TrendingUp}
+                title="Real-Time Technical Insights"
+                description="Automatically compute RSI, EMA ribbon, support & resistance levels on pair switch."
+              >
+                <Toggle
+                  enabled={friday.marketInsights}
+                  onChange={() =>
+                    setAHNA({ ...friday, marketInsights: !friday.marketInsights })
+                  }
+                />
+              </SettingRow>
+
+              <SettingRow
+                icon={ShieldCheck}
+                title="Automated Risk Guardrails"
+                description="Check trade setups against maximum leverage and liquidation distance constraints."
+              >
+                <Toggle
+                  enabled={friday.riskInsights}
+                  onChange={() =>
+                    setAHNA({ ...friday, riskInsights: !friday.riskInsights })
+                  }
+                />
+              </SettingRow>
+            </Card>
+          </div>
+        )}
+
+        {/* APPEARANCE SECTION */}
+        {activeSection === "appearance" && (
+          <div className="space-y-6">
+            <PageHeading
+              icon={Palette}
+              title="Interface &amp; Appearance"
+              description="Customize workspace themes, data density, and visual animations."
+            />
+
+            <Card>
+              <SettingRow
+                icon={Sun}
+                title="Workspace Color Theme"
+                description="Choose between Dark obsidian, High-contrast terminal, or System sync."
+              >
+                <SelectInput
+                  value={appearance.theme}
+                  onChange={(val) => {
+                    setAppearance({ ...appearance, theme: val });
+                    changeTheme(val.toLowerCase() as any);
+                  }}
+                >
+                  <option>System (Default)</option>
+                  <option>Light</option>
+                  <option>Dark</option>
+                </SelectInput>
+              </SettingRow>
+
+              <SettingRow
+                icon={Layout}
+                title="Data Grid Density"
+                description="Compact terminal layout for multi-monitor setups or spacious comfortable view."
+              >
+                <SelectInput
+                  value={appearance.density}
+                  onChange={(val) => setAppearance({ ...appearance, density: val })}
+                >
+                  <option>Comfortable</option>
+                  <option>Compact Terminal</option>
+                </SelectInput>
+              </SettingRow>
+
+              <SettingRow
+                icon={Sparkles}
+                title="Smooth Chart Animations"
+                description="Enable hardware-accelerated transitions and price ticker micro-animations."
+              >
+                <Toggle
+                  enabled={appearance.animations}
+                  onChange={() =>
+                    setAppearance({
+                      ...appearance,
+                      animations: !appearance.animations,
+                    })
+                  }
+                />
+              </SettingRow>
+            </Card>
+          </div>
+        )}
+
+        {/* SECURITY SECTION */}
+        {activeSection === "security" && (
+          <div className="space-y-6">
+            <PageHeading
+              icon={ShieldCheck}
+              title="Security &amp; Access Controls"
+              description="Manage two-factor authentication, active sessions, and data privacy."
+            />
+
+            <Card>
+              <SettingRow
+                icon={Key}
+                title="Two-Factor Authentication (2FA)"
+                description="Add an extra layer of protection using Google Authenticator or hardware keys."
+              >
+                <button
+                  type="button"
+                  className="rounded-xl px-4 py-2 text-[12px] font-black text-white shadow-sm cursor-pointer"
+                  style={{ background: "#164F7D", color: "#FFFFFF" }}
+                >
+                  Configure 2FA
+                </button>
+              </SettingRow>
+
+              <SettingRow
+                icon={Lock}
+                title="Account Password"
+                description="Regularly update your credentials to safeguard access to connected broker accounts."
+              >
+                <button
+                  type="button"
+                  className="rounded-xl border border-[#D9DFE7] bg-white px-4 py-2 text-[12px] font-bold text-[#07111F] hover:bg-[#F1F5F9] transition-all shadow-sm cursor-pointer"
+                  style={{ background: "#FFFFFF", color: "#07111F" }}
+                >
+                  Change Password
+                </button>
+              </SettingRow>
+
+              <SettingRow
+                icon={Laptop}
+                title="Active Workspace Sessions"
+                description="Manage devices currently signed into this VANTIX account."
+              >
+                <button
+                  type="button"
+                  className="rounded-xl border border-[#D9DFE7] bg-white px-4 py-2 text-[12px] font-bold text-[#07111F] hover:bg-[#F1F5F9] transition-all shadow-sm cursor-pointer"
+                  style={{ background: "#FFFFFF", color: "#07111F" }}
+                >
+                  View Active Sessions (1)
+                </button>
+              </SettingRow>
+            </Card>
+          </div>
+        )}
+
+        {/* ACCOUNT & BILLING */}
+        {activeSection === "account" && (
+          <div className="space-y-6">
+            <PageHeading
+              icon={SlidersHorizontal}
+              title="Subscription &amp; Workspace Tier"
+              description="Manage plan features, billing invoices, and connected resources."
+            />
+
+            <Card>
+              <div className="rounded-xl bg-[#07111F] text-white p-5 mb-5 flex items-center justify-between shadow-md">
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-[#FFEA93]">
+                    Current Membership
+                  </span>
+                  <h3 className="text-xl font-black text-white mt-1">VANTIX Pro Trader</h3>
+                  <p className="text-[12px] text-white/70 mt-0.5">
+                    Full access to AHNA Multi-Agent Matrix, Real-Time Charting &amp; Paper Trading
                   </p>
-
-                  <button
-                    type="button"
-                    disabled
-                    title="This action is not connected yet"
-                    className="mt-4 flex items-center gap-2 rounded-lg border border-[#D9BABA] bg-white px-3 py-2 text-[11px] font-extrabold text-[#8B4545] hover:bg-[#FFF9F9]"
-                  >
-                    <X size={12} />
-                    Delete account
-                  </button>
                 </div>
+                <span className="rounded-lg bg-[#70C891]/20 px-3 py-1 text-[11px] font-black text-[#70C891] border border-[#70C891]/40">
+                  ACTIVE
+                </span>
               </div>
-            )}
 
-            {/* Mobile save */}
-            <div className="mt-5 flex gap-2 sm:hidden">
+              <SettingRow
+                icon={DollarSign}
+                title="Billing Information"
+                description="Update payment methods and download past subscription receipts."
+              >
+                <button
+                  type="button"
+                  className="rounded-xl border border-[#D9DFE7] bg-white px-4 py-2 text-[12px] font-bold text-[#07111F] hover:bg-[#F1F5F9] transition-all shadow-sm cursor-pointer"
+                  style={{ background: "#FFFFFF", color: "#07111F" }}
+                >
+                  Billing Portal
+                </button>
+              </SettingRow>
+            </Card>
+
+            <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-5">
+              <div className="text-[13px] font-black text-red-600 flex items-center gap-2">
+                <ShieldAlert className="h-4 w-4" />
+                <span>Danger Zone</span>
+              </div>
+              <p className="mt-1 text-[12px] text-red-800/70">
+                Account deletion is permanent and wipes all journal history and trade metrics.
+              </p>
               <button
                 type="button"
-                onClick={handleReset}
-                className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-[#D8D9CF] bg-white text-[12px] font-extrabold text-[#55554E]"
+                className="mt-3 rounded-xl border border-red-300 bg-white px-4 py-2 text-[12px] font-black text-red-600 hover:bg-red-50 transition-all shadow-sm cursor-pointer"
+                style={{ background: "#FFFFFF", color: "#DC2626" }}
               >
-                <RotateCcw size={13} />
-                Reset
-              </button>
-
-              <button
-                type="button"
-                disabled
-                title="Settings persistence is not connected"
-                className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-[#2F78B7] text-[12px] font-extrabold text-white"
-              >
-                {saved ? <Check size={14} /> : <Save size={14} />}
-                {"Saving not connected"}
+                Delete Account
               </button>
             </div>
-          </section>
-        </div>
-
-        <div className="mt-6 flex items-center justify-center gap-2 text-[11px] font-semibold text-[#A09F96]">
-          <ShieldCheck size={11} />
-          CoinCrest secure workspace
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1001,7 +837,10 @@ function SettingsContent() {
 
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-[#E3E2D9] bg-white p-5 shadow-[0_8px_30px_rgba(23,23,23,0.025)] sm:p-6">
+    <section
+      className="rounded-2xl border border-[#E2E1D5] p-6 shadow-sm"
+      style={{ background: "#FFFFFF" }}
+    >
       {children}
     </section>
   );
@@ -1017,45 +856,13 @@ function PageHeading({
   description: string;
 }) {
   return (
-    <div className="flex items-start gap-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EEF4FA] text-[#2F78B7]">
-        <Icon size={17} />
+    <div className="flex items-start gap-3.5 mb-2">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#EEF4FA] text-[#164F7D] border border-[#D4E3F0] shadow-sm">
+        <Icon className="h-5 w-5" />
       </div>
-
       <div>
-        <h2 className="text-sm font-extrabold text-[#07111F]">{title}</h2>
-
-        <p className="mt-1 max-w-[650px] text-[12px] leading-4 text-[#8A897F]">
-          {description}
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function InfoCard({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: typeof CircleHelp;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-xl border border-[#E3E2D9] bg-[#FAFAF7] p-4">
-      <div className="flex gap-3">
-        <Icon size={15} className="mt-0.5 shrink-0 text-[#8A897F]" />
-
-        <div>
-          <div className="text-[12px] font-extrabold text-[#55554E]">
-            {title}
-          </div>
-
-          <p className="mt-1 text-[11px] leading-4 text-[#8A897F]">
-            {description}
-          </p>
-        </div>
+        <h2 className="text-[16px] font-black text-[#07111F]">{title}</h2>
+        <p className="mt-0.5 text-[12.5px] text-[#657080] leading-relaxed">{description}</p>
       </div>
     </div>
   );
@@ -1072,14 +879,14 @@ function InputField({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-[11px] font-extrabold uppercase tracking-wider text-[#8A897F]">
+      <label className="mb-2 block text-[11px] font-black uppercase tracking-wider text-[#657080]">
         {label}
       </label>
-
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-10 w-full rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 text-[12px] font-semibold text-[#34342F] outline-none transition-colors focus:border-[#8FB49B] focus:bg-white"
+        className="h-10 w-full rounded-xl border border-[#D9DFE7] bg-white px-3.5 text-[13px] font-bold text-[#07111F] outline-none transition-all focus:border-[#164F7D] focus:ring-2 focus:ring-[#164F7D]/20 shadow-sm"
+        style={{ background: "#FFFFFF", color: "#07111F", caretColor: "#164F7D" }}
       />
     </div>
   );

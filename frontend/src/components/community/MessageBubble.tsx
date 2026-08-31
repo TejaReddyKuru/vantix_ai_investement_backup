@@ -1,29 +1,36 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   BarChart3,
-  Check,
+  Bookmark,
   CheckCheck,
-  ExternalLink,
+  CornerDownRight,
+  Flag,
+  Heart,
   MessageSquare,
   Pin,
+  Share2,
   SmilePlus,
   Sparkles,
-} from "lucide-react"
-import { Message, Reaction } from "./types"
+  ThumbsUp,
+  UserCheck,
+} from "lucide-react";
+import { Message } from "./types";
 
-const QUICK_REACTIONS = ["👍", "🚀", "🔥", "📈", "🎯"]
+const QUICK_REACTIONS = ["👍", "🚀", "🔥", "📈", "🎯"];
 
 type MessageBubbleProps = {
-  message: Message
-  onReact: (messageId: string, emoji: string) => void
-  onReply?: (message: Message) => void
-}
+  message: Message;
+  onReact: (messageId: string, emoji: string) => void;
+  onReply?: (message: Message) => void;
+  onBookmark?: (messageId: string) => void;
+  onShare?: (message: Message) => void;
+};
 
 function renderFormattedContent(content: string, isCurrentUser: boolean) {
-  // Split on ticker symbols like $BTC, $NVDA, $ETH, $SOL
-  const parts = content.split(/(\$[A-Z]{2,6}\b)/g)
+  // Highlight tickers like $BTC, $ETH, $NVDA, $SOL
+  const parts = content.split(/(\$[A-Z]{2,6}\b)/g);
 
   return parts.map((part, index) => {
     if (part.startsWith("$") && part.length >= 3) {
@@ -31,65 +38,85 @@ function renderFormattedContent(content: string, isCurrentUser: boolean) {
         <span
           key={index}
           className={[
-            "inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-extrabold tracking-wide",
+            "inline-flex items-center rounded-md px-1.5 py-0.5 text-[11px] font-black tracking-wide mx-0.5",
             isCurrentUser
-              ? "bg-white/20 text-[#D8E9DD]"
-              : "bg-[#E8F2EA] text-[#0F2D1F] ring-1 ring-[#18794E]/20",
+              ? "bg-white/20 text-[#38BDF8] border border-white/20"
+              : "bg-[#38BDF8]/15 text-[#38BDF8] border border-[#38BDF8]/30",
           ].join(" ")}
         >
           {part}
         </span>
-      )
+      );
     }
-    return <span key={index}>{part}</span>
-  })
+    return <span key={index}>{part}</span>;
+  });
 }
 
 export default function MessageBubble({
   message,
   onReact,
   onReply,
+  onBookmark,
+  onShare,
 }: MessageBubbleProps) {
-  const [showReactionPicker, setShowReactionPicker] = useState(false)
-  const isMe = message.isCurrentUser
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [copiedShare, setCopiedShare] = useState(false);
+  const isMe = message.isCurrentUser;
+
+  const handleShare = () => {
+    if (onShare) {
+      onShare(message);
+    } else {
+      navigator.clipboard.writeText(`VANTIX Trader Insight from ${message.senderName}: "${message.content}"`);
+      setCopiedShare(true);
+      setTimeout(() => setCopiedShare(false), 2000);
+    }
+  };
+
+  const toggleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+    if (onBookmark) {
+      onBookmark(message.id);
+    }
+  };
 
   return (
     <div
       className={[
-        "group relative flex w-full gap-3 py-1",
+        "group relative flex w-full gap-3 py-1.5",
         isMe ? "justify-end" : "justify-start",
       ].join(" ")}
     >
-      {/* Sender Avatar (Only for other users) */}
+      {/* Sender Avatar */}
       {!isMe && (
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#0F2D1F] text-xs font-extrabold text-white shadow-sm">
-          {message.senderAvatar}
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#2F78B7] to-[#15466C] text-xs font-black text-white shadow-md border border-white/10 mt-0.5">
+          {message.senderAvatar || message.senderName?.slice(0, 2).toUpperCase() || "VX"}
         </div>
       )}
 
       {/* Bubble Container */}
       <div
         className={[
-          "relative max-w-[82%] sm:max-w-[70%] md:max-w-[62%]",
+          "relative max-w-[85%] sm:max-w-[72%] md:max-w-[65%]",
           isMe ? "items-end" : "items-start",
         ].join(" ")}
       >
-        {/* Sender Info Bar (Only for other users) */}
+        {/* Sender Info Bar */}
         {!isMe && (
-          <div className="mb-1 flex items-center gap-2 px-1">
-            <span className="text-xs font-extrabold text-[#171717]">
+          <div className="mb-1.5 flex items-center gap-2 px-1">
+            <span className="text-[12.5px] font-black text-white">
               {message.senderName}
             </span>
 
             {message.senderRole && (
-              <span className="rounded-md bg-[#E8F2EA] px-2 py-0.5 text-[8px] font-extrabold uppercase tracking-wide text-[#18794E]">
+              <span className="rounded-md bg-[#70C891]/20 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-[#70C891] border border-[#70C891]/30">
                 {message.senderRole}
               </span>
             )}
 
             {message.isPinned && (
-              <span className="flex items-center gap-1 rounded-md bg-[#F7F6E8] px-1.5 py-0.5 text-[8px] font-bold text-[#8A897F]">
-                <Pin size={10} className="rotate-45 text-[#18794E]" />
+              <span className="flex items-center gap-1 rounded-md bg-[#F59E0B]/20 px-1.5 py-0.5 text-[9px] font-black text-[#F59E0B] border border-[#F59E0B]/30">
+                <Pin size={10} className="rotate-45" />
                 Pinned
               </span>
             )}
@@ -100,24 +127,27 @@ export default function MessageBubble({
         {message.replyTo && (
           <div
             className={[
-              "mb-1 rounded-xl p-2 text-[10px] leading-4 border-l-2",
+              "mb-1.5 rounded-xl p-2.5 text-[11px] leading-relaxed border-l-3 flex items-start gap-2",
               isMe
-                ? "bg-white/10 border-white/40 text-white/80"
-                : "bg-[#FAFAF7] border-[#0F2D1F] text-[#66665F]",
+                ? "bg-white/10 border-[#38BDF8] text-white/80"
+                : "bg-black/30 border-[#2F78B7] text-white/70",
             ].join(" ")}
           >
-            <div className="font-bold">{message.replyTo.senderName}</div>
-            <div className="truncate">{message.replyTo.content}</div>
+            <CornerDownRight className="h-3.5 w-3.5 shrink-0 text-[#38BDF8] mt-0.5" />
+            <div className="min-w-0">
+              <div className="font-extrabold text-[#38BDF8]">{message.replyTo.senderName}</div>
+              <div className="truncate text-white/60">{message.replyTo.content}</div>
+            </div>
           </div>
         )}
 
-        {/* The Chat Bubble Card */}
+        {/* Chat Bubble Card */}
         <div
           className={[
-            "relative rounded-2xl px-4 py-3 shadow-[0_2px_8px_rgba(15,45,31,0.04)] transition-all",
+            "relative rounded-2xl px-4 py-3.5 shadow-lg backdrop-blur-md transition-all border",
             isMe
-              ? "rounded-tr-sm bg-[#0F2D1F] text-[#F4F3EE]"
-              : "rounded-tl-sm border border-[#E2E1D5] bg-white text-[#171717]",
+              ? "rounded-tr-sm bg-gradient-to-br from-[#1E6091] to-[#15466C] text-white border-white/20"
+              : "rounded-tl-sm bg-[#0C1726] text-[#F1F5F9] border-white/10",
           ].join(" ")}
         >
           {/* Message Text */}
@@ -127,40 +157,28 @@ export default function MessageBubble({
 
           {/* Attachment Preview (e.g. Chart Signal Snapshot) */}
           {message.attachments && message.attachments.length > 0 && (
-            <div className="mt-2.5 space-y-2">
+            <div className="mt-3 space-y-2">
               {message.attachments.map((att, i) => (
                 <div
                   key={i}
                   className={[
-                    "flex items-center gap-3 rounded-xl p-2.5 transition-colors",
+                    "flex items-center gap-3 rounded-xl p-2.5 transition-colors border",
                     isMe
-                      ? "bg-white/10 text-white"
-                      : "border border-[#DCE7DE] bg-[#FAFAF7] text-[#171717]",
+                      ? "bg-white/10 text-white border-white/20"
+                      : "bg-black/40 text-white border-white/10",
                   ].join(" ")}
                 >
-                  <div
-                    className={[
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
-                      isMe ? "bg-white/20 text-[#D8E9DD]" : "bg-[#E8F2EA] text-[#0F2D1F]",
-                    ].join(" ")}
-                  >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#2F78B7]/30 text-[#38BDF8]">
                     <BarChart3 size={18} />
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-xs font-extrabold">{att.title}</div>
-                    <div
-                      className={[
-                        "truncate text-[10px]",
-                        isMe ? "text-white/70" : "text-[#8A897F]",
-                      ].join(" ")}
-                    >
-                      {att.subtitle}
-                    </div>
+                    <div className="truncate text-[12px] font-black">{att.title}</div>
+                    <div className="truncate text-[10.5px] text-white/60">{att.subtitle}</div>
                   </div>
 
-                  <span className="rounded-md bg-black/10 px-2 py-1 text-[8px] font-extrabold uppercase tracking-wide">
-                    Live
+                  <span className="rounded-md bg-[#70C891]/20 px-2 py-0.5 text-[9px] font-black uppercase text-[#70C891] border border-[#70C891]/30">
+                    Live Data
                   </span>
                 </div>
               ))}
@@ -170,12 +188,20 @@ export default function MessageBubble({
           {/* Timestamp & Status Indicator */}
           <div
             className={[
-              "mt-1.5 flex items-center justify-end gap-1.5 text-[9px] font-semibold",
-              isMe ? "text-white/60" : "text-[#9A998F]",
+              "mt-2 flex items-center justify-between gap-1.5 text-[10px] font-bold border-t border-white/10 pt-1.5",
+              isMe ? "text-white/60" : "text-white/40",
             ].join(" ")}
           >
-            <span>{message.timestamp}</span>
-            {isMe && <CheckCheck size={13} className="text-[#A8D2B5]" />}
+            <div className="flex items-center gap-2">
+              <span>{message.timestamp}</span>
+              {isBookmarked && (
+                <span className="flex items-center gap-0.5 text-[#F59E0B]">
+                  <Bookmark className="h-3 w-3 fill-[#F59E0B]" />
+                  <span>Saved</span>
+                </span>
+              )}
+            </div>
+            {isMe && <CheckCheck size={13} className="text-[#70C891]" />}
           </div>
         </div>
 
@@ -183,7 +209,7 @@ export default function MessageBubble({
         {message.reactions && message.reactions.length > 0 && (
           <div
             className={[
-              "mt-1 flex flex-wrap gap-1",
+              "mt-1.5 flex flex-wrap gap-1.5",
               isMe ? "justify-end" : "justify-start",
             ].join(" ")}
           >
@@ -193,14 +219,14 @@ export default function MessageBubble({
                 type="button"
                 onClick={() => onReact(message.id, reaction.emoji)}
                 className={[
-                  "flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-bold transition-all hover:scale-105",
+                  "flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-bold transition-all hover:scale-105",
                   reaction.hasReacted
-                    ? "border-[#0F2D1F] bg-[#E8F2EA] text-[#0F2D1F] shadow-sm"
-                    : "border-[#E2E1D5] bg-white text-[#55554E] hover:bg-[#FAFAF7]",
+                    ? "border-[#38BDF8] bg-[#38BDF8]/20 text-[#38BDF8] shadow-sm"
+                    : "border-white/15 bg-black/40 text-white/80 hover:bg-white/10",
                 ].join(" ")}
               >
                 <span>{reaction.emoji}</span>
-                <span className="text-[9px] tabular-nums font-extrabold">
+                <span className="text-[10px] tabular-nums font-black">
                   {reaction.count}
                 </span>
               </button>
@@ -208,10 +234,10 @@ export default function MessageBubble({
           </div>
         )}
 
-        {/* Hover Action Bar: Quick Reactions & Reply */}
+        {/* Action Bar: Reactions, Reply, Share, Bookmark */}
         <div
           className={[
-            "absolute top-0 hidden items-center gap-1 rounded-xl border border-[#DDDCD0] bg-white p-1 shadow-md group-hover:flex z-10",
+            "absolute top-0 hidden items-center gap-1 rounded-xl border border-white/15 bg-[#0C1726] p-1 shadow-2xl group-hover:flex z-20 backdrop-blur-lg",
             isMe ? "right-full mr-2" : "left-full ml-2",
           ].join(" ")}
         >
@@ -220,25 +246,56 @@ export default function MessageBubble({
               key={emoji}
               type="button"
               onClick={() => onReact(message.id, emoji)}
-              className="flex h-6 w-6 items-center justify-center rounded-lg text-xs transition-transform hover:scale-125 hover:bg-[#E8F2EA]"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-xs transition-transform hover:scale-125 hover:bg-white/10"
               title={`React with ${emoji}`}
             >
               {emoji}
             </button>
           ))}
 
+          <div className="h-4 w-px bg-white/15 mx-0.5" />
+
           {onReply && (
             <button
               type="button"
               onClick={() => onReply(message)}
-              className="flex h-6 w-6 items-center justify-center rounded-lg text-[#55554E] hover:bg-[#E8F2EA] hover:text-[#0F2D1F]"
-              title="Reply"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white"
+              title="Reply to post"
             >
               <MessageSquare size={13} />
             </button>
           )}
+
+          <button
+            type="button"
+            onClick={toggleBookmark}
+            className={`flex h-7 w-7 items-center justify-center rounded-lg ${
+              isBookmarked ? "text-[#F59E0B] bg-[#F59E0B]/20" : "text-white/70 hover:bg-white/10 hover:text-white"
+            }`}
+            title="Bookmark post"
+          >
+            <Bookmark size={13} className={isBookmarked ? "fill-[#F59E0B]" : ""} />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleShare}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white"
+            title={copiedShare ? "Copied link!" : "Share insight"}
+          >
+            <Share2 size={13} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => alert("Report submitted to community moderation.")}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 hover:bg-red-500/20 hover:text-red-400"
+            title="Report post"
+          >
+            <Flag size={12} />
+          </button>
         </div>
       </div>
     </div>
-  )
+  );
 }

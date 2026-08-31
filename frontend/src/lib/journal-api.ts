@@ -94,3 +94,9 @@ export async function createJournalEntry(payload: Partial<TradeJournalEntry>): P
 export async function deleteJournalEntry(entryId: string): Promise<void> {
   await api.delete(`/api/v1/journal/${entryId}`);
 }
+
+export async function updateJournalEntry(entryId: string, payload: Partial<TradeJournalEntry>): Promise<TradeJournalEntry> {
+  const response = await api.put(`/api/v1/journal/${entryId}`, payload);
+  return response.data;
+}
+

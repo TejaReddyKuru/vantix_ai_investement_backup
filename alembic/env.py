@@ -17,6 +17,38 @@ from app.core.config import settings
 from database.base import Base
 import app.models
 
+from sqlalchemy.dialects.postgresql import JSONB, UUID, TIMESTAMP
+from sqlalchemy.ext.compiler import compiles
+from alembic.operations import Operations
+
+@compiles(JSONB, "sqlite")
+def compile_jsonb_sqlite(type_, compiler, **kw):
+    return "JSON"
+
+@compiles(UUID, "sqlite")
+def compile_uuid_sqlite(type_, compiler, **kw):
+    return "CHAR(36)"
+
+@compiles(TIMESTAMP, "sqlite")
+def compile_timestamp_sqlite(type_, compiler, **kw):
+    return "DATETIME"
+
+original_create_table = Operations.create_table
+
+def patched_create_table(self, name, *columns, **kw):
+    patched_cols = []
+    for col in columns:
+        if hasattr(col, 'server_default') and col.server_default is not None:
+            default_val = getattr(col.server_default, 'arg', None)
+            if default_val is not None:
+                default_str = str(default_val)
+                if 'uuid_generate_v4' in default_str or 'gen_random_uuid' in default_str:
+                    col.server_default = None
+        patched_cols.append(col)
+    return original_create_table(self, name, *patched_cols, **kw)
+
+Operations.create_table = patched_create_table
+
 
 config = context.config
 
@@ -120,6 +152,7 @@ def _run_migrations(connection) -> None:
         version_table="alembic_version",
         version_table_pk=True,
         version_table_col_num_chars=255,
+        render_as_batch=True,
     )
 
     with context.begin_transaction():

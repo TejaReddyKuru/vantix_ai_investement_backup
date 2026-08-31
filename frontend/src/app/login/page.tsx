@@ -111,7 +111,7 @@ export default function LoginPage() {
             Email address
           </label>
           <div className="relative">
-            <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/30" />
+            <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/40" />
             <input
               id="email"
               name="email"
@@ -123,7 +123,8 @@ export default function LoginPage() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
-              className="min-h-[56px] w-full rounded-xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-4 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
+              className="min-h-[56px] w-full rounded-xl border border-[#07111F]/15 bg-[#FFFEFA] py-3 pl-12 pr-4 text-[15px] font-bold !text-[#07111F] outline-none transition placeholder:text-[#07111F]/40 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12 shadow-sm"
+              style={{ color: "#07111F", caretColor: "#164F7D" }}
             />
           </div>
         </div>
@@ -139,7 +140,7 @@ export default function LoginPage() {
           </div>
 
           <div className="relative">
-            <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/30" />
+            <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#07111F]/40" />
             <input
               id="password"
               name="password"
@@ -150,7 +151,8 @@ export default function LoginPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Enter your password"
-              className="min-h-[56px] w-full rounded-xl border border-[#07111F]/12 bg-[#FFFEFA] py-3 pl-12 pr-14 text-[15px] text-[#07111F] outline-none transition placeholder:text-[#07111F]/30 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12"
+              className="min-h-[56px] w-full rounded-xl border border-[#07111F]/15 bg-[#FFFEFA] py-3 pl-12 pr-14 text-[15px] font-bold !text-[#07111F] outline-none transition placeholder:text-[#07111F]/40 focus:border-[#2F78B7] focus:ring-4 focus:ring-[#2F78B7]/12 shadow-sm"
+              style={{ color: "#07111F", caretColor: "#164F7D" }}
             />
             <button
               type="button"
