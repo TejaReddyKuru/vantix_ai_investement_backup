@@ -8,6 +8,7 @@ type User = {
   id: string
   email: string
   display_name?: string
+  avatar_url?: string
 }
 
 type StoredAuth = {
@@ -20,6 +21,7 @@ type AuthContextValue = {
   token: string | null
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
+  updateUser: (updatedFields: Partial<User>) => void
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -166,6 +168,18 @@ export const AuthProvider = ({
     localStorage.removeItem("vc_auth")
   }
 
+  /*
+   * Update User
+   */
+  const updateUser = (updatedFields: Partial<User>) => {
+    if (!user) return;
+    const updated = { ...user, ...updatedFields };
+    setUser(updated);
+    if (token) {
+      localStorage.setItem("vc_auth", JSON.stringify({ user: updated, token }));
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -173,6 +187,7 @@ export const AuthProvider = ({
         token,
         login,
         logout,
+        updateUser,
       }}
     >
       {children}

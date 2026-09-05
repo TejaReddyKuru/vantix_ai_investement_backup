@@ -12,6 +12,7 @@ import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import FridayPanel from "./FridayPanel";
 import NotificationWidget from "./NotificationWidget";
+import PrivacyPolicyModal from "@/components/legal/PrivacyPolicyModal";
 import { WorkspaceContext } from "./WorkspaceContext";
 import { useAuth } from "@/context/AuthContext";
 import { useHydrated } from "@/hooks/useWorkspaceData";
@@ -132,6 +133,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
           open={notificationsOpen}
           onOpenChange={setNotificationsOpen}
         />
+        <PrivacyPolicyModal />
       </div>
     </WorkspaceContext.Provider>
   );

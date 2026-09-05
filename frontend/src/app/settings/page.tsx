@@ -21,10 +21,10 @@ import {
   X,
   RotateCcw,
 } from "lucide-react";
+import { ChangePasswordModal, ActiveSessionsModal, LoginActivityModal, AvatarModal } from "@/components/auth/SecurityModals";
 
 type Section =
   | "profile"
-  | "trading"
   | "notifications"
   | "friday"
   | "appearance"
@@ -42,12 +42,6 @@ const sections: {
     label: "Profile",
     description: "Personal information",
     icon: User,
-  },
-  {
-    id: "trading",
-    label: "Trading",
-    description: "Order preferences",
-    icon: Wallet,
   },
   {
     id: "notifications",
@@ -152,23 +146,21 @@ function SelectInput({
 }
 
 function SettingsContent() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { change: changeTheme } = useTheme();
   const [activeSection, setActiveSection] = useState<Section>("profile");
   const [saved, setSaved] = useState(false);
+  
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isSessionsModalOpen, setIsSessionsModalOpen] = useState(false);
+  const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
   const [profile, setProfile] = useState({
     firstName: user?.display_name?.split(" ")[0] ?? "",
     lastName: user?.display_name?.split(" ").slice(1).join(" ") ?? "",
     email: user?.email ?? "",
     timezone: "Asia/Kolkata",
-  });
-
-  const [trading, setTrading] = useState({
-    orderType: "Market",
-    confirmation: true,
-    slippage: "0.50%",
-    sizing: "Risk based",
   });
 
   const [notifications, setNotifications] = useState({
@@ -208,13 +200,6 @@ function SettingsContent() {
       lastName: user?.display_name?.split(" ").slice(1).join(" ") ?? "",
       email: user?.email ?? "",
       timezone: "Asia/Kolkata",
-    });
-
-    setTrading({
-      orderType: "Market",
-      confirmation: true,
-      slippage: "0.50%",
-      sizing: "Risk based",
     });
 
     setNotifications({
@@ -382,8 +367,12 @@ function SettingsContent() {
 
                 <Card>
                   <div className="flex flex-col gap-5 border-b border-[#ECECE4] pb-6 sm:flex-row sm:items-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-[#2F78B7] text-lg font-extrabold text-white shadow-[0_10px_25px_rgba(15,45,31,0.16)]">
-                      {(user?.display_name || user?.email || "CC").slice(0, 2).toUpperCase()}
+                    <div className="flex h-16 w-16 overflow-hidden items-center justify-center rounded-xl bg-[#2F78B7] text-lg font-extrabold text-white shadow-[0_10px_25px_rgba(15,45,31,0.16)]">
+                      {user?.avatar_url ? (
+                        <img src={user.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
+                      ) : (
+                        (user?.display_name || user?.email || "CC").slice(0, 2).toUpperCase()
+                      )}
                     </div>
 
                     <div>
@@ -396,9 +385,8 @@ function SettingsContent() {
 
                       <button
                         type="button"
-                        disabled
-                        title="This action is not connected yet"
-                        className="mt-3 rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-1.5 text-[11px] font-extrabold text-[#34342F] hover:border-[#BFC9C1]"
+                        onClick={() => setIsAvatarModalOpen(true)}
+                        className="mt-3 rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-1.5 text-[11px] font-extrabold text-[#34342F] transition-all hover:border-[#BFC9C1]"
                       >
                         Change avatar
                       </button>
@@ -455,84 +443,6 @@ function SettingsContent() {
                   title="Profile information"
                   description="Your profile information will be used across your dashboard, portfolio reports, alerts, and trading activity."
                 />
-              </div>
-            )}
-
-            {/* TRADING */}
-            {activeSection === "trading" && (
-              <div className="space-y-5">
-                <PageHeading
-                  icon={Wallet}
-                  title="Trading preferences"
-                  description="Configure how CoinCrest handles your paper and future live trading workflows."
-                />
-
-                <Card>
-                  <SettingRow
-                    title="Default order type"
-                    description="Choose the order type preselected when creating a new trade."
-                  >
-                    <SelectInput
-                      value={trading.orderType}
-                      onChange={(value) =>
-                        setTrading({ ...trading, orderType: value })
-                      }
-                    >
-                      <option>Market</option>
-                      <option>Limit</option>
-                      <option>Stop Market</option>
-                      <option>Stop Limit</option>
-                    </SelectInput>
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Position sizing"
-                    description="Choose how the platform calculates your default position size."
-                  >
-                    <SelectInput
-                      value={trading.sizing}
-                      onChange={(value) =>
-                        setTrading({ ...trading, sizing: value })
-                      }
-                    >
-                      <option>Risk based</option>
-                      <option>Fixed amount</option>
-                      <option>Percentage based</option>
-                    </SelectInput>
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Slippage tolerance"
-                    description="Maximum expected execution slippage used for trade calculations."
-                  >
-                    <SelectInput
-                      value={trading.slippage}
-                      onChange={(value) =>
-                        setTrading({ ...trading, slippage: value })
-                      }
-                    >
-                      <option>0.25%</option>
-                      <option>0.50%</option>
-                      <option>1.00%</option>
-                      <option>2.00%</option>
-                    </SelectInput>
-                  </SettingRow>
-
-                  <SettingRow
-                    title="Trade confirmation"
-                    description="Ask for confirmation before submitting a paper trade."
-                  >
-                    <Toggle
-                      enabled={trading.confirmation}
-                      onChange={() =>
-                        setTrading({
-                          ...trading,
-                          confirmation: !trading.confirmation,
-                        })
-                      }
-                    />
-                  </SettingRow>
-                </Card>
               </div>
             )}
 
@@ -812,8 +722,7 @@ function SettingsContent() {
                   >
                     <button
                       type="button"
-                      disabled
-                      title="This action is not connected yet"
+                      onClick={() => setIsPasswordModalOpen(true)}
                       className="rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-2 text-[11px] font-extrabold text-[#34342F] transition-all hover:border-[#BFC9C1]"
                     >
                       Change password
@@ -840,8 +749,7 @@ function SettingsContent() {
                   >
                     <button
                       type="button"
-                      disabled
-                      title="This action is not connected yet"
+                      onClick={() => setIsSessionsModalOpen(true)}
                       className="rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-2 text-[11px] font-extrabold text-[#34342F]"
                     >
                       View sessions
@@ -854,8 +762,7 @@ function SettingsContent() {
                   >
                     <button
                       type="button"
-                      disabled
-                      title="This action is not connected yet"
+                      onClick={() => setIsActivityModalOpen(true)}
                       className="rounded-lg border border-[#E3E2D9] bg-[#FAFAF7] px-3 py-2 text-[11px] font-extrabold text-[#34342F]"
                     >
                       View activity
@@ -995,6 +902,12 @@ function SettingsContent() {
           CoinCrest secure workspace
         </div>
       </div>
+      
+      {/* Security Modals */}
+      <ChangePasswordModal open={isPasswordModalOpen} onClose={() => setIsPasswordModalOpen(false)} />
+      <ActiveSessionsModal open={isSessionsModalOpen} onClose={() => setIsSessionsModalOpen(false)} />
+      <LoginActivityModal open={isActivityModalOpen} onClose={() => setIsActivityModalOpen(false)} />
+      <AvatarModal open={isAvatarModalOpen} onClose={() => setIsAvatarModalOpen(false)} />
     </div>
   );
 }

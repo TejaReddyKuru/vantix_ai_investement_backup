@@ -59,7 +59,7 @@ def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode('utf-8')).hexdigest()
 
 
-def create_access_token(subject: str, expires_minutes: int | None = None) -> str:
+def create_access_token(subject: str, expires_minutes: int | None = None, sid: str | None = None) -> str:
     expires_delta = timedelta(minutes=expires_minutes or int(getattr(settings, 'access_token_expire_minutes', 15)))
     issued_at = datetime.now(timezone.utc)
     payload = {
@@ -69,6 +69,8 @@ def create_access_token(subject: str, expires_minutes: int | None = None) -> str
         'exp': issued_at + expires_delta,
         'iat': issued_at,
     }
+    if sid:
+        payload['sid'] = sid
     return jwt.encode(payload, _jwt_secret(), algorithm=_jwt_algorithm())
 
 

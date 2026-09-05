@@ -102,15 +102,19 @@ export default function CoinCrestBrand({
   compact?: boolean;
 }) {
   return (
-    <span className="inline-flex items-center gap-3">
-      <CoinCrestMark
-        className={compact ? "h-9 w-9" : "h-11 w-11"}
-        inverted={inverted}
+    <span
+      className={`relative inline-flex shrink-0 items-center ${
+        compact ? "h-6 w-32" : "h-8 w-40"
+      }`}
+      aria-hidden="true"
+    >
+      <Image
+        src="/logo.png"
+        alt="CoinCrest Logo"
+        fill
         priority
-      />
-      <CoinCrestWordmark
-        className={compact ? "text-[16px]" : "text-[19px]"}
-        inverted={inverted}
+        sizes="200px"
+        className={`object-contain object-left ${inverted ? "brightness-0 invert" : ""}`}
       />
     </span>
   );

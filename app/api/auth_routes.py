@@ -20,6 +20,7 @@ from app.core.security import (
     hash_token,
     require_admin,
     require_user,
+    security_scheme,
     validate_password_policy,
     verify_password,
 )
@@ -83,6 +84,12 @@ class ChangePasswordRequest(BaseModel):
     new_password: str = Field(..., min_length=8, max_length=128)
 
 
+class UpdateProfileRequest(BaseModel):
+    model_config = ConfigDict(extra='ignore')
+    display_name: str | None = Field(None, min_length=1, max_length=120)
+    avatar_url: str | None = Field(None, max_length=1000)
+
+
 class EmailVerificationRequest(BaseModel):
     model_config = ConfigDict(extra='ignore')
     email: str = Field(..., min_length=3, max_length=255)
@@ -113,6 +120,7 @@ class UserOut(BaseModel):
     is_staff: bool
     email_verified: bool
     display_name: str | None = None
+    avatar_url: str | None = None
 
 
 class AuthResponse(BaseModel):
@@ -128,6 +136,7 @@ def _serialize_user(user: User, profile: UserProfile | None = None) -> UserOut:
         is_staff=user.is_staff,
         email_verified=user.email_verified,
         display_name=(profile.display_name if profile is not None else None),
+        avatar_url=(profile.avatar_url if profile is not None else None),
     )
 
 
@@ -218,8 +227,9 @@ async def _ensure_default_paper_account(db, user_id):
 
 
 async def _issue_token_pair(user: User) -> tuple[str, str]:
-    access_token = create_access_token(str(user.id))
     refresh_token = create_refresh_token(str(user.id))
+    session_hash = hash_token(refresh_token)
+    access_token = create_access_token(str(user.id), sid=session_hash)
     return access_token, refresh_token
 
 
@@ -409,20 +419,145 @@ async def me(current_user: User = Depends(get_current_user)):
         return {'user': _serialize_user(current_user, profile).model_dump(mode='json')}
 
 
+@router.put('/profile')
+async def update_profile(payload: UpdateProfileRequest, current_user: User = Depends(get_current_user)):
+    async with AsyncSessionLocal() as db:
+        profile = await _get_user_profile(db, current_user.id)
+        if not profile:
+            profile = UserProfile(user_id=current_user.id)
+            db.add(profile)
+            await db.flush()
+        
+        if payload.display_name is not None:
+            profile.display_name = payload.display_name
+        if payload.avatar_url is not None:
+            profile.avatar_url = payload.avatar_url
+            
+        await db.commit()
+        return {'user': _serialize_user(current_user, profile).model_dump(mode='json')}
+
+
 @router.post('/change-password')
 async def change_password(payload: ChangePasswordRequest, current_user: User = Depends(get_current_user), request: Request = None):
     async with AsyncSessionLocal() as db:
         if not verify_password(payload.current_password, current_user.password_hash):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Current password is incorrect.')
+        if payload.current_password == payload.new_password:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='New password must be different from current password.')
         try:
             validate_password_policy(payload.new_password)
         except ValueError as exc:
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
-        current_user.password_hash = hash_password(payload.new_password)
+        
+        # current_user is detached, fetch it in current session
+        user_db = await db.get(User, current_user.id)
+        if not user_db:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='User not found.')
+            
+        user_db.password_hash = hash_password(payload.new_password)
         await db.commit()
         if request is not None:
             await _audit_event(db, current_user.id, 'password_change', request)
     return {'message': 'Password changed successfully.'}
+
+
+@router.get('/sessions')
+async def get_sessions(current_user: User = Depends(get_current_user), credentials = Depends(security_scheme)):
+    current_sid = None
+    if credentials and credentials.credentials:
+        try:
+            payload = decode_token(credentials.credentials)
+            current_sid = payload.get('sid')
+        except HTTPException:
+            pass
+
+    async with AsyncSessionLocal() as db:
+        stmt = select(UserSession).where(UserSession.user_id == current_user.id, UserSession.revoked_at.is_(None)).order_by(UserSession.last_seen_at.desc())
+        result = await db.execute(stmt)
+        sessions = result.scalars().all()
+        
+        response_sessions = []
+        for session in sessions:
+            response_sessions.append({
+                'id': str(session.id),
+                'device_info': session.device_info or 'Unknown Device',
+                'ip_address': session.ip_address,
+                'last_seen_at': session.last_seen_at.isoformat() + 'Z' if session.last_seen_at else None,
+                'created_at': session.created_at.isoformat() + 'Z' if session.created_at else None,
+                'current': current_sid is not None and session.session_hash == current_sid
+            })
+        
+        return {'sessions': response_sessions}
+
+
+@router.delete('/sessions')
+async def revoke_all_other_sessions(request: Request, current_user: User = Depends(get_current_user), credentials = Depends(security_scheme)):
+    current_sid = None
+    if credentials and credentials.credentials:
+        try:
+            payload = decode_token(credentials.credentials)
+            current_sid = payload.get('sid')
+        except HTTPException:
+            pass
+            
+    async with AsyncSessionLocal() as db:
+        stmt = select(UserSession).where(UserSession.user_id == current_user.id, UserSession.revoked_at.is_(None))
+        result = await db.execute(stmt)
+        sessions = result.scalars().all()
+        
+        for session in sessions:
+            if current_sid is not None and session.session_hash == current_sid:
+                continue
+            session.revoked_at = datetime.utcnow()
+            session.expires_at = datetime.utcnow()
+            
+        await db.commit()
+        await _audit_event(db, current_user.id, 'logout_all_other_sessions', request)
+        
+    return {'message': 'All other sessions have been revoked.'}
+
+
+@router.delete('/sessions/{session_id}')
+async def revoke_session(session_id: str, request: Request, current_user: User = Depends(get_current_user)):
+    try:
+        session_uuid = uuid.UUID(session_id)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Invalid session ID.')
+        
+    async with AsyncSessionLocal() as db:
+        stmt = select(UserSession).where(UserSession.id == session_uuid, UserSession.user_id == current_user.id)
+        result = await db.execute(stmt)
+        session = result.scalar_one_or_none()
+        
+        if session is None or session.revoked_at is not None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Session not found or already revoked.')
+            
+        session.revoked_at = datetime.utcnow()
+        session.expires_at = datetime.utcnow()
+        await db.commit()
+        await _audit_event(db, current_user.id, 'session_revoked', request, {'session_id': session_id})
+        
+    return {'message': 'Session revoked successfully.'}
+
+
+@router.get('/activity')
+async def get_activity(current_user: User = Depends(get_current_user)):
+    async with AsyncSessionLocal() as db:
+        stmt = select(AuditLog).where(AuditLog.user_id == current_user.id).order_by(AuditLog.created_at.desc()).limit(50)
+        result = await db.execute(stmt)
+        logs = result.scalars().all()
+        
+        response_logs = []
+        for log in logs:
+            response_logs.append({
+                'id': str(log.id),
+                'action': log.action,
+                'ip_address': log.ip_address,
+                'created_at': log.created_at.isoformat() + 'Z' if log.created_at else None,
+                'metadata': log.metadata_json
+            })
+            
+        return {'activity': response_logs}
 
 
 @router.post('/request-password-reset')
