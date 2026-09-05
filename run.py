@@ -16,9 +16,11 @@ if __name__ == "__main__":
     logger.info(f"Environment: {os.environ.get('ENV', 'development')}")
 
     try:
+        from app.main import app
+        logger.info("Successfully loaded FastAPI app.")
         import uvicorn
         uvicorn.run(
-            "app.main:app",
+            app,
             host="0.0.0.0",
             port=port,
             loop="asyncio",
