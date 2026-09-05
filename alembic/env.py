@@ -24,6 +24,10 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 database_url = settings.database_url or "sqlite+aiosqlite:///./data/dev.db"
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql+psycopg://", 1)
+elif database_url.startswith("postgresql://") and not database_url.startswith("postgresql+"):
+    database_url = database_url.replace("postgresql://", "postgresql+psycopg://", 1)
 
 config.set_main_option(
     "sqlalchemy.url",

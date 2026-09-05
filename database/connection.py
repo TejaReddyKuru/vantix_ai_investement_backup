@@ -7,7 +7,12 @@ from app.core.config import settings
 
 def get_database_url() -> str:
     if settings.database_url:
-        return settings.database_url
+        url = settings.database_url
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql+psycopg://", 1)
+        elif url.startswith("postgresql://") and not url.startswith("postgresql+"):
+            url = url.replace("postgresql://", "postgresql+psycopg://", 1)
+        return url
     return "sqlite+aiosqlite:///./data/dev.db"
 
 
