@@ -42,6 +42,16 @@ app.include_router(auth_router, prefix="/api/v1")
 app.include_router(v1_router)
 
 
+@app.get("/")
+async def root():
+    return {"message": "CoinCrest API is running", "status": "ok", "version": "0.1.0"}
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
 @app.middleware("http")
 async def add_request_id(request: Request, call_next):
     request_id = str(uuid4())
