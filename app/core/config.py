@@ -13,7 +13,7 @@ class Settings(BaseModel):
     app_name: str = Field(default='Vish Capitals / Friday')
     environment: str = Field(default='development')
 
-    binance_api_base_url: str = Field(default='https://api.binance.com')
+    binance_api_base_url: str = Field(default='https://data-api.binance.vision')
     binance_timeout: float = Field(default=10.0)
     binance_rate_limit_delay: float = Field(default=0.2)
     binance_api_key: Optional[SecretStr] = None

@@ -14,6 +14,13 @@ class BinanceService:
     _shared_client: httpx.AsyncClient | None = None
     _client_loop_id: int | None = None
 
+    FALLBACK_URLS = [
+        "https://data-api.binance.vision",
+        "https://api.binance.com",
+        "https://api1.binance.com",
+        "https://api.binance.us",
+    ]
+
     def __init__(self, base_url: str | None = None, timeout: float | None = None) -> None:
         self.base_url = base_url or settings.binance_api_base_url
         self.timeout = timeout or settings.binance_timeout
@@ -32,20 +39,44 @@ class BinanceService:
         return cls._shared_client
 
     async def _request(self, path: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
-        url = f"{self.base_url}{path}"
+        candidate_urls = [self.base_url]
+        for fb in self.FALLBACK_URLS:
+            if fb not in candidate_urls:
+                candidate_urls.append(fb)
+
         last_error: Exception | None = None
-        for attempt in range(3):
-            try:
-                client = self.get_client(self.timeout)
-                response = await client.get(url, params=params)
-                response.raise_for_status()
-                await asyncio.sleep(self.rate_limit_delay)
-                return response.json()
-            except httpx.HTTPError as exc:
-                last_error = exc
-                logger.warning("Binance request failed (attempt {attempt}/{total}): {error}", attempt=attempt + 1, total=3, error=exc)
-                await asyncio.sleep(0.5 * (attempt + 1))
-        raise BinanceServiceError(f"Binance request failed: {last_error}") from last_error
+
+        for base in candidate_urls:
+            url = f"{base}{path}"
+            for attempt in range(2):
+                try:
+                    client = self.get_client(self.timeout)
+                    response = await client.get(url, params=params)
+                    if response.status_code == 451:
+                        logger.warning(f"Binance endpoint {base} returned 451 (geoblocked/restricted), falling back to alternative...")
+                        break
+                    response.raise_for_status()
+                    await asyncio.sleep(self.rate_limit_delay)
+                    if self.base_url != base:
+                        logger.info(f"Switched active Binance endpoint to {base}")
+                        self.base_url = base
+                    return response.json()
+                except httpx.HTTPStatusError as exc:
+                    last_error = exc
+                    if exc.response.status_code in (451, 403):
+                        logger.warning(f"Binance endpoint {base} failed with HTTP {exc.response.status_code}, switching to next candidate.")
+                        break
+                    logger.warning("Binance request failed on {base} (attempt {attempt}/{total}): {error}", base=base, attempt=attempt + 1, total=2, error=exc)
+                    await asyncio.sleep(0.3 * (attempt + 1))
+                except httpx.HTTPError as exc:
+                    last_error = exc
+                    logger.warning("Binance request failed on {base} (attempt {attempt}/{total}): {error}", base=base, attempt=attempt + 1, total=2, error=exc)
+                    await asyncio.sleep(0.3 * (attempt + 1))
+                except Exception as exc:
+                    last_error = exc
+                    break
+
+        raise BinanceServiceError(f"Binance request failed across all endpoints: {last_error}") from last_error
 
     async def get_current_price(self, symbol: str) -> float:
         data = await self._request("/api/v3/ticker/price", {"symbol": symbol})

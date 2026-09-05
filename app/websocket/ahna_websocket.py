@@ -44,15 +44,20 @@ class AHNAWebSocketPipeline:
 
     async def start(self, symbol: str):
         symbol_lower = symbol.lower()
-        uri = f"wss://stream.binance.com:9443/ws/{symbol_lower}@kline_1m"
+        ws_endpoints = [
+            f"wss://data-stream.binance.vision:9443/ws/{symbol_lower}@kline_1m",
+            f"wss://stream.binance.com:9443/ws/{symbol_lower}@kline_1m",
+        ]
         
         while True:
-            try:
-                async with websockets.connect(uri) as websocket:
-                    logger.info(f"Connected to Binance WS for {symbol}")
-                    while True:
-                        msg = await websocket.recv()
-                        await self._handle_message(symbol, msg)
-            except Exception as e:
-                logger.error(f"Binance WS disconnected for {symbol}, reconnecting in 5s... Error: {e}")
-                await asyncio.sleep(5)
+            for uri in ws_endpoints:
+                try:
+                    async with websockets.connect(uri) as websocket:
+                        logger.info(f"Connected to Binance WS for {symbol} on {uri}")
+                        while True:
+                            msg = await websocket.recv()
+                            await self._handle_message(symbol, msg)
+                except Exception as e:
+                    logger.error(f"Binance WS ({uri}) disconnected for {symbol}, trying next endpoint... Error: {e}")
+                    await asyncio.sleep(2)
+            await asyncio.sleep(5)

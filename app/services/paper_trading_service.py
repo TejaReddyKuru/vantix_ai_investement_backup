@@ -140,12 +140,18 @@ class PaperTradingService:
 
             symbol = asset.symbol
 
-            # 4. Fetch price from BinanceService (no fallback)
+            # 4. Fetch price from BinanceService (with fallback)
             try:
                 price_val = await self.binance_service.get_current_price(symbol)
                 market_price = Decimal(str(price_val))
             except Exception as e:
-                raise PriceRetrievalError(f"Failed to fetch market price for {symbol}: {e}")
+                try:
+                    from app.services.coingecko_service import CoinGeckoService
+                    cg_service = CoinGeckoService()
+                    price_val = await cg_service.get_current_price(symbol)
+                    market_price = Decimal(str(price_val))
+                except Exception:
+                    raise PriceRetrievalError(f"Failed to fetch market price for {symbol}: {e}")
 
             # 5. Determine triggering and execution price
             is_triggered = False

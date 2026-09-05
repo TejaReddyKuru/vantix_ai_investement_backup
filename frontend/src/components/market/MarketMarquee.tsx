@@ -87,7 +87,7 @@ export default function MarketMarquee() {
         .join("/")
 
       socket = new WebSocket(
-        `wss://stream.binance.com:9443/stream?streams=${streams}`,
+        `wss://data-stream.binance.vision:9443/stream?streams=${streams}`,
       )
 
       socket.onmessage = (event) => {

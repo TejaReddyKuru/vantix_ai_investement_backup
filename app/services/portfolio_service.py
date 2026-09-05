@@ -86,7 +86,13 @@ class PortfolioService:
                     price_val = await self.binance_service.get_current_price(symbol)
                     current_price = Decimal(str(price_val))
                 except Exception as e:
-                    raise PriceRetrievalError(f"Failed to fetch market price for {symbol}: {e}")
+                    try:
+                        from app.services.coingecko_service import CoinGeckoService
+                        cg_service = CoinGeckoService()
+                        price_val = await cg_service.get_current_price(symbol)
+                        current_price = Decimal(str(price_val))
+                    except Exception:
+                        raise PriceRetrievalError(f"Failed to fetch market price for {symbol}: {e}")
             else:
                 current_price = position.current_price or position.average_entry_price
 

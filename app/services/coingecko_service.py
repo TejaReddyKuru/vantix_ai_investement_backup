@@ -57,6 +57,17 @@ class CoinGeckoService:
                 logger.error("CoinGecko request failed: {error}", error=exc)
                 raise CoinGeckoServiceError(f"CoinGecko request failed: {exc}") from exc
 
+    async def get_current_price(self, symbol: str) -> float:
+        coin_id = self._get_coin_id(symbol)
+        params = {
+            "ids": coin_id,
+            "vs_currencies": "usd"
+        }
+        data = await self._request("/simple/price", params)
+        if coin_id not in data or "usd" not in data[coin_id]:
+            raise CoinGeckoServiceError(f"Price not found on CoinGecko for {symbol}")
+        return float(data[coin_id]["usd"])
+
     async def get_market_data(self, symbol: str) -> Dict[str, Any]:
         """
         Fetch fallback market data from CoinGecko.
