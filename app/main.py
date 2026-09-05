@@ -71,30 +71,3 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(APIError, api_error_handler)
 app.add_exception_handler(Exception, unexpected_exception_handler)
 
-# During development and testing ensure a default test user exists so tests
-# that assume a pre-created user do not fail due to ordering or race conditions.
-# This is intentionally conservative: it only runs outside of production.
-from database.session import AsyncSessionLocal
-from app.models.user import User, UserProfile
-from app.core.security import hash_password
-from app.core.config import settings
-
-@app.on_event('startup')
-async def _ensure_default_test_user():
-    if settings.environment == 'production':
-        return
-    try:
-        async with AsyncSessionLocal() as db:
-            # Use a known test email used by integration tests
-            test_email = 'p10_user@example.com'
-            result = await db.execute(__import__('sqlalchemy').select(User).where(User.email == test_email))
-            existing = result.scalar_one_or_none()
-            if existing is None:
-                user = User(email=test_email, password_hash=hash_password('Password1!'), is_active=True)
-                db.add(user)
-                await db.flush()
-                profile = UserProfile(user_id=user.id, display_name='P10 User')
-                db.add(profile)
-                await db.commit()
-    except Exception as e:
-        logger.warning(f"Startup test user initialization skipped or non-fatal error: {e}")
