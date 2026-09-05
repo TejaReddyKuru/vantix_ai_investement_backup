@@ -133,6 +133,18 @@ async def get_current_user(request: Request, credentials: HTTPAuthorizationCrede
     return user
 
 
+async def get_optional_user(request: Request, credentials: HTTPAuthorizationCredentials | None = Depends(security_scheme)) -> User | None:
+    if credentials is None or not credentials.credentials or credentials.credentials in ("null", "undefined"):
+        return None
+    try:
+        user = await get_user_by_token(credentials.credentials)
+        if user and user.is_active:
+            return user
+    except Exception:
+        pass
+    return None
+
+
 async def require_user(current_user: User = Depends(get_current_user)) -> User:
     return current_user
 

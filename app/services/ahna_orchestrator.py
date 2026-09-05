@@ -18,7 +18,7 @@ from app.models.ahna_analysis import AHNAAnalysis
 logger = get_logger(__name__)
 
 class AHNAOrchestrator:
-    def __init__(self, db: AsyncSession):
+    def __init__(self, db: AsyncSession | None = None):
         self.db = db
         self.market_agent = MarketAgent()
         self.news_agent = NewsAgent()
@@ -28,7 +28,7 @@ class AHNAOrchestrator:
         self.trade_agent = TradeAgent()
         self.ai_synthesis = AISynthesisService()
 
-    async def analyze(self, symbol: str, question: str, user_id: UUID) -> AHNAResponseOut:
+    async def analyze(self, symbol: str, question: str, user_id: UUID | None = None) -> AHNAResponseOut:
         symbol = symbol.upper()
         
         # 1. Fetch independent external data concurrently
@@ -96,26 +96,27 @@ class AHNAOrchestrator:
         ai_response = await self.ai_synthesis.synthesize(symbol, question, data_payload, status)
 
         # 6. Database Persistence
-        try:
-            analysis_record = AHNAAnalysis(
-                user_id=user_id,
-                symbol=symbol,
-                question=question,
-                market_data=data_payload["market"],
-                news_data=data_payload["news"],
-                sentiment_data=data_payload["sentiment"],
-                feature_data=data_payload["features"],
-                risk_data=data_payload["risk"],
-                trade_data=data_payload["trade"],
-                ai_response=ai_response.model_dump(mode="json"),
-                decision=ai_response.decision,
-                confidence=ai_response.confidence,
-                model_version=self.ai_synthesis.model
-            )
-            self.db.add(analysis_record)
-            await self.db.commit()
-        except Exception as e:
-            logger.error(f"Failed to persist AHNA analysis: {e}")
-            await self.db.rollback()
+        if user_id:
+            try:
+                analysis_record = AHNAAnalysis(
+                    user_id=user_id,
+                    symbol=symbol,
+                    question=question,
+                    market_data=data_payload["market"],
+                    news_data=data_payload["news"],
+                    sentiment_data=data_payload["sentiment"],
+                    feature_data=data_payload["features"],
+                    risk_data=data_payload["risk"],
+                    trade_data=data_payload["trade"],
+                    ai_response=ai_response.model_dump(mode="json"),
+                    decision=ai_response.decision,
+                    confidence=ai_response.confidence,
+                    model_version=self.ai_synthesis.model
+                )
+                self.db.add(analysis_record)
+                await self.db.commit()
+            except Exception as e:
+                logger.error(f"Failed to persist AHNA analysis: {e}")
+                await self.db.rollback()
 
         return ai_response

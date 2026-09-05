@@ -1,4 +1,5 @@
 import json
+import re
 from datetime import datetime, timezone
 from typing import Any, Dict
 
@@ -106,25 +107,37 @@ Expected JSON Schema:
 
         import copy
         llm_data = copy.deepcopy(data)
-        if "market" in llm_data:
-            if "candles" in llm_data["market"]:
+        if "market" in llm_data and isinstance(llm_data["market"], dict):
+            if "candles" in llm_data["market"] and isinstance(llm_data["market"]["candles"], dict):
                 # Keep only last 5 candles
                 for key, val in llm_data["market"]["candles"].items():
                     if isinstance(val, list):
                         llm_data["market"]["candles"][key] = val[-5:]
-            if "order_book" in llm_data["market"]:
+            if "order_book" in llm_data["market"] and isinstance(llm_data["market"]["order_book"], dict):
                 # Keep only top 5 bids and asks
                 ob = llm_data["market"]["order_book"]
                 if "bids" in ob and isinstance(ob["bids"], list):
                     ob["bids"] = ob["bids"][:5]
                 if "asks" in ob and isinstance(ob["asks"], list):
                     ob["asks"] = ob["asks"][:5]
+        if "news" in llm_data and isinstance(llm_data["news"], dict) and "articles" in llm_data["news"]:
+            if isinstance(llm_data["news"]["articles"], list):
+                llm_data["news"]["articles"] = [
+                    {
+                        "title": a.get("title", ""),
+                        "source": a.get("source", ""),
+                        "published_at": a.get("published_at", "")
+                    }
+                    for a in llm_data["news"]["articles"][:3]
+                    if isinstance(a, dict)
+                ]
                     
         prompt = self._build_prompt(user_question, llm_data)
 
         headers = {
             "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "User-Agent": "CoinCrest-AI/1.0"
         }
         
         payload = {
@@ -133,18 +146,40 @@ Expected JSON Schema:
                 {"role": "system", "content": "You are a helpful AI assistant that outputs strictly raw JSON. Do not wrap in markdown."},
                 {"role": "user", "content": prompt}
             ],
-            "temperature": 0.2
+            "temperature": 0.2,
+            "max_tokens": 800
         }
 
+        models_to_try = [self.model]
+        if self.model != "qwen/qwen3.6-27b":
+            models_to_try.append("qwen/qwen3.6-27b")
+
+        content = None
         async with httpx.AsyncClient(timeout=30.0) as client:
+            for model_name in models_to_try:
+                try:
+                    payload["model"] = model_name
+                    response = await client.post(f"{self.base_url}/chat/completions", json=payload, headers=headers)
+                    if response.status_code == 200:
+                        result = response.json()
+                        content = result["choices"][0]["message"]["content"]
+                        break
+                    else:
+                        logger.warning(f"LLM model {model_name} returned status {response.status_code}: {response.text[:200]}")
+                except Exception as exc:
+                    logger.warning(f"LLM model {model_name} request error: {exc}")
+            
+            if not content:
+                logger.error("All LLM model attempts failed, resorting to fallback synthesis.")
+                return self._fallback_synthesis(symbol, data, status)
+                
             try:
-                response = await client.post(f"{self.base_url}/chat/completions", json=payload, headers=headers)
-                response.raise_for_status()
-                result = response.json()
+                parsed = self._extract_json(content)
+            except Exception as e:
+                logger.error(f"Failed to parse JSON content from LLM: {e}")
+                return self._fallback_synthesis(symbol, data, status)
                 
-                content = result["choices"][0]["message"]["content"]
-                parsed = json.loads(content)
-                
+            try:
                 # Parse entry
                 entry_data = parsed.get("entry")
                 entry = TradeAgentEntry(min=entry_data["min"], max=entry_data["max"]) if entry_data else None
@@ -206,11 +241,29 @@ Expected JSON Schema:
                 )
 
             except Exception as exc:
-                logger.error(f"LLM Synthesis failed: {exc}")
+                logger.error(f"Error constructing AHNAResponseOut: {exc}")
                 return self._fallback_synthesis(symbol, data, status)
 
-    def _fallback_synthesis(self, symbol: str, data: Dict[str, Any], status: AgentStatus) -> AHNAResponseOut:
-        from app.schemas.ahna import AHNAMarketState, AHNAInstruction, AHNATradePlan, AHNAUIEffect
+    def _extract_json(self, content: str) -> Dict[str, Any]:
+        if not content:
+            raise ValueError("Empty LLM content")
+        # 1. Remove <think>...</think> reasoning blocks from thinking models (e.g. Qwen 3.6)
+        cleaned = re.sub(r'<think>[\s\S]*?</think>', '', content, flags=re.IGNORECASE).strip()
+        # 2. Extract markdown code block if present
+        code_block = re.search(r'```(?:json)?\s*([\s\S]*?)\s*```', cleaned)
+        if code_block:
+            cleaned = code_block.group(1).strip()
+        # 3. Find outermost JSON object bounds
+        start = cleaned.find('{')
+        end = cleaned.rfind('}')
+        if start != -1 and end != -1 and end > start:
+            cleaned = cleaned[start:end+1]
+        return json.loads(cleaned)
+
+    def _fallback_synthesis(self, symbol: str, data: Dict[str, Any], status: Any) -> AHNAResponseOut:
+        from app.schemas.ahna import AHNAMarketState, AHNAInstruction, AHNATradePlan, AHNAUIEffect, AgentStatus
+        if not isinstance(status, AgentStatus):
+            status = AgentStatus(**(status if isinstance(status, dict) else {}))
         trade = data.get("trade", {})
         risk = data.get("risk", {})
         

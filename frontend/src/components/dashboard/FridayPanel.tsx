@@ -56,7 +56,7 @@ export default function FridayPanel({ open, onClose }: { open: boolean; onClose:
 
     try {
       const response = await apiClient.post("/api/v1/ahna/analyze", { symbol: activeSymbol, question }, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       const data = response.data;
       if (setLatestAhnaAnalysis && data) {
@@ -64,22 +64,30 @@ export default function FridayPanel({ open, onClose }: { open: boolean; onClose:
       }
       const aiReply = data.summary ? `${data.summary}\n\nDecision: ${data.decision} (${Math.round(data.confidence)}%)\n\n` + (data.reasoning || []).map((r: string) => `• ${r}`).join("\n") : "Analysis complete.";
       setMessages(old => old.map(m => m.id === msgId ? { ...m, reply: aiReply, structuredAnalysis: data } : m));
-    } catch (e) {
+    } catch (e: any) {
       console.error("AHNA Error:", e);
-      setMessages(old => old.map(m => m.id === msgId ? { ...m, reply: "Analysis failed to complete. Please ensure backend services are running." } : m));
+      const detail = e?.response?.data?.detail;
+      const errMsg = typeof detail === "string" ? detail : "Analysis failed to complete. Please ensure backend services are running.";
+      setMessages(old => old.map(m => m.id === msgId ? { ...m, reply: errMsg } : m));
     }
   }
 
   async function simplifyReply(id: number, text: string) {
     setMessages(old => old.map(m => m.id === id ? { ...m, reply: "Simplifying..." } : m));
     try {
-      const response = await apiClient.post("/api/v1/ahna/analyze", { symbol: activeSymbol, question: `Explain this very simply in 2 sentences: ${text}`.slice(0, 1500) }, { headers: { Authorization: `Bearer ${token}` } });
+      const response = await apiClient.post(
+        "/api/v1/ahna/analyze",
+        { symbol: activeSymbol, question: `Explain this very simply in 2 sentences: ${text}`.slice(0, 1500) },
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      );
       const data = response.data;
       const aiReply = data.summary ? `${data.summary}\n\nDecision: ${data.decision} (${Math.round(data.confidence)}%)\n\n` + (data.reasoning || []).map((r: string) => `• ${r}`).join("\n") : "Simplification complete.";
       setMessages(old => old.map(m => m.id === id ? { ...m, reply: aiReply, structuredAnalysis: data } : m));
-    } catch (e) {
+    } catch (e: any) {
       console.error("AHNA Error:", e);
-      setMessages(old => old.map(m => m.id === id ? { ...m, reply: "Simplification failed." } : m));
+      const detail = e?.response?.data?.detail;
+      const errMsg = typeof detail === "string" ? detail : "Simplification failed.";
+      setMessages(old => old.map(m => m.id === id ? { ...m, reply: errMsg } : m));
     }
   }
   function submit(event: FormEvent) { event.preventDefault(); void ask(draft); }
