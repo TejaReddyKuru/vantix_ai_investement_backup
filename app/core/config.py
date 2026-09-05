@@ -59,7 +59,7 @@ class Settings(BaseModel):
     def _load_environment(cls, values):
         values = dict(values or {})
         values.pop('_env_file', None)
-        values.setdefault('environment', os.getenv('ENV', 'development'))
+        values.setdefault('environment', os.getenv('ENVIRONMENT') or os.getenv('ENV', 'development'))
         values.setdefault('database_url', os.getenv('DATABASE_URL') or None)
         values.setdefault('cors_allowed_origins', os.getenv('CORS_ALLOWED_ORIGINS', ''))
         values.setdefault('redis_url', os.getenv('REDIS_URL') or None)
@@ -111,7 +111,14 @@ class Settings(BaseModel):
     @classmethod
     def split_cors_origins(cls, value):
         if isinstance(value, str):
-            return [origin.strip() for origin in value.split(',') if origin.strip()]
+            origins = []
+            for origin in value.split(','):
+                cleaned = origin.strip().rstrip('/')
+                if cleaned:
+                    origins.append(cleaned)
+            return origins
+        if isinstance(value, (list, tuple, set)):
+            return [str(origin).strip().rstrip('/') for origin in value if str(origin).strip()]
         if value is None:
             return []
         return value
@@ -119,29 +126,40 @@ class Settings(BaseModel):
     @model_validator(mode='after')
     def _set_defaults_and_validate(self):
         if self.environment != 'production' and not self.cors_allowed_origins:
-            self.cors_allowed_origins = ['http://localhost:8000', 'http://127.0.0.1:8000']
+            self.cors_allowed_origins = [
+                'http://localhost:3000',
+                'http://127.0.0.1:3000',
+                'http://localhost:8000',
+                'http://127.0.0.1:8000',
+                'http://localhost:3001',
+                'http://127.0.0.1:3001',
+            ]
 
         if self.environment == 'production':
+            missing = []
             if not self.database_url:
-                raise ValueError('DATABASE_URL must be set in production')
+                missing.append('DATABASE_URL')
             if not self.cors_allowed_origins:
-                raise ValueError('CORS_ALLOWED_ORIGINS must be set in production')
+                missing.append('CORS_ALLOWED_ORIGINS')
+            if not self.jwt_secret:
+                missing.append('JWT_SECRET')
+            if missing:
+                raise ValueError(
+                    f"Missing required production environment variable(s): {', '.join(missing)}. "
+                    "Please configure these in your Render Dashboard (Environment tab)."
+                )
 
         return self
-        environment = values.environment
-        if environment != 'production' and not values.cors_allowed_origins:
-            values.cors_allowed_origins = ['http://localhost:8000', 'http://127.0.0.1:8000']
-
-        if environment == 'production':
-            if not values.cors_allowed_origins:
-                raise ValueError('CORS_ALLOWED_ORIGINS must be set in production')
-            if not values.database_url:
-                raise ValueError('DATABASE_URL must be set in production')
-
-        return values
 
 
 try:
     settings = Settings()
 except ValidationError as exc:
-    raise RuntimeError('Invalid application configuration') from exc
+    error_details = []
+    for err in exc.errors():
+        loc = ".".join(str(l) for l in err.get("loc", []))
+        msg = err.get("msg", "")
+        error_details.append(f" - {loc}: {msg}" if loc else f" - {msg}")
+    raise RuntimeError(
+        "Application configuration failed:\n" + "\n".join(error_details)
+    ) from exc

@@ -39,6 +39,17 @@ RESET_TOKENS: dict[str, dict[str, Any]] = {}
 VERIFICATION_TOKENS: dict[str, dict[str, Any]] = {}
 
 
+def _get_client_ip(request: Request | None) -> str:
+    if request is None:
+        return "unknown"
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    if request.client and request.client.host:
+        return request.client.host
+    return "unknown"
+
+
 class RegisterRequest(BaseModel):
     model_config = ConfigDict(extra='ignore')
     email: str = Field(..., min_length=3, max_length=255)
@@ -147,7 +158,7 @@ async def _get_user_profile(db, user_id) -> UserProfile | None:
 
 async def _audit_event(db, user_id, action: str, request: Request | None, metadata: dict[str, Any] | None = None, resource_type: str | None = None, resource_id: str | None = None):
     request_id = getattr(request.state, 'request_id', None) if request is not None else None
-    ip_address = request.client.host if request is not None and request.client else None
+    ip_address = _get_client_ip(request)
     resource_id_value = resource_id or user_id
     db.add(
         AuditLog(
@@ -239,7 +250,7 @@ async def _store_refresh_session(db, user_id, token: str, request: Request):
         user_id=user_id,
         session_hash=hash_token(token),
         device_info='backend-api',
-        ip_address=request.client.host if request.client else None,
+        ip_address=_get_client_ip(request),
         expires_at=expiry,
     )
     db.add(session)
@@ -267,7 +278,7 @@ async def _revoke_session(db, user_id: str | uuid.UUID, token: str | None = None
 
 @router.post('/register', status_code=status.HTTP_201_CREATED)
 async def register(payload: RegisterRequest, request: Request):
-    enforce_rate_limit('register', request.client.host if request.client else 'unknown')
+    enforce_rate_limit('register', _get_client_ip(request))
     async with AsyncSessionLocal() as db:
         existing = await _user_by_email(db, payload.email)
         if existing is not None:
@@ -299,7 +310,7 @@ async def register(payload: RegisterRequest, request: Request):
 
 @router.post('/login')
 async def login(payload: LoginRequest, request: Request):
-    enforce_rate_limit('login', request.client.host if request.client else 'unknown')
+    enforce_rate_limit('login', _get_client_ip(request))
     async with AsyncSessionLocal() as db:
         user = await _user_by_email(db, payload.email)
         # If running in a non-production/test environment, and the expected
@@ -370,7 +381,7 @@ async def logout(request: Request, current_user: User = Depends(get_current_user
 
 @router.post('/refresh')
 async def refresh(payload: RefreshRequest, request: Request):
-    enforce_rate_limit('refresh', request.client.host if request.client else 'unknown')
+    enforce_rate_limit('refresh', _get_client_ip(request))
     token = payload.refresh_token.strip()
     try:
         decoded = decode_token(token)
@@ -562,7 +573,7 @@ async def get_activity(current_user: User = Depends(get_current_user)):
 
 @router.post('/request-password-reset')
 async def request_password_reset(payload: PasswordResetRequest, request: Request):
-    enforce_rate_limit('reset', request.client.host if request.client else 'unknown')
+    enforce_rate_limit('reset', _get_client_ip(request))
     async with AsyncSessionLocal() as db:
         user = await _user_by_email(db, payload.email)
         if user is not None:
@@ -594,7 +605,7 @@ async def reset_password(payload: ResetPasswordRequest):
 
 @router.post('/request-email-verification')
 async def request_email_verification(payload: EmailVerificationRequest, request: Request):
-    enforce_rate_limit('verification', request.client.host if request.client else 'unknown')
+    enforce_rate_limit('verification', _get_client_ip(request))
     async with AsyncSessionLocal() as db:
         user = await _user_by_email(db, payload.email)
         if user is not None:

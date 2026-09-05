@@ -12,8 +12,15 @@ if __name__ == "__main__":
     except ValueError:
         port = 10000
 
+    env_name = os.environ.get("ENV") or os.environ.get("ENVIRONMENT", "development")
     logger.info(f"Starting CoinCrest API server on 0.0.0.0:{port}...")
-    logger.info(f"Environment: {os.environ.get('ENV', 'development')}")
+    logger.info(f"Environment: {env_name}")
+
+    # Safe diagnostics (no secrets printed)
+    logger.info("Configuration status:")
+    logger.info(f"  DATABASE_URL: {'configured' if os.environ.get('DATABASE_URL') else 'NOT SET'}")
+    logger.info(f"  CORS_ALLOWED_ORIGINS: {'configured' if os.environ.get('CORS_ALLOWED_ORIGINS') else 'NOT SET'}")
+    logger.info(f"  JWT_SECRET: {'configured' if os.environ.get('JWT_SECRET') else 'NOT SET'}")
 
     try:
         from app.main import app
