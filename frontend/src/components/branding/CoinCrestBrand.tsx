@@ -97,20 +97,26 @@ export function CoinCrestWordmark({
 export default function CoinCrestBrand({
   inverted = false,
   compact = false,
+  className = "",
 }: {
   inverted?: boolean;
   compact?: boolean;
+  className?: string;
 }) {
   return (
-    <span className="inline-flex items-center gap-3">
-      <CoinCrestMark
-        className={compact ? "h-9 w-9" : "h-11 w-11"}
-        inverted={inverted}
+    <span
+      className={`relative inline-flex shrink-0 items-center ${
+        compact ? "h-7 w-36" : "h-8 w-44"
+      } ${className}`}
+      aria-label="CoinCrest"
+    >
+      <Image
+        src="/logo.png"
+        alt="CoinCrest"
+        fill
         priority
-      />
-      <CoinCrestWordmark
-        className={compact ? "text-[16px]" : "text-[19px]"}
-        inverted={inverted}
+        sizes="(max-width: 768px) 160px, 220px"
+        className={`object-contain object-left ${inverted ? "brightness-0 invert" : ""}`}
       />
     </span>
   );
