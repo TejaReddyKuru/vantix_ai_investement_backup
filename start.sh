@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-set -e
 
-if [ -f "/opt/render/project/src/.venv/bin/activate" ]; then
-    . /opt/render/project/src/.venv/bin/activate
-elif [ -f "$VIRTUAL_ENV/bin/activate" ]; then
-    . "$VIRTUAL_ENV/bin/activate"
-fi
+PYTHON_BIN="$(which python3 || which python)"
+
+echo "=== CoinCrest Startup Diagnostics ==="
+echo "Using Python: $PYTHON_BIN"
+echo "PORT: ${PORT:-10000}"
+echo "PWD: $(pwd)"
 
 export PYTHONPATH="/opt/render/project/src:."
 PORT="${PORT:-10000}"
 
-echo "[CoinCrest] Starting uvicorn on port $PORT..."
-exec uvicorn app.main:app --host 0.0.0.0 --port "$PORT"
+echo "Starting Uvicorn on 0.0.0.0:$PORT..."
+exec "$PYTHON_BIN" -m uvicorn app.main:app --host 0.0.0.0 --port "$PORT" --log-level info
