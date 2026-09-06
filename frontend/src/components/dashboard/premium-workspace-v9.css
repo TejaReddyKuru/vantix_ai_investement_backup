@@ -306,7 +306,7 @@ html[data-theme="dark"] .cc-app .cc-avatar { background: #ffea93 !important; col
 .cc-app :is(
   .cc-card,.cc-account-strip,.cc-market-table-card,.cc-pulse-card,.cc-capital-card,.cc-broker-card,
   .cc-source-card,.cc-watch-card,.cc-order-ticket,.cc-paper-account,.cc-ahna-brief,.cc-analysis-result,
-  .cc-settings-notice,.cc-user-watchlist,.cc-paper-intro,.cc-market-feature,.cc-community-guidelines,
+  .cc-settings-notice,.cc-user-watchlist,.cc-market-feature,.cc-community-guidelines,
   .cc-connection-notice,.cc-order-estimate,.cc-section-message
 ) {
   color: var(--cc-text) !important;

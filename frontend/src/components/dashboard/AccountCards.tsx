@@ -93,7 +93,7 @@ export function PaperAccountCard() {
   const failed = account.isError || summary.isError;
   return (
     <section
-      className="cc-paper-account"
+      className="cc-card cc-paper-account"
       aria-labelledby="paper-account-title"
       data-account-mode="paper"
     >

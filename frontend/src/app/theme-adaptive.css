@@ -276,14 +276,19 @@ html[data-theme="dark"] .cc-overview-links > a, html[data-theme="dark"] .cc-over
     background: var(--cc-surface)
 }
 html[data-theme="dark"] .cc-paper-account {
-    border-top: 1px solid var(--cc-border)
+    border: 1px solid var(--cc-border);
+    background: var(--cc-surface)
 }
 html[data-theme="dark"] .cc-paper-intro .cc-icon-tile {
     background: var(--cc-paper);
     color: var(--cc-warning)
 }
 html[data-theme="dark"] .cc-paper-stats {
-    background: var(--cc-surface)
+    background: var(--cc-surface);
+    border-color: var(--cc-border)
+}
+html[data-theme="dark"] .cc-paper-stats > div + div {
+    border-color: var(--cc-border)
 }
 html[data-theme="dark"] .cc-inline-error {
     color: var(--cc-negative)
