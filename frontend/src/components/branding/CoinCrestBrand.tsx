@@ -28,18 +28,36 @@ export function CoinCrestMark({
   inverted = false,
   priority = false,
 }: MarkProps) {
+  const [error, setError] = useState(false);
+  const markSrc = inverted
+    ? "/branding/coincrest-mark-white.png"
+    : "/branding/coincrest-mark.png";
+
+  if (error) {
+    return (
+      <span
+        className={`inline-flex shrink-0 items-center justify-center rounded-lg bg-[#2F78B7] font-black text-white ${className}`}
+        aria-hidden="true"
+      >
+        CC
+      </span>
+    );
+  }
+
   return (
     <span
       className={`relative inline-flex shrink-0 ${className}`}
       aria-hidden="true"
     >
       <Image
-        src="/branding/coincrest-mark.png"
+        src={markSrc}
         alt=""
         fill
         priority={priority}
+        unoptimized
         sizes="96px"
-        className={`object-contain ${inverted ? "brightness-0 invert" : ""}`}
+        onError={() => setError(true)}
+        className="object-contain"
       />
     </span>
   );
@@ -103,20 +121,45 @@ export default function CoinCrestBrand({
   compact?: boolean;
   className?: string;
 }) {
+  const [error, setError] = useState(false);
+  const logoSrc = inverted ? "/logo-white.png" : "/logo.png";
+
+  if (error) {
+    return (
+      <span
+        className={`inline-flex shrink-0 items-center gap-2 ${className}`}
+        aria-label="CoinCrest"
+      >
+        <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#2F78B7] text-xs font-black text-white">
+          CC
+        </span>
+        <span
+          className={`font-black tracking-tight ${
+            compact ? "text-[15px]" : "text-[18px]"
+          } ${inverted ? "text-white" : "text-[#07111F]"}`}
+        >
+          COINCREST
+        </span>
+      </span>
+    );
+  }
+
   return (
     <span
       className={`relative inline-flex shrink-0 items-center ${
-        compact ? "h-7 w-36" : "h-8 w-44"
+        compact ? "h-7 w-36" : "h-8 w-44 sm:h-9 sm:w-48"
       } ${className}`}
       aria-label="CoinCrest"
     >
       <Image
-        src="/logo.png"
+        src={logoSrc}
         alt="CoinCrest"
         fill
         priority
+        unoptimized
         sizes="(max-width: 768px) 160px, 220px"
-        className={`object-contain object-left ${inverted ? "brightness-0 invert" : ""}`}
+        onError={() => setError(true)}
+        className="object-contain object-left"
       />
     </span>
   );
