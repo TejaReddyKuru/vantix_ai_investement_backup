@@ -36,18 +36,19 @@ envlogs/
 /frontend/.next/
 /frontend/out/
 
-# Local backups and temporary copies
+# Local backups and archives
 *.bak
 *.backup*
 *.before-*
 *.landing-final
-/coincrest-*/
-
+/archive/backups/
+/archive/frontend_bak/
+/archive/ws_debug.log
 
 # Local diagnostics
-/inspection/
-/run_server.py
-/test_db.py
+/docs/diagnostics/
+/scripts/diagnostics/run_server.py
+/tests/adhoc/test_db.py
 
 # Windows files
 Thumbs.db
