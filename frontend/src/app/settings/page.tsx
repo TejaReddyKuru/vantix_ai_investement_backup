@@ -545,34 +545,6 @@ function SettingsContent() {
                   description="Configure how AHNA interacts with your workspace and trading intelligence."
                 />
 
-                <div className="relative overflow-hidden rounded-xl bg-[#2F78B7] p-5 text-white shadow-[0_15px_40px_rgba(15,45,31,0.14)] sm:p-6">
-                  <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-[#79A98A]/10 blur-3xl" />
-
-                  <div className="relative flex items-start gap-4">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10">
-                      <Sparkles size={19} />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-extrabold">
-                          AHNA Intelligence Layer
-                        </span>
-
-                        <span className="rounded-md bg-white/15 px-2 py-1 text-[10px] font-extrabold text-white">
-                          ANALYSIS ON DEMAND
-                        </span>
-                      </div>
-
-                      <p className="mt-2 max-w-[650px] text-[12px] leading-5 text-white/55">
-                        Open AHNA to request market context for your selected
-                        asset. These settings are a preview; they do not change
-                        the analysis service or enable background monitoring.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
                 <Card>
                   <SettingRow
                     title="Enable AHNA AI"
